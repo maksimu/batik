@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,16 +32,16 @@ import org.w3c.dom.svg.SVGNumberList;
  * This class is the implementation of {@link SVGNumberList}.
  *
  * @author <a href="mailto:tonny@kiyut.com">Tonny Kohar</a>
- * @version $Id$
+ * @version $Id: AbstractSVGNumberList.java 479349 2006-11-26 11:54:23Z cam $
  */
 public abstract class AbstractSVGNumberList
         extends AbstractSVGList
         implements SVGNumberList {
-    
+
     /**
      * Separator for a length list.
      */
-    public final static String SVG_NUMBER_LIST_SEPARATOR
+    public static final String SVG_NUMBER_LIST_SEPARATOR
         = " ";
 
     /**
@@ -49,7 +50,7 @@ public abstract class AbstractSVGNumberList
     protected String getItemSeparator() {
         return SVG_NUMBER_LIST_SEPARATOR;
     }
-    
+
     /**
      * Create an SVGException when the {@link #checkItemType(Object)} fails.
      */
@@ -61,7 +62,7 @@ public abstract class AbstractSVGNumberList
      * Returns the element associated with this SVGNumberList.
      */
     protected abstract Element getElement();
-    
+
     /**
      * Creates a new SVGNumberList.
      */
@@ -84,7 +85,7 @@ public abstract class AbstractSVGNumberList
 
         return (SVGNumber)getItemImpl(index);
     }
-    
+
     /**
      * <b>DOM</b>: Implements {@link
      * SVGNumberList#insertItemBefore(SVGNumber,int)}.
@@ -127,7 +128,7 @@ public abstract class AbstractSVGNumberList
         SVGNumber l = (SVGNumber)newItem;
         return new SVGNumberItem(l.getValue());
     }
-    
+
     /**
      * Parse the attribute associated with this SVGNumberList.
      * @param value attribute value
@@ -138,11 +139,11 @@ public abstract class AbstractSVGNumberList
 
         NumberListParser NumberListParser = new NumberListParser();
         NumberListBuilder builder = new NumberListBuilder(handler);
-        
+
         NumberListParser.setNumberListHandler(builder);
         NumberListParser.parse(value);
     }
-    
+
     /**
      * Asserts that the given item object is an {@link SVGNumber}.
      */
@@ -154,7 +155,7 @@ public abstract class AbstractSVGNumberList
                                null);
         }
     }
-    
+
     /**
      * Representation of the item SVGNumber.
      */
@@ -171,7 +172,7 @@ public abstract class AbstractSVGNumberList
         public SVGNumberItem(float value) {
             this.value = value;
         }
-        
+
         /**
          * Returns a String representation of the number.
          */
@@ -203,10 +204,10 @@ public abstract class AbstractSVGNumberList
             }
         }
     }
-    
+
     /**
      * Helper class to interface the {@link NumberListParser} and the
-     * {@link NumberHandler}.
+     * {@link NumberListHandler}.
      */
     protected class NumberListBuilder implements NumberListHandler {
 
@@ -219,7 +220,7 @@ public abstract class AbstractSVGNumberList
          * The number just parsed.
          */
         protected float currentValue;
-                
+
         /**
          * Creates a new NumberListBuilder.
          */

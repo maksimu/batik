@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -15,7 +16,6 @@
    limitations under the License.
 
 */
-
 package org.apache.batik.transcoder.print;
 
 import java.awt.Graphics;
@@ -31,7 +31,8 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.ext.awt.RenderingHintsKeyExt;
@@ -48,32 +49,32 @@ import org.apache.batik.transcoder.keys.StringKey;
 import org.w3c.dom.Document;
 
 /**
- * This class is a <tt>Transcoder</tt> that prints SVG images.
+ * This class is a <code>Transcoder</code> that prints SVG images.
  * This class works as follows: any-time the transcode method
  * is invoked, the corresponding input is cached and nothing
  * else happens. <br />
- * However, the <tt>PrintTranscoder</tt> is also a Printable. If used
+ * However, the <code>PrintTranscoder</code> is also a Printable. If used
  * in a print operation, it will print each of the input
  * it cached, one input per page.
  * <br />
- * The <tt>PrintTranscoder</tt> uses several different hints that
+ * The <code>PrintTranscoder</code> uses several different hints that
  * guide its printing:<br />
  * <ul>
- *   <li><tt>KEY_LANGUAGE, KEY_USER_STYLESHEET_URI, KEY_PIXEL_TO_MM,
- *       KEY_XML_PARSER_CLASSNAME</tt> can be used to set the defaults for
+ *   <li><code>KEY_LANGUAGE, KEY_USER_STYLESHEET_URI, KEY_PIXEL_TO_MM,
+ *       KEY_XML_PARSER_CLASSNAME</code> can be used to set the defaults for
  *       the various SVG properties.</li>
- *   <li><tt>KEY_PAGE_WIDTH, KEY_PAGE_HEIGHT, KEY_MARGIN_TOP, KEY_MARGIN_BOTTOM,
- *       KEY_MARGIN_LEFT, KEY_MARGIN_RIGHT</tt> and <tt>KEY_PAGE_ORIENTATION</tt>
+ *   <li><code>KEY_PAGE_WIDTH, KEY_PAGE_HEIGHT, KEY_MARGIN_TOP, KEY_MARGIN_BOTTOM,
+ *       KEY_MARGIN_LEFT, KEY_MARGIN_RIGHT</code> and <code>KEY_PAGE_ORIENTATION</code>
  *       can be used to specify the printing page characteristics.</li>
- *   <li><tt>KEY_WIDTH, KEY_HEIGHT</tt> can be used to specify how to scale the
+ *   <li><code>KEY_WIDTH, KEY_HEIGHT</code> can be used to specify how to scale the
  *       SVG image</li>
- *   <li><tt>KEY_SCALE_TO_PAGE</tt> can be used to specify whether or not the
+ *   <li><code>KEY_SCALE_TO_PAGE</code> can be used to specify whether or not the
  *       SVG image should be scaled uniformly to fit into the printed page or
  *       if it should just be centered into the printed page.</li>
  * </ul>
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: PrintTranscoder.java 1372327 2012-08-13 09:00:43Z helder $
  */
 public class PrintTranscoder extends SVGAbstractTranscoder
     implements Printable {
@@ -102,15 +103,17 @@ public class PrintTranscoder extends SVGAbstractTranscoder
 
     /**
      * Set of inputs this transcoder has been requested to
-     * transcode so far
+     * transcode so far.
+     * Purpose is not really clear: some data is added, and it is copied into
+     * printedInputs. But it is never read or cleared...
      */
-    private Vector inputs = new Vector();
+    private List inputs = new ArrayList();
 
     /**
      * Currently printing set of pages. This vector is
      * created as a clone of inputs when the first page is printed.
      */
-    private Vector printedInputs = null;
+    private List printedInputs = null;
 
     /**
      * Index of the page corresponding to root
@@ -137,7 +140,7 @@ public class PrintTranscoder extends SVGAbstractTranscoder
     public void transcode(TranscoderInput in,
                           TranscoderOutput out){
         if(in != null){
-            inputs.addElement(in);
+            inputs.add(in);
         }
     }
 
@@ -274,7 +277,7 @@ public class PrintTranscoder extends SVGAbstractTranscoder
         // TranscodeInputs.
         //
         if(printedInputs == null){
-            printedInputs = (Vector)inputs.clone();
+            printedInputs = new ArrayList( inputs );
         }
 
         //
@@ -282,7 +285,7 @@ public class PrintTranscoder extends SVGAbstractTranscoder
         //
         if(pageIndex >= printedInputs.size()){
             curIndex = -1;
-            if (theCtx != null) 
+            if (theCtx != null)
                 theCtx.dispose();
             userAgent.displayMessage("Done");
             return NO_SUCH_PAGE;
@@ -292,7 +295,7 @@ public class PrintTranscoder extends SVGAbstractTranscoder
         // Load a new document now if we are printing a new page
         //
         if(curIndex != pageIndex){
-            if (theCtx != null) 
+            if (theCtx != null)
                 theCtx.dispose();
 
             // The following call will invoke this class' transcode
@@ -302,7 +305,7 @@ public class PrintTranscoder extends SVGAbstractTranscoder
                 width  = (int)pageFormat.getImageableWidth();
                 height = (int)pageFormat.getImageableHeight();
                 super.transcode
-                    ((TranscoderInput)printedInputs.elementAt(pageIndex),null);
+                    ((TranscoderInput)printedInputs.get(pageIndex),null);
                 curIndex = pageIndex;
             }catch(TranscoderException e){
                 drawError(_g, e);
@@ -401,236 +404,290 @@ public class PrintTranscoder extends SVGAbstractTranscoder
 
     /**
      * The showPageDialog key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_SHOW_PAGE_DIALOG</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Boolean</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">false</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Specifies whether or not the transcoder
-     *                  should pop up a dialog box for selecting
-     *                  the page format.</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_SHOW_PAGE_DIALOG</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Boolean</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">false</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Specifies whether or not the transcoder
+     *       should pop up a dialog box for selecting
+     *       the page format.</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_SHOW_PAGE_DIALOG
         = new BooleanKey();
 
     /**
      * The showPrinterDialog key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_SHOW_PAGE_DIALOG</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Boolean</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">false</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Specifies whether or not the transcoder
-     *                  should pop up a dialog box for selecting
-     *                  the printer. If the dialog box is not
-     *                  shown, the transcoder will use the default
-     *                  printer.</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_SHOW_PAGE_DIALOG</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Boolean</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">false</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Specifies whether or not the transcoder
+     *       should pop up a dialog box for selecting
+     *       the printer. If the dialog box is not
+     *       shown, the transcoder will use the default
+     *       printer.</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_SHOW_PRINTER_DIALOG
         = new BooleanKey();
 
 
     /**
      * The pageWidth key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_PAGE_WIDTH</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Length</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">None</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The width of the print page</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_PAGE_WIDTH</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Length</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">None</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">The width of the print page</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_PAGE_WIDTH
         = new LengthKey();
 
     /**
      * The pageHeight key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_PAGE_HEIGHT</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Length</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">None</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The height of the print page</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_PAGE_HEIGHT</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Length</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">none</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">The height of the print page</td>
+     *   </tr>
+     * </table> 
+     */
     public static final TranscodingHints.Key KEY_PAGE_HEIGHT
         = new LengthKey();
 
     /**
      * The marginTop key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_MARGIN_TOP</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Length</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">None</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The print page top margin</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_MARGIN_TOP</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Length</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">None</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">The print page top margin</td>
+     *   </tr>
+     * </table> */
     public static final TranscodingHints.Key KEY_MARGIN_TOP
         = new LengthKey();
 
     /**
      * The marginRight key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_MARGIN_RIGHT</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Length</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">None</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The print page right margin</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_MARGIN_RIGHT</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Length</TD>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">None</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">The print page right margin</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_MARGIN_RIGHT
         = new LengthKey();
 
     /**
      * The marginBottom key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_MARGIN_BOTTOM</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Length</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">None</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The print page bottom margin</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_MARGIN_BOTTOM</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Length</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">None</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">The print page bottom margin</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_MARGIN_BOTTOM
         = new LengthKey();
 
     /**
      * The marginLeft key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_MARGIN_LEFT</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Length</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">None</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The print page left margin</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     * <tr>
+     * <th valign="top" align="right">Key:</th>
+     * <td valign="top">KEY_MARGIN_LEFT</td></tr>
+     * <tr>
+     * <th valign="top" align="right">Value:</th>
+     * <td valign="top">Length</td></tr>
+     * <tr>
+     * <th valign="top" align="right">Default:</th>
+     * <td valign="top">None</td></tr>
+     * <tr>
+     * <th valign="top" align="right">Required:</th>
+     * <td valign="top">No</td></tr>
+     * <tr>
+     * <th valign="top" align="right">Description:</th>
+     * <td valign="top">The print page left margin</td></tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_MARGIN_LEFT
         = new LengthKey();
 
     /**
      * The pageOrientation key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_PAGE_ORIENTATION</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">String</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">VALUE_PAGE_ORIENTATION_PORTRAIT</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">The print page's orientation</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_PAGE_ORIENTATION</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">String</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">VALUE_PAGE_ORIENTATION_PORTRAIT</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">The print page's orientation</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_PAGE_ORIENTATION
         = new StringKey();
 
 
     /**
      * The scaleToPage key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_SCALE_TO_PAGE</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Boolean</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">true</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Specifies whether or not the SVG images are scaled to
-     *                  fit into the printed page</TD></TR>
-     * </TABLE> */
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_SCALE_TO_PAGE</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Boolean</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">true</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Specifies whether or not the SVG images are scaled to
+     *       fit into the printed page</td>
+     *   </tr>
+     * </table>
+     */
     public static final TranscodingHints.Key KEY_SCALE_TO_PAGE
         = new BooleanKey();
 
     public static final String USAGE = "java org.apache.batik.transcoder.print.PrintTranscoder <svgFileToPrint>";
 
-    public static void main(String args[]) throws Exception{
+    public static void main(String[] args) throws Exception{
         if(args.length < 1){
             System.err.println(USAGE);
             System.exit(0);
@@ -782,7 +839,7 @@ public class PrintTranscoder extends SVGAbstractTranscoder
                                                 TranscodingHints.Key key){
         String str = System.getProperty(property);
         if(str != null){
-            Boolean value = new Boolean("true".equalsIgnoreCase(str));
+            Boolean value = "true".equalsIgnoreCase(str) ? Boolean.TRUE : Boolean.FALSE;
             transcoder.addTranscodingHint(key, value);
         }
     }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,14 +31,14 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  * CSS color values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractColorManager.java 489226 2006-12-21 00:05:36Z cam $
  */
 public abstract class AbstractColorManager extends IdentifierManager {
 
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
         values.put(CSSConstants.CSS_AQUA_VALUE,
                    ValueConstants.AQUA_VALUE);
@@ -133,7 +134,7 @@ public abstract class AbstractColorManager extends IdentifierManager {
     /**
      * The computed identifier values.
      */
-    protected final static StringMap computedValues = new StringMap();
+    protected static final StringMap computedValues = new StringMap();
     static {
         computedValues.put(CSSConstants.CSS_BLACK_VALUE,
                            ValueConstants.BLACK_RGB_VALUE);
@@ -223,17 +224,17 @@ public abstract class AbstractColorManager extends IdentifierManager {
      * Creates a color component from a lexical unit.
      */
     protected Value createColorComponent(LexicalUnit lu) throws DOMException {
-	switch (lu.getLexicalUnitType()) {
-	case LexicalUnit.SAC_INTEGER:
-	    return new FloatValue(CSSPrimitiveValue.CSS_NUMBER,
+        switch (lu.getLexicalUnitType()) {
+        case LexicalUnit.SAC_INTEGER:
+            return new FloatValue(CSSPrimitiveValue.CSS_NUMBER,
                                   lu.getIntegerValue());
 
-	case LexicalUnit.SAC_REAL:
-	    return new FloatValue(CSSPrimitiveValue.CSS_NUMBER,
+        case LexicalUnit.SAC_REAL:
+            return new FloatValue(CSSPrimitiveValue.CSS_NUMBER,
                                   lu.getFloatValue());
 
-	case LexicalUnit.SAC_PERCENTAGE:
-	    return new FloatValue(CSSPrimitiveValue.CSS_PERCENTAGE,
+        case LexicalUnit.SAC_PERCENTAGE:
+            return new FloatValue(CSSPrimitiveValue.CSS_PERCENTAGE,
                                   lu.getFloatValue());
         }
         throw createInvalidRGBComponentUnitDOMException

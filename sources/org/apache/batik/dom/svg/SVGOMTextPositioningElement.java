@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001,2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,8 +18,8 @@
  */
 package org.apache.batik.dom.svg;
 
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.svg.SVGAnimatedLengthList;
@@ -29,11 +30,56 @@ import org.w3c.dom.svg.SVGTextPositioningElement;
  * This class implements {@link org.w3c.dom.svg.SVGTextPositioningElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMTextPositioningElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public abstract class SVGOMTextPositioningElement
     extends    SVGOMTextContentElement
     implements SVGTextPositioningElement {
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGOMTextContentElement.xmlTraitInformation);
+        t.put(null, SVG_X_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH_LIST, PERCENTAGE_VIEWPORT_WIDTH));
+        t.put(null, SVG_Y_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH_LIST, PERCENTAGE_VIEWPORT_HEIGHT));
+        t.put(null, SVG_DX_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH_LIST, PERCENTAGE_VIEWPORT_WIDTH));
+        t.put(null, SVG_DY_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH_LIST, PERCENTAGE_VIEWPORT_HEIGHT));
+        t.put(null, SVG_ROTATE_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_NUMBER_LIST));
+        xmlTraitInformation = t;
+    }
+
+    /**
+     * The 'x' attribute value.
+     */
+    protected SVGOMAnimatedLengthList x;
+
+    /**
+     * The 'y' attribute value.
+     */
+    protected SVGOMAnimatedLengthList y;
+
+    /**
+     * The 'dx' attribute value.
+     */
+    protected SVGOMAnimatedLengthList dx;
+
+    /**
+     * The 'dy' attribute value.
+     */
+    protected SVGOMAnimatedLengthList dy;
+
+    /**
+     * The 'rotate' attribute value.
+     */
+    protected SVGOMAnimatedNumberList rotate;
 
     /**
      * Creates a new SVGOMTextPositioningElement object.
@@ -49,142 +95,90 @@ public abstract class SVGOMTextPositioningElement
     protected SVGOMTextPositioningElement(String prefix,
                                           AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        x = createLiveAnimatedLengthList
+            (null, SVG_X_ATTRIBUTE, getDefaultXValue(), true,
+             SVGOMAnimatedLength.HORIZONTAL_LENGTH);
+        y = createLiveAnimatedLengthList
+            (null, SVG_Y_ATTRIBUTE, getDefaultYValue(), true,
+             SVGOMAnimatedLength.VERTICAL_LENGTH);
+        dx = createLiveAnimatedLengthList
+            (null, SVG_DX_ATTRIBUTE, "", true,
+             SVGOMAnimatedLength.HORIZONTAL_LENGTH);
+        dy = createLiveAnimatedLengthList
+            (null, SVG_DY_ATTRIBUTE, "", true,
+             SVGOMAnimatedLength.VERTICAL_LENGTH);
+        rotate =
+            createLiveAnimatedNumberList(null, SVG_ROTATE_ATTRIBUTE, "", true);
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGTextPositioningElement#getX()}.
      */
     public SVGAnimatedLengthList getX() {
-        return SVGTextPositioningElementSupport.getX(this);
+        return x;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGTextPositioningElement#getY()}.
      */
     public SVGAnimatedLengthList getY() {
-        return SVGTextPositioningElementSupport.getY(this);
+        return y;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGTextPositioningElement#getDx()}.
      */
     public SVGAnimatedLengthList getDx() {
-        return SVGTextPositioningElementSupport.getDx(this);
+        return dx;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGTextPositioningElement#getDy()}.
      */
     public SVGAnimatedLengthList getDy() {
-        return SVGTextPositioningElementSupport.getDy(this);
+        return dy;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGTextPositioningElement#getRotate()}.
      */
     public SVGAnimatedNumberList getRotate() {
-        return SVGTextPositioningElementSupport.getRotate(this);
-    }
-
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns whether the given XML attribute is animatable.
-     */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)
-                    || ln.equals(SVG_DX_ATTRIBUTE)
-                    || ln.equals(SVG_DY_ATTRIBUTE)
-                    || ln.equals(SVG_ROTATE_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
+        return rotate;
     }
 
     /**
-     * Returns the type of the given attribute.
+     * Returns the default value of the 'x' attribute.
      */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)
-                    || ln.equals(SVG_DX_ATTRIBUTE)
-                    || ln.equals(SVG_DY_ATTRIBUTE)) {
-                return SVGTypes.TYPE_LENGTH_LIST;
-            } else if (ln.equals(SVG_ROTATE_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER_LIST;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Gets how percentage values are interpreted by the given attribute.
-     */
-    protected short getAttributePercentageInterpretation(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE) || ln.equals(SVG_DX_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_WIDTH;
-            }
-            if (ln.equals(SVG_Y_ATTRIBUTE) || ln.equals(SVG_DY_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_HEIGHT;
-            }
-        }
-        return super.getAttributePercentageInterpretation(ns, ln);
+    protected String getDefaultXValue() {
+        return "";
     }
 
     /**
-     * Updates an attribute value in this target.
+     * Returns the default value of the 'y' attribute.
      */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE)) {
-                updateLengthListAttributeValue(getX(), val);
-                return;
-            } else if (ln.equals(SVG_Y_ATTRIBUTE)) {
-                updateLengthListAttributeValue(getY(), val);
-                return;
-            } else if (ln.equals(SVG_DX_ATTRIBUTE)) {
-                updateLengthListAttributeValue(getDx(), val);
-                return;
-            } else if (ln.equals(SVG_DY_ATTRIBUTE)) {
-                updateLengthListAttributeValue(getDy(), val);
-                return;
-            } else if (ln.equals(SVG_ROTATE_ATTRIBUTE)) {
-                updateNumberListAttributeValue(getRotate(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
+    protected String getDefaultYValue() {
+        return "";
     }
 
     /**
-     * Returns the underlying value of an animatable XML attribute.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE)) {
-                return getBaseValue
-                    (getX(), PERCENTAGE_VIEWPORT_WIDTH);
-            } else if (ln.equals(SVG_Y_ATTRIBUTE)) {
-                return getBaseValue
-                    (getY(), PERCENTAGE_VIEWPORT_HEIGHT);
-            } else if (ln.equals(SVG_DX_ATTRIBUTE)) {
-                return getBaseValue
-                    (getDx(), PERCENTAGE_VIEWPORT_WIDTH);
-            } else if (ln.equals(SVG_DY_ATTRIBUTE)) {
-                return getBaseValue
-                    (getDy(), PERCENTAGE_VIEWPORT_HEIGHT);
-            } else if (ln.equals(SVG_ROTATE_ATTRIBUTE)) {
-                return getBaseValue(getRotate());
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 }

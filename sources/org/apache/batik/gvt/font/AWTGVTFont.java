@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,13 +40,13 @@ import org.apache.batik.gvt.text.ArabicTextHandler;
  * This is a wrapper class for a java.awt.Font instance.
  *
  * @author <a href="mailto:bella.robinson@cmis.csiro.au">Bella Robinson</a>
- * @version $Id$
+ * @version $Id: AWTGVTFont.java 731265 2009-01-04 14:59:12Z dvholten $
  */
 public class AWTGVTFont implements GVTFont {
 
-    protected Font  awtFont;
-    protected float size;
-    protected float scale;
+    protected Font   awtFont;
+    protected double size;
+    protected double scale;
 
     /**
      * Creates a new AWTGVTFont that wraps the given Font.
@@ -65,7 +66,7 @@ public class AWTGVTFont implements GVTFont {
      * @param font The font object to wrap.
      * @param scale The scale factor to apply to font...
      */
-    public AWTGVTFont(Font font, float scale) {
+    public AWTGVTFont(Font font, double scale) {
         this.size = font.getSize2D()*scale;
         this.awtFont = font.deriveFont(FONT_SIZE);
         this.scale = size/awtFont.getSize2D();
@@ -222,7 +223,7 @@ public class AWTGVTFont implements GVTFont {
                                          int limit,
                                          FontRenderContext frc) {
         return new GVTLineMetrics
-            (awtFont.getLineMetrics(chars, beginIndex, limit, frc), scale);
+            (awtFont.getLineMetrics(chars, beginIndex, limit, frc), (float)scale);
     }
 
     /**
@@ -233,7 +234,7 @@ public class AWTGVTFont implements GVTFont {
                                          int limit,
                                          FontRenderContext frc) {
         return new GVTLineMetrics
-            (awtFont.getLineMetrics(ci, beginIndex, limit, frc), scale);
+            (awtFont.getLineMetrics(ci, beginIndex, limit, frc), (float)scale);
     }
 
     /**
@@ -241,7 +242,7 @@ public class AWTGVTFont implements GVTFont {
      *  FontRenderContext.
      */
     public GVTLineMetrics getLineMetrics(String str, FontRenderContext frc) {
-        return new GVTLineMetrics(awtFont.getLineMetrics(str, frc), scale);
+        return new GVTLineMetrics(awtFont.getLineMetrics(str, frc), (float)scale);
     }
 
     /**
@@ -252,33 +253,33 @@ public class AWTGVTFont implements GVTFont {
                                          int limit,
                                          FontRenderContext frc) {
         return new GVTLineMetrics
-            (awtFont.getLineMetrics(str, beginIndex, limit, frc), scale);
+            (awtFont.getLineMetrics(str, beginIndex, limit, frc), (float)scale);
     }
 
     /**
      * Returns the size of this font.
      */
     public float getSize() {
-        return size;
+        return (float)size;
     }
 
     /**
      * Returns the horizontal kerning value for this glyph pair.
      */
     public float getHKern(int glyphCode1, int glyphCode2) {
-        return 0f;
+        return 0.0f;
     }
 
     /**
      * Returns the vertical kerning value for this glyph pair.
      */
     public float getVKern(int glyphCode1, int glyphCode2) {
-        return 0f;
+        return 0.0f;
     }
 
     /////////////////////////////////////////////////////////////////////////
 
-    public static final float FONT_SIZE = 48f;
+    public static final float FONT_SIZE = 48.0f;
 
     /**
      * Returns the geometry of the specified character. This method also put

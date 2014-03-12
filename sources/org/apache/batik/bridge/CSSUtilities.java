@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2005  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -50,7 +51,7 @@ import org.w3c.dom.css.CSSValue;
  * concrete objects regarding to CSS properties.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: CSSUtilities.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class CSSUtilities
     implements CSSConstants, ErrorConstants, XMLConstants {
@@ -583,7 +584,7 @@ public abstract class CSSUtilities
     // 'opacity'
     /////////////////////////////////////////////////////////////////////////
 
-    public final static Composite TRANSPARENT =
+    public static final Composite TRANSPARENT =
         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0);
 
     /**
@@ -597,7 +598,7 @@ public abstract class CSSUtilities
         float f = v.getFloatValue();
         if (f <= 0f) {
             return TRANSPARENT;
-        } else if (f >= 1f) {
+        } else if (f >= 1.0f) {
             return AlphaComposite.SrcOver;
         } else {
             return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, f);
@@ -653,7 +654,7 @@ public abstract class CSSUtilities
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns a <tt>Filter</tt> referenced by the specified element
+     * Returns a <code>Filter</code> referenced by the specified element
      * and which applies on the specified graphics node.
      * Handle the 'filter' property.
      *
@@ -695,7 +696,7 @@ public abstract class CSSUtilities
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns a <tt>Clip</tt> referenced by the specified element and
+     * Returns a <code>Clip</code> referenced by the specified element and
      * which applies on the specified graphics node.
      * Handle the 'clip-path' property.
      *
@@ -749,7 +750,7 @@ public abstract class CSSUtilities
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns a <tt>Mask</tt> referenced by the specified element and
+     * Returns a <code>Mask</code> referenced by the specified element and
      * which applies on the specified graphics node.
      * Handle the 'mask' property.
      *
@@ -803,7 +804,7 @@ public abstract class CSSUtilities
 
     /**
      * Converts the color defined on the specified lighting filter element
-     * to a <tt>Color</tt>.
+     * to a <code>Color</code>.
      *
      * @param e the lighting filter element
      * @param ctx the bridge context
@@ -824,7 +825,7 @@ public abstract class CSSUtilities
 
     /**
      * Converts the color defined on the specified &lt;feFlood>
-     * element to a <tt>Color</tt>.
+     * element to a <code>Color</code>.
      *
      * @param e the feFlood element
      * @param ctx the bridge context
@@ -847,7 +848,7 @@ public abstract class CSSUtilities
 
     /**
      * Converts the color defined on the specified &lt;stop> element
-     * to a <tt>Color</tt>.
+     * to a <code>Color</code>.
      *
      * @param e the stop element
      * @param opacity the paint opacity
@@ -883,12 +884,12 @@ public abstract class CSSUtilities
     public static void computeStyleAndURIs(Element refElement,
                                            Element localRefElement,
                                            String  uri) {
-	// Pull fragement id off first...
+        // Pull fragement id off first...
         int idx = uri.indexOf('#');
         if (idx != -1)
             uri = uri.substring(0,idx);
 
-	// Only set xml:base if we have a real URL.
+        // Only set xml:base if we have a real URL.
         if (uri.length() != 0)
             localRefElement.setAttributeNS(XML_NAMESPACE_URI,
                                            "base",

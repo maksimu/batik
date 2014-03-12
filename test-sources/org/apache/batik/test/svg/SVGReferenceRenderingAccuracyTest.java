@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,7 +27,7 @@ import java.net.URL;
  * to the SVG file.
  *
  * @author <a href="mailto:vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SVGReferenceRenderingAccuracyTest.java 581141 2007-10-02 05:36:50Z cam $
  */
 public class SVGReferenceRenderingAccuracyTest
     extends ParametrizedRenderingAccuracyTest {
@@ -65,7 +66,10 @@ public class SVGReferenceRenderingAccuracyTest
         setConfig(buildSVGURL(dirNfile[0], dirNfile[1]),
                   buildRefImgURL(dirNfile[0], dirNfile[1]));
 
-        setVariationURL(buildVariationURL(dirNfile[0], dirNfile[1]));
+        String[] variationURLs = buildVariationURLs(dirNfile[0], dirNfile[1]);
+        for (int i = 0; i < variationURLs.length; i++) {
+            addVariationURL(variationURLs[i]);
+        }
         setSaveVariation(new File(buildSaveVariationFile(dirNfile[0], dirNfile[1])));
         setCandidateReference(new File(buildCandidateReferenceFile(dirNfile[0], dirNfile[1])));
     }
@@ -140,8 +144,17 @@ public class SVGReferenceRenderingAccuracyTest
      * of the variation URL, which is built as:
      * getVariationPrefix() + svgDir + getVariationSuffix() + svgFile + parameter + PNG_EXTENSION
      */
-    public String buildVariationURL(String svgDir, String svgFile){
-        return getVariationPrefix() + svgDir + getVariationSuffix() + svgFile + alias + PNG_EXTENSION;
+    public String[] buildVariationURLs(String svgDir, String svgFile) {
+        String[] platforms = getVariationPlatforms();
+        String[] urls = new String[platforms.length + 1];
+        urls[0] = getVariationPrefix() + svgDir + getVariationSuffix() + svgFile
+                      + alias + PNG_EXTENSION;
+        for (int i = 0; i < platforms.length; i++) {
+            urls[i + 1] = getVariationPrefix() + svgDir + getVariationSuffix()
+                              + svgFile + alias + '_' + platforms[i]
+                              + PNG_EXTENSION;
+        }
+        return urls;
     }
 
     /**

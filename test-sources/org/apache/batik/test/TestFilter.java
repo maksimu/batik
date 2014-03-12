@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,15 +22,15 @@ package org.apache.batik.test;
  * Interace to accept or reject a test or testSuite.
  *
  * @author <a href="mailto:vhardy@apache.lorg">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: TestFilter.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface TestFilter {
     /**
      * The filter will return null or the input
-     * <tt>Test</tt>. The filter may modify the test content
-     * for example <tt>TestSuites</tt> may have some of their
+     * <code>Test</code>. The filter may modify the test content
+     * for example <code>TestSuites</code> may have some of their
      * children tests removed.
      */
-    public Test filter(Test t);
+    Test filter(Test t);
 }
 

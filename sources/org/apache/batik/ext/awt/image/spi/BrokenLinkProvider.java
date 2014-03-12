@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,9 +23,11 @@ import java.awt.Image;
 import org.apache.batik.ext.awt.image.renderable.Filter;
 
 /**
- * This interface is to be used to provide alternate ways of 
+ * This interface is to be used to provide alternate ways of
  * generating a placeholder image when the ImageTagRegistry
  * fails to handle a given reference.
+ *
+ * @version $Id: BrokenLinkProvider.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class BrokenLinkProvider {
 
@@ -35,14 +38,14 @@ public abstract class BrokenLinkProvider {
      * image or the broken link image, which may be important for
      * the application of profiles etc.
      */
-    public static final String BROKEN_LINK_PROPERTY = 
+    public static final String BROKEN_LINK_PROPERTY =
         "org.apache.batik.BrokenLinkImage";
 
     /**
      * This method is responsbile for constructing an image that will
      * represent the missing image in the document.  This method
      * recives information about the reason a broken link image is
-     * being requested in the <tt>code</tt> and <tt>params</tt>
+     * being requested in the <code>code</code> and <code>params</code>
      * parameters. These parameters may be used to generate nicely
      * localized messages for insertion into the broken link image, or
      * for selecting the broken link image returned.
@@ -51,7 +54,8 @@ public abstract class BrokenLinkProvider {
      * @param code This is the reason the image is unavailable should
      *             be taken from ErrorConstants.
      * @param params This is more detailed information about
-     *        the circumstances of the failure.  */
+     *        the circumstances of the failure.
+     */
     public abstract Filter getBrokenLinkImage(Object base,
                                               String code, Object[] params);
 

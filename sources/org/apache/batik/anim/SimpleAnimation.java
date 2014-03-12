@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,13 +22,15 @@ import java.awt.geom.Point2D;
 
 import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimatableElement;
 import org.apache.batik.ext.awt.geom.Cubic;
+import org.apache.batik.util.SMILConstants;
 
 /**
  * An animation class for 'animate' animations.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SimpleAnimation.java 492528 2007-01-04 11:45:47Z cam $
  */
 public class SimpleAnimation extends InterpolatingAnimation {
 
@@ -103,7 +106,7 @@ public class SimpleAnimation extends InterpolatingAnimation {
         }
         this.values = values;
 
-        if (this.keyTimes != null) {
+        if (this.keyTimes != null && calcMode != CALC_MODE_PACED) {
             if (this.keyTimes.length != values.length) {
                 throw timedElement.createException
                     ("attribute.malformed",
@@ -138,8 +141,7 @@ public class SimpleAnimation extends InterpolatingAnimation {
                 this.keyTimes = new float[count];
                 this.keyTimes[0] = 0;
                 for (int i = 1; i < count - 1; i++) {
-                    this.keyTimes[i] =
-                        cumulativeDistances[i] / totalLength;
+                    this.keyTimes[i] = cumulativeDistances[i] / totalLength;
                 }
                 this.keyTimes[count - 1] = 1;
             }

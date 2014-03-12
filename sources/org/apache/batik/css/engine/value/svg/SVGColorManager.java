@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -34,7 +35,7 @@ import org.w3c.dom.css.CSSValue;
  * This class provides a manager for the SVGColor property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGColorManager.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class SVGColorManager extends ColorManager {
 
@@ -68,7 +69,7 @@ public class SVGColorManager extends ColorManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return false;
+        return false;
     }
 
     /**
@@ -96,7 +97,7 @@ public class SVGColorManager extends ColorManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return property;
+        return property;
     }
 
     
@@ -191,12 +192,12 @@ public class SVGColorManager extends ColorManager {
      * Creates a float value usable as a component of an RGBColor.
      */
     protected float getColorValue(LexicalUnit lu) {
-	switch (lu.getLexicalUnitType()) {
-	case LexicalUnit.SAC_INTEGER:
-	    return lu.getIntegerValue();
-	case LexicalUnit.SAC_REAL:
-	    return lu.getFloatValue();
-	}
+        switch (lu.getLexicalUnitType()) {
+        case LexicalUnit.SAC_INTEGER:
+            return lu.getIntegerValue();
+        case LexicalUnit.SAC_REAL:
+            return lu.getFloatValue();
+        }
         throw createInvalidLexicalUnitDOMException(lu.getLexicalUnitType());
     }
 }

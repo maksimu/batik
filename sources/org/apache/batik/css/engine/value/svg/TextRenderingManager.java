@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,22 +29,22 @@ import org.apache.batik.util.SVGTypes;
  * This class provides a manager for the 'text-rendering' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: TextRenderingManager.java 478283 2006-11-22 18:53:40Z dvholten $
  */
 public class TextRenderingManager extends IdentifierManager {
-    
+
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_AUTO_VALUE,
+        values.put(CSSConstants.CSS_AUTO_VALUE,
                    SVGValueConstants.AUTO_VALUE);
-	values.put(CSSConstants.CSS_OPTIMIZESPEED_VALUE,
+        values.put(CSSConstants.CSS_OPTIMIZESPEED_VALUE,
                    SVGValueConstants.OPTIMIZESPEED_VALUE);
-	values.put(CSSConstants.CSS_GEOMETRICPRECISION_VALUE,
+        values.put(CSSConstants.CSS_GEOMETRICPRECISION_VALUE,
                    SVGValueConstants.GEOMETRICPRECISION_VALUE);
-	values.put(CSSConstants.CSS_OPTIMIZELEGIBILITY_VALUE,
+        values.put(CSSConstants.CSS_OPTIMIZELEGIBILITY_VALUE,
                    SVGValueConstants.OPTIMIZELEGIBILITY_VALUE);
     }
 
@@ -52,7 +53,7 @@ public class TextRenderingManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return true;
+        return true;
     }
 
     /**
@@ -81,9 +82,9 @@ public class TextRenderingManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_TEXT_RENDERING_PROPERTY;
+        return CSSConstants.CSS_TEXT_RENDERING_PROPERTY;
     }
-    
+
     /**
      * Implements {@link
      * org.apache.batik.css.engine.value.ValueManager#getDefaultValue()}.

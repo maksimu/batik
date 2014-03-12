@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,7 +21,7 @@ package org.apache.batik.bridge;
 import java.util.ArrayList;
 
 import org.apache.batik.anim.AbstractAnimation;
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.anim.TransformAnimation;
 import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.anim.values.AnimatableTransformListValue;
@@ -33,7 +34,7 @@ import org.w3c.dom.svg.SVGTransform;
  * Bridge class for the 'animateTransform' animation element.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGAnimateTransformElementBridge.java 496029 2007-01-14 04:00:34Z cam $
  */
 public class SVGAnimateTransformElementBridge extends SVGAnimateElementBridge {
 
@@ -112,12 +113,10 @@ public class SVGAnimateTransformElementBridge extends SVGAnimateElementBridge {
         float val1, val2 = 0, val3 = 0;
         int i = 0;
         char c = ',';
-        boolean canComma = type == SVGTransform.SVG_TRANSFORM_TRANSLATE
-            || type == SVGTransform.SVG_TRANSFORM_SCALE;
         int len = s.length();
         while (i < len) {
             c = s.charAt(i);
-            if (c == ' ' || canComma && c == ',') {
+            if (c == ' ' || c == ',') {
                 break;
             }
             i++;
@@ -127,8 +126,7 @@ public class SVGAnimateTransformElementBridge extends SVGAnimateElementBridge {
             i++;
         }
         int count = 1;
-        if (i < len && c == ' ' && canComma) {
-            i++;
+        if (i < len && c == ' ') {
             while (i < len) {
                 c = s.charAt(i);
                 if (c != ' ') {
@@ -149,7 +147,7 @@ public class SVGAnimateTransformElementBridge extends SVGAnimateElementBridge {
                 && type != SVGTransform.SVG_TRANSFORM_SKEWY) {
             while (i < len) {
                 c = s.charAt(i);
-                if (c == ' ' || canComma && c == ',') {
+                if (c == ' ' || c == ',') {
                     break;
                 }
                 i++;
@@ -159,8 +157,7 @@ public class SVGAnimateTransformElementBridge extends SVGAnimateElementBridge {
                 i++;
             }
             count++;
-            if (i < len && c == ' ' && canComma) {
-                i++;
+            if (i < len && c == ' ') {
                 while (i < len) {
                     c = s.charAt(i);
                     if (c != ' ') {
@@ -205,7 +202,7 @@ public class SVGAnimateTransformElementBridge extends SVGAnimateElementBridge {
                 if (count == 2) {
                     t.setTranslate(val1, val2);
                 } else {
-                    t.setTranslate(val1, val1);
+                    t.setTranslate(val1, 0f);
                 }
                 break;
             case SVGTransform.SVG_TRANSFORM_SCALE:

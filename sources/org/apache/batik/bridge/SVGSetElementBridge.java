@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,7 +19,7 @@
 package org.apache.batik.bridge;
 
 import org.apache.batik.anim.AbstractAnimation;
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.anim.SetAnimation;
 import org.apache.batik.anim.values.AnimatableValue;
 
@@ -26,7 +27,7 @@ import org.apache.batik.anim.values.AnimatableValue;
  * A bridge class for the 'set' animation element.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGSetElementBridge.java 478160 2006-11-22 13:35:06Z dvholten $
  */
 public class SVGSetElementBridge extends SVGAnimationElementBridge {
 
@@ -55,9 +56,16 @@ public class SVGSetElementBridge extends SVGAnimationElementBridge {
     /**
      * Returns whether the animation element being handled by this bridge can
      * animate attributes of the specified type.
-     * @param type one of the TYPE_ constants defined in {@link SVGTypes}.
+     * @param type one of the TYPE_ constants defined in {@link org.apache.batik.util.SVGTypes}.
      */
     protected boolean canAnimateType(int type) {
+        return true;
+    }
+
+    /**
+     * Returns whether this is a constant animation (i.e., a 'set' animation).
+     */
+    protected boolean isConstantAnimation() {
         return true;
     }
 }

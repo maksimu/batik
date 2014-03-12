@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,31 +19,31 @@
 package org.apache.batik.test;
 
 /**
- * Interface for classes that can process <tt>TestReport</tt> instances
- * This allows different applications to use the same <tt>TestReport</tt>
- * for different purposes, such as generating an XML output or 
+ * Interface for classes that can process <code>TestReport</code> instances
+ * This allows different applications to use the same <code>TestReport</code>
+ * for different purposes, such as generating an XML output or
  * emailing a test result summary.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: TestReportProcessor.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface TestReportProcessor {
     /**
      * Generic error code. Takes no parameter.
      */
-    public static final String INTERNAL_ERROR = 
+    String INTERNAL_ERROR =
         "TestReportProcessor.error.code.internal.error";
 
     /**
-     * Requests the processor to process the input 
-     * <tt>TestReport</tt> instances. Note that a processor
-     * should make its own copy of any resource described 
-     * by a <tt>TestReport</tt> such as files, as these
-     * may be transient resources. In particular, a 
-     * processor should not keep a reference to the 
-     * input <tt>TestReport</tt>
+     * Requests the processor to process the input
+     * <code>TestReport</code> instances. Note that a processor
+     * should make its own copy of any resource described
+     * by a <code>TestReport</code> such as files, as these
+     * may be transient resources. In particular, a
+     * processor should not keep a reference to the
+     * input <code>TestReport</code>
      */
-    public void processReport(TestReport report) 
+    void processReport(TestReport report)
         throws TestException;
 }
 

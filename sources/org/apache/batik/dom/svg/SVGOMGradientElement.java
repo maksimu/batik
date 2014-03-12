@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,10 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.dom.util.XMLSupport;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
@@ -34,16 +35,36 @@ import org.w3c.dom.svg.SVGGradientElement;
  * This class implements {@link org.w3c.dom.svg.SVGGradientElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMGradientElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public abstract class SVGOMGradientElement
     extends    SVGStylableElement
     implements SVGGradientElement {
 
     /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGStylableElement.xmlTraitInformation);
+        t.put(null, SVG_GRADIENT_UNITS_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_IDENT));
+        t.put(null, SVG_SPREAD_METHOD_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_IDENT));
+        t.put(null, SVG_GRADIENT_TRANSFORM_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_TRANSFORM_LIST));
+        t.put(null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_BOOLEAN));
+        t.put(XLINK_NAMESPACE_URI, XLINK_HREF_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_URI));
+        xmlTraitInformation = t;
+    }
+
+    /**
      * The attribute initializer.
      */
-    protected final static AttributeInitializer attributeInitializer;
+    protected static final AttributeInitializer attributeInitializer;
     static {
         attributeInitializer = new AttributeInitializer(4);
         attributeInitializer.addAttribute(XMLSupport.XMLNS_NAMESPACE_URI,
@@ -60,7 +81,7 @@ public abstract class SVGOMGradientElement
     /**
      * The units values.
      */
-    protected final static String[] UNITS_VALUES = {
+    protected static final String[] UNITS_VALUES = {
         "",
         SVG_USER_SPACE_ON_USE_VALUE,
         SVG_OBJECT_BOUNDING_BOX_VALUE
@@ -69,12 +90,32 @@ public abstract class SVGOMGradientElement
     /**
      * The 'spreadMethod' attribute values.
      */
-    protected final static String[] SPREAD_METHOD_VALUES = {
+    protected static final String[] SPREAD_METHOD_VALUES = {
         "",
         SVG_PAD_VALUE,
         SVG_REFLECT_VALUE,
         SVG_REPEAT_VALUE
     };
+
+    /**
+     * The 'gradientUnits' attribute value.
+     */
+    protected SVGOMAnimatedEnumeration gradientUnits;
+
+    /**
+     * The 'spreadMethod' attribute value.
+     */
+    protected SVGOMAnimatedEnumeration spreadMethod;
+
+    /**
+     * The 'xlink:href' attribute value.
+     */
+    protected SVGOMAnimatedString href;
+
+    /**
+     * The 'externalResourcesRequired' attribute value.
+     */
+    protected SVGOMAnimatedBoolean externalResourcesRequired;
 
     /**
      * Creates a new SVGOMGradientElement object.
@@ -89,6 +130,33 @@ public abstract class SVGOMGradientElement
      */
     protected SVGOMGradientElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        gradientUnits =
+            createLiveAnimatedEnumeration
+                (null, SVG_GRADIENT_UNITS_ATTRIBUTE, UNITS_VALUES, (short) 2);
+        spreadMethod =
+            createLiveAnimatedEnumeration
+                (null, SVG_SPREAD_METHOD_ATTRIBUTE, SPREAD_METHOD_VALUES,
+                 (short) 1);
+        href =
+            createLiveAnimatedString(XLINK_NAMESPACE_URI, XLINK_HREF_ATTRIBUTE);
+        externalResourcesRequired =
+            createLiveAnimatedBoolean
+                (null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE, false);
     }
 
     /**
@@ -96,7 +164,8 @@ public abstract class SVGOMGradientElement
      * org.w3c.dom.svg.SVGGradientElement#getGradientTransform()}.
      */
     public SVGAnimatedTransformList getGradientTransform() {
-	throw new RuntimeException(" !!! TODO: getGradientTransform()");
+        throw new UnsupportedOperationException
+            ("SVGGradientElement.getGradientTransform is not implemented"); // XXX
     }
 
     /**
@@ -104,27 +173,23 @@ public abstract class SVGOMGradientElement
      * org.w3c.dom.svg.SVGGradientElement#getGradientUnits()}.
      */
     public SVGAnimatedEnumeration getGradientUnits() {
-        return getAnimatedEnumerationAttribute
-            (null, SVG_GRADIENT_UNITS_ATTRIBUTE, UNITS_VALUES,
-             (short)2);
+        return gradientUnits;
     }
- 
+
     /**
      * <b>DOM</b>: Implements {@link
      * org.w3c.dom.svg.SVGGradientElement#getSpreadMethod()}.
      */
     public SVGAnimatedEnumeration getSpreadMethod() {
-        return getAnimatedEnumerationAttribute
-            (null, SVG_SPREAD_METHOD_ATTRIBUTE, SPREAD_METHOD_VALUES,
-             (short)1);
+        return spreadMethod;
     }
- 
+
     /**
      * <b>DOM</b>: Implements {@link
      * org.w3c.dom.svg.SVGURIReference#getHref()}.
      */
     public SVGAnimatedString getHref() {
-        return SVGURIReferenceSupport.getHref(this);
+        return href;
     }
 
     // SVGExternalResourcesRequired support /////////////////////////////
@@ -134,8 +199,7 @@ public abstract class SVGOMGradientElement
      * org.w3c.dom.svg.SVGExternalResourcesRequired#getExternalResourcesRequired()}.
      */
     public SVGAnimatedBoolean getExternalResourcesRequired() {
-	return SVGExternalResourcesRequiredSupport.
-            getExternalResourcesRequired(this);
+        return externalResourcesRequired;
     }
 
     /**
@@ -153,78 +217,10 @@ public abstract class SVGOMGradientElement
         return new SVGOMAElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
     /**
-     * Returns whether the given XML attribute is animatable.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_GRADIENT_UNITS_ATTRIBUTE)
-                    || ln.equals(SVG_SPREAD_METHOD_ATTRIBUTE)) {
-                return SVGTypes.TYPE_IDENT;
-            } else if (ln.equals(SVG_GRADIENT_TRANSFORM_ATTRIBUTE)) {
-                return SVGTypes.TYPE_TRANSFORM_LIST;
-            } else if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return SVGTypes.TYPE_BOOLEAN;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                updateBooleanAttributeValue(getExternalResourcesRequired(),
-                                            val);
-                return;
-            } else if (ln.equals(SVG_GRADIENT_UNITS_ATTRIBUTE)) {
-                updateEnumerationAttributeValue(getGradientUnits(), val);
-                return;
-            } else if (ln.equals(SVG_GRADIENT_TRANSFORM_ATTRIBUTE)) {
-                updateTransformListAttributeValue(getGradientTransform(), val);
-                return;
-            } else if (ln.equals(SVG_SPREAD_METHOD_ATTRIBUTE)) {
-                updateEnumerationAttributeValue(getSpreadMethod(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return getBaseValue(getExternalResourcesRequired());
-            } else if (ln.equals(SVG_GRADIENT_UNITS_ATTRIBUTE)) {
-                return getBaseValue(getGradientUnits());
-            } else if (ln.equals(SVG_GRADIENT_TRANSFORM_ATTRIBUTE)) {
-                return getBaseValue(getGradientTransform());
-            } else if (ln.equals(SVG_SPREAD_METHOD_ATTRIBUTE)) {
-                return getBaseValue(getSpreadMethod());
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 }

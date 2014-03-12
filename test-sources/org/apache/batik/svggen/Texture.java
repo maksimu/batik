@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,7 +30,7 @@ import java.awt.image.BufferedImage;
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
  * @author <a href="mailto:vhardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: Texture.java 482118 2006-12-04 09:52:54Z dvholten $
  */
 public class Texture implements Painter {
     public void paint(Graphics2D g) {
@@ -45,11 +46,11 @@ public class Texture implements Painter {
         bg.fillRect(10, 10, 10, 10);
         bg.dispose();
 
-        Rectangle anchors[] = { new Rectangle(0, 0, texture.getWidth(), texture.getHeight()),
+        Rectangle[] anchors = { new Rectangle(0, 0, texture.getWidth(), texture.getHeight()),
                                 new Rectangle(texture.getWidth()/2, texture.getHeight()/2, texture.getWidth(), texture.getHeight()),
                                 new Rectangle(0, 0, texture.getWidth()/2, texture.getHeight()/2) };
 
-        String anchorDesc[] = { "Anchor matches texture image",
+        String[] anchorDesc = { "Anchor matches texture image",
                                 "Anchor offset to texture image center",
                                 "Anchor half the size of texture" };
 

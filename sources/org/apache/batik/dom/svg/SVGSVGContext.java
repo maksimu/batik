@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2004,2006 The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,33 +31,33 @@ import org.w3c.dom.Element;
  * and enclosure checking.
  *
  * @author <a href="mailto:deweese@apache.org">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: SVGSVGContext.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface SVGSVGContext extends SVGContext {
 
     /**
      * Returns a List of all the DOM elements that intersect
-     * <tt>svgRect</tt> that are below <tt>end</tt> in the
+     * <code>svgRect</code> that are below <code>end</code> in the
      * rendering order.
      */
     List getIntersectionList(SVGRect svgRect, Element end);
 
     /**
      * Returns a List of all the DOM elements that are encosed in
-     * <tt>svgRect</tt> that are below <tt>end</tt> in the
+     * <code>svgRect</code> that are below <code>end</code> in the
      * rendering order.
      */
     List getEnclosureList(SVGRect rect, Element end);
 
     /**
      * Returns true if the given DOM element intersects
-     * <tt>svgRect</tt>.
+     * <code>svgRect</code>.
      */
     boolean checkIntersection(Element element, SVGRect rect);
 
     /**
      * Returns true if the given DOM element is enclosed in the
-     * <tt>svgRect</tt>.
+     * <code>svgRect</code>.
      */
     boolean checkEnclosure(Element element, SVGRect rect);
 
@@ -85,4 +86,29 @@ public interface SVGSVGContext extends SVGContext {
      * Forces an immediate redraw of the canvas.
      */
     void forceRedraw();
-};
+
+    /**
+     * Pauses animations in the document.
+     */
+    void pauseAnimations();
+
+    /**
+     * Unpauses animations in the document.
+     */
+    void unpauseAnimations();
+
+    /**
+     * Returns whether animations are currently paused.
+     */
+    boolean animationsPaused();
+
+    /**
+     * Returns the current document time.
+     */
+    float getCurrentTime();
+
+    /**
+     * Sets the current document time.
+     */
+    void setCurrentTime(float t);
+}

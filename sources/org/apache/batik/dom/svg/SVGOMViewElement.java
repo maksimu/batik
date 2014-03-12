@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,8 +18,8 @@
  */
 package org.apache.batik.dom.svg;
 
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
@@ -32,16 +33,36 @@ import org.w3c.dom.svg.SVGViewElement;
  * This class implements {@link org.w3c.dom.svg.SVGViewElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMViewElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public class SVGOMViewElement
     extends SVGOMElement
     implements SVGViewElement {
-    
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGOMElement.xmlTraitInformation);
+        t.put(null, SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_PRESERVE_ASPECT_RATIO_VALUE));
+        t.put(null, SVG_VIEW_BOX_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_NUMBER_LIST));
+        t.put(null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_BOOLEAN));
+//         t.put(null, SVG_VIEW_TARGET_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_ZOOM_AND_PAN_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_IDENT));
+        xmlTraitInformation = t;
+    }
+
     /**
      * The attribute initializer.
      */
-    protected final static AttributeInitializer attributeInitializer;
+    protected static final AttributeInitializer attributeInitializer;
     static {
         attributeInitializer = new AttributeInitializer(2);
         attributeInitializer.addAttribute(null,
@@ -53,6 +74,16 @@ public class SVGOMViewElement
                                           SVG_ZOOM_AND_PAN_ATTRIBUTE,
                                           SVG_MAGNIFY_VALUE);
     }
+
+    /**
+     * The 'externalResourcesRequired' attribute value.
+     */
+    protected SVGOMAnimatedBoolean externalResourcesRequired;
+
+    /**
+     * The 'preserveAspectRatio' attribute value.
+     */
+    protected SVGOMAnimatedPreserveAspectRatio preserveAspectRatio;
 
     /**
      * Creates a new SVGOMViewElement object.
@@ -67,6 +98,25 @@ public class SVGOMViewElement
      */
     public SVGOMViewElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        externalResourcesRequired =
+            createLiveAnimatedBoolean
+                (null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE, false);
+        preserveAspectRatio = createLiveAnimatedPreserveAspectRatio();
     }
 
     /**
@@ -80,7 +130,8 @@ public class SVGOMViewElement
      * <b>DOM</b>: Implements {@link SVGViewElement#getViewTarget()}.
      */
     public SVGStringList getViewTarget() {
-        throw new RuntimeException("!!! TODO: getViewTarget()");
+        throw new UnsupportedOperationException
+            ("SVGViewElement.getViewTarget is not implemented"); // XXX
     }
 
     // SVGZoomAndPan support ///////////////////////////////////////////////
@@ -108,7 +159,8 @@ public class SVGOMViewElement
      * org.w3c.dom.svg.SVGFitToViewBox#getViewBox()}.
      */
     public SVGAnimatedRect getViewBox() {
-        throw new RuntimeException(" !!! TODO: getViewBox()");
+        throw new UnsupportedOperationException
+            ("SVGFitToViewBox.getViewBox is not implemented"); // XXX
     }
 
     /**
@@ -116,7 +168,7 @@ public class SVGOMViewElement
      * org.w3c.dom.svg.SVGFitToViewBox#getPreserveAspectRatio()}.
      */
     public SVGAnimatedPreserveAspectRatio getPreserveAspectRatio() {
-        return SVGPreserveAspectRatioSupport.getPreserveAspectRatio(this);
+        return preserveAspectRatio;
     }
 
     // SVGExternalResourcesRequired support /////////////////////////////
@@ -126,8 +178,7 @@ public class SVGOMViewElement
      * org.w3c.dom.svg.SVGExternalResourcesRequired#getExternalResourcesRequired()}.
      */
     public SVGAnimatedBoolean getExternalResourcesRequired() {
-        return SVGExternalResourcesRequiredSupport.
-            getExternalResourcesRequired(this);
+        return externalResourcesRequired;
     }
 
     /**
@@ -145,74 +196,10 @@ public class SVGOMViewElement
         return new SVGOMViewElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
     /**
-     * Returns whether the given XML attribute is animatable.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)
-                    || ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)
-                    || ln.equals(SVG_VIEW_TARGET_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                return SVGTypes.TYPE_PRESERVE_ASPECT_RATIO_VALUE;
-            } else if (ln.equals(SVG_VIEW_BOX_ATTRIBUTE)) {
-                return SVGTypes.TYPE_LENGTH_LIST;
-            } else if (ln.equals(SVG_VIEW_TARGET_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            } else if (ln.equals(SVG_ZOOM_AND_PAN_ATTRIBUTE)) {
-                return SVGTypes.TYPE_IDENT;
-            } else if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return SVGTypes.TYPE_BOOLEAN;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                updateBooleanAttributeValue(getExternalResourcesRequired(),
-                                            val);
-                return;
-            } else if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                updatePreserveAspectRatioAttributeValue
-                    (getPreserveAspectRatio(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return getBaseValue(getExternalResourcesRequired());
-            } else if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                return getBaseValue(getPreserveAspectRatio());
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 }

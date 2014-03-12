@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,12 +24,12 @@ import org.w3c.dom.svg.SVGException;
  * An implementation of the SVGException class.
  *
  * @author <a href="mailto:tkormann@ilog.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGOMException.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGOMException extends SVGException {
 
     /**
-     * Constructs a new <tt>SVGOMException</tt> with the specified parameters.
+     * Constructs a new <code>SVGOMException</code> with the specified parameters.
      *
      * @param code the exception code
      * @param message the error message

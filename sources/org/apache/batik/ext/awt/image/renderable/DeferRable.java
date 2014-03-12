@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -34,16 +35,17 @@ import java.util.Vector;
  * This is actually a particular instance of a very general pattern
  * this is probably best represented using the Proxy class in the
  * Reflection APIs.
+ *
+ * @version $Id: DeferRable.java 720261 2008-11-24 19:13:01Z dvholten $
  */
-
 public class DeferRable implements Filter {
-    Filter      src;
+    volatile Filter  src;
     Rectangle2D bounds;
     Map         props;
     /**
      * Constructor takes nothing
      */
-    public DeferRable() { 
+    public DeferRable() {
     }
 
     /**
@@ -54,8 +56,7 @@ public class DeferRable implements Filter {
             try {
                 // Wait for someone to set src.
                 wait();
-            }
-            catch(InterruptedException ie) { 
+            } catch(InterruptedException ie) {
                 // Loop around again see if src is set now...
             }
         }
@@ -90,7 +91,7 @@ public class DeferRable implements Filter {
         notifyAll();
     }
 
-    public long getTimeStamp() { 
+    public long getTimeStamp() {
         return getSource().getTimeStamp();
     }
 
@@ -101,7 +102,7 @@ public class DeferRable implements Filter {
     /**
      * Forward the call (blocking until source is set if need be).
      */
-    public boolean isDynamic() { 
+    public boolean isDynamic() {
         return getSource().isDynamic();
     }
 
@@ -116,7 +117,7 @@ public class DeferRable implements Filter {
                     // Wait for someone to set bounds.
                     wait();
                 }
-                catch(InterruptedException ie) { 
+                catch(InterruptedException ie) {
                     // Loop around again see if src is set now...
                 }
             }
@@ -186,7 +187,7 @@ public class DeferRable implements Filter {
     /**
      * Forward the call (blocking until source is set if need be).
      */
-    public RenderedImage createScaledRendering(int w, int h, 
+    public RenderedImage createScaledRendering(int w, int h,
                                                RenderingHints hints) {
         return getSource().createScaledRendering(w, h, hints);
     }
@@ -201,7 +202,7 @@ public class DeferRable implements Filter {
     /**
      * Forward the call (blocking until source is set if need be).
      */
-    public Shape getDependencyRegion(int srcIndex, 
+    public Shape getDependencyRegion(int srcIndex,
                                      Rectangle2D outputRgn) {
         return getSource().getDependencyRegion(srcIndex, outputRgn);
     }
@@ -209,7 +210,7 @@ public class DeferRable implements Filter {
     /**
      * Forward the call (blocking until source is set if need be).
      */
-    public Shape getDirtyRegion(int srcIndex, 
+    public Shape getDirtyRegion(int srcIndex,
                                 Rectangle2D inputRgn) {
         return getSource().getDirtyRegion(srcIndex, inputRgn);
     }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,12 +21,14 @@ package org.apache.batik.dom.svg;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.apache.batik.anim.values.AnimatableValue;
+
 /**
  * An abstract base class for the <code>SVGAnimated*</code> classes, that
  * implements an {@link AnimatedAttributeListener} list.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AbstractSVGAnimatedValue.java 490655 2006-12-28 05:19:44Z cam $
  */
 public abstract class AbstractSVGAnimatedValue
     implements AnimatedLiveAttributeValue {
@@ -86,6 +89,11 @@ public abstract class AbstractSVGAnimatedValue
     public boolean isSpecified() {
         return hasAnimVal || element.hasAttributeNS(namespaceURI, localName);
     }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected abstract void updateAnimatedValue(AnimatableValue val);
 
     /**
      * Adds a listener for changes to the animated value.

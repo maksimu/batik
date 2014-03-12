@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,8 +18,8 @@
  */
 package org.apache.batik.dom.svg;
 
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
@@ -51,12 +52,31 @@ import org.w3c.dom.svg.SVGPoint;
  * This class implements {@link SVGPathElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMPathElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public class SVGOMPathElement
     extends    SVGGraphicsElement
     implements SVGPathElement,
                SVGPathSegConstants {
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGGraphicsElement.xmlTraitInformation);
+        t.put(null, SVG_D_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_PATH_DATA));
+        t.put(null, SVG_PATH_LENGTH_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_NUMBER));
+        xmlTraitInformation = t;
+    }
+
+    /**
+     * The 'd' attribute value.
+     */
+    protected SVGOMAnimatedPathData d;
 
     /**
      * Creates a new SVGOMPathElement object.
@@ -71,20 +91,37 @@ public class SVGOMPathElement
      */
     public SVGOMPathElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        d = createLiveAnimatedPathData(null, SVG_D_ATTRIBUTE, "");
     }
 
     /**
      * <b>DOM</b>: Implements {@link org.w3c.dom.Node#getLocalName()}.
      */
     public String getLocalName() {
-        return "path";
+        return SVG_PATH_TAG;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPathElement#getPathLength()}.
      */
     public SVGAnimatedNumber getPathLength() {
-        throw new RuntimeException(" !!! getPathLength() Not Yet Implemented");
+        throw new UnsupportedOperationException
+            ("SVGPathElement.getPathLength is not implemented"); // XXX
     }
 
     /**
@@ -105,29 +142,36 @@ public class SVGOMPathElement
      * <b>DOM</b>: Implements {@link SVGPathElement#getPathSegAtLength(float)}.
      */
     public int getPathSegAtLength(float distance) {
-        throw new RuntimeException
-            (" !!! getPathSegAtLength() Not Yet Implemented");
+        return SVGPathSupport.getPathSegAtLength(this, distance);
+    }
+
+    /**
+     * Returns the {@link SVGOMAnimatedPathData} object that manages the
+     * path data for this element.
+     */
+    public SVGOMAnimatedPathData getAnimatedPathData() {
+        return d;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPathElement#getPathSegList()}.
      */
     public SVGPathSegList getPathSegList() {
-        return SVGAnimatedPathDataSupport.getPathSegList(this);
+        return d.getPathSegList();
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPathElement#getNormalizedPathSegList()}.
      */
     public SVGPathSegList getNormalizedPathSegList() {
-        return SVGAnimatedPathDataSupport.getNormalizedPathSegList(this);
+        return d.getNormalizedPathSegList();
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPathElement#getAnimatedPathSegList()}.
      */
     public SVGPathSegList getAnimatedPathSegList() {
-        return SVGAnimatedPathDataSupport.getAnimatedPathSegList(this);
+        return d.getAnimatedPathSegList();
     }
 
     /**
@@ -135,8 +179,7 @@ public class SVGOMPathElement
      * SVGPathElement#getAnimatedNormalizedPathSegList()}.
      */
     public SVGPathSegList getAnimatedNormalizedPathSegList() {
-        return SVGAnimatedPathDataSupport.getAnimatedNormalizedPathSegList
-            (this);
+        return d.getAnimatedNormalizedPathSegList();
     }
 
     // Factory methods /////////////////////////////////////////////////////
@@ -160,7 +203,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegMovetoAbs(float,float)}.
      */
     public SVGPathSegMovetoAbs createSVGPathSegMovetoAbs(final float x_value, final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegMovetoAbs()");
         return new SVGPathSegMovetoAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -191,7 +233,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegMovetoRel(float,float)}.
      */
     public SVGPathSegMovetoRel createSVGPathSegMovetoRel(final float x_value, final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegMovetoRel()");
         return new SVGPathSegMovetoRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -215,7 +256,6 @@ public class SVGOMPathElement
                     this.y = y;
                 }
             };
-
     }
 
     /**
@@ -223,7 +263,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegLinetoAbs(float,float)}.
      */
     public SVGPathSegLinetoAbs createSVGPathSegLinetoAbs(final float x_value, final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoAbs()");
         return new SVGPathSegLinetoAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -254,7 +293,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegLinetoRel(float,float)}.
      */
     public SVGPathSegLinetoRel createSVGPathSegLinetoRel(final float x_value, final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoRel()");
         return new SVGPathSegLinetoRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -285,7 +323,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegLinetoHorizontalAbs(float)}.
      */
     public SVGPathSegLinetoHorizontalAbs createSVGPathSegLinetoHorizontalAbs(final float x_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoHorizontalAbs()");
         return new SVGPathSegLinetoHorizontalAbs(){
                 protected float x = x_value;
 
@@ -302,7 +339,6 @@ public class SVGOMPathElement
                     this.x = x;
                 }
             };
-
     }
 
     /**
@@ -310,7 +346,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegLinetoHorizontalRel(float)}.
      */
     public SVGPathSegLinetoHorizontalRel createSVGPathSegLinetoHorizontalRel(final float x_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoHorizontalRel()");
         return new SVGPathSegLinetoHorizontalRel(){
                 protected float x = x_value;
 
@@ -327,7 +362,6 @@ public class SVGOMPathElement
                     this.x = x;
                 }
             };
-
     }
 
     /**
@@ -335,7 +369,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegLinetoVerticalAbs(float)}.
      */
     public SVGPathSegLinetoVerticalAbs createSVGPathSegLinetoVerticalAbs(final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoVerticalAbs()");
         return new SVGPathSegLinetoVerticalAbs(){
                 protected float y = y_value;
 
@@ -352,7 +385,6 @@ public class SVGOMPathElement
                     this.y = y;
                 }
             };
-
     }
 
     /**
@@ -360,7 +392,6 @@ public class SVGOMPathElement
      * SVGPathElement#createSVGPathSegLinetoVerticalRel(float)}.
      */
     public SVGPathSegLinetoVerticalRel createSVGPathSegLinetoVerticalRel(final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoVerticalRel()");
         return new SVGPathSegLinetoVerticalRel(){
                 protected float y = y_value;
 
@@ -377,7 +408,6 @@ public class SVGOMPathElement
                     this.y = y;
                 }
             };
-
     }
 
     /**
@@ -388,7 +418,6 @@ public class SVGOMPathElement
         (final float x_value, final float y_value, 
          final float x1_value, final float y1_value, 
          final float x2_value, final float y2_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegCurvetoCubicAbs()");
         return new SVGPathSegCurvetoCubicAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -440,7 +469,6 @@ public class SVGOMPathElement
                     this.y2 = y2;
                 }
             };
-
     }
 
     /**
@@ -451,7 +479,6 @@ public class SVGOMPathElement
         (final float x_value, final float y_value, 
          final float x1_value, final float y1_value, 
          final float x2_value, final float y2_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegCurvetoCubicAbs()");
         return new SVGPathSegCurvetoCubicRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -512,7 +539,6 @@ public class SVGOMPathElement
     public SVGPathSegCurvetoQuadraticAbs createSVGPathSegCurvetoQuadraticAbs
         (final float x_value, final float y_value, 
          final float x1_value, final float y1_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegCurvetoCubicAbs()");
         return new SVGPathSegCurvetoQuadraticAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -559,7 +585,6 @@ public class SVGOMPathElement
     public SVGPathSegCurvetoQuadraticRel createSVGPathSegCurvetoQuadraticRel
         (final float x_value, final float y_value, 
          final float x1_value, final float y1_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegCurvetoCubicAbs()");
         return new SVGPathSegCurvetoQuadraticRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -607,7 +632,6 @@ public class SVGOMPathElement
             createSVGPathSegCurvetoCubicSmoothAbs
         (final float x_value, final float y_value, 
          final float x2_value, final float y2_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegCurvetoCubicAbs()");
         return new SVGPathSegCurvetoCubicSmoothAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -655,7 +679,6 @@ public class SVGOMPathElement
             createSVGPathSegCurvetoCubicSmoothRel
         (final float x_value, final float y_value, 
          final float x2_value, final float y2_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegCurvetoCubicAbs()");
         return new SVGPathSegCurvetoCubicSmoothRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -702,7 +725,6 @@ public class SVGOMPathElement
     public SVGPathSegCurvetoQuadraticSmoothAbs
             createSVGPathSegCurvetoQuadraticSmoothAbs
         (final float x_value, final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoAbs()");
         return new SVGPathSegCurvetoQuadraticSmoothAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -736,7 +758,6 @@ public class SVGOMPathElement
     public SVGPathSegCurvetoQuadraticSmoothRel
             createSVGPathSegCurvetoQuadraticSmoothRel
         (final float x_value, final float y_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegLinetoAbs()");
         return new SVGPathSegCurvetoQuadraticSmoothRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -772,7 +793,6 @@ public class SVGOMPathElement
          final float angle_value,
          final boolean largeArcFlag_value, 
          final boolean sweepFlag_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegArcAbs()");
         return new SVGPathSegArcAbs(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -845,7 +865,6 @@ public class SVGOMPathElement
          final float angle_value,
          final boolean largeArcFlag_value, 
          final boolean sweepFlag_value) {
-        //throw new RuntimeException(" !!! createSVGPathSegArcAbs()");
         return new SVGPathSegArcRel(){
                 protected float x = x_value;
                 protected float y = y_value;
@@ -915,78 +934,10 @@ public class SVGOMPathElement
         return new SVGOMPathElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
     /**
-     * Returns whether the given XML attribute is animatable.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)
-                    || ln.equals(SVG_PATH_LENGTH_ATTRIBUTE)
-                    || ln.equals(SVG_D_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_D_ATTRIBUTE)) {
-                return SVGTypes.TYPE_PATH_DATA;
-            } else if (ln.equals(SVG_PATH_LENGTH_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER;
-            } else if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return SVGTypes.TYPE_BOOLEAN;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                updateBooleanAttributeValue(getExternalResourcesRequired(),
-                                            val);
-                return;
-            } else if (ln.equals(SVG_PATH_LENGTH_ATTRIBUTE)) {
-                updateNumberAttributeValue(getPathLength(), val);
-                return;
-            } else if (ln.equals(SVG_D_ATTRIBUTE)) {
-                SVGOMAnimatedPathData apd =
-                    SVGAnimatedPathDataSupport.getAnimatedPathData(this);
-                updatePathDataAttributeValue(apd, val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return getBaseValue(getExternalResourcesRequired());
-            } else if (ln.equals(SVG_PATH_LENGTH_ATTRIBUTE)) {
-                return getBaseValue(getPathLength());
-            } else if (ln.equals(SVG_D_ATTRIBUTE)) {
-                SVGOMAnimatedPathData apd =
-                    SVGAnimatedPathDataSupport.getAnimatedPathData(this);
-                return getBaseValue(apd);
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 }

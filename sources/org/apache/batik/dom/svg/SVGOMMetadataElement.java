@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import org.w3c.dom.svg.SVGMetadataElement;
  * This class implements {@link org.w3c.dom.svg.SVGMetadataElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMMetadataElement.java 489226 2006-12-21 00:05:36Z cam $
  */
 public class SVGOMMetadataElement
     extends    SVGOMElement
@@ -43,7 +44,6 @@ public class SVGOMMetadataElement
      */
     public SVGOMMetadataElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
-
     }
 
     /**

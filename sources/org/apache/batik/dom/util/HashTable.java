@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001, 2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,7 +24,7 @@ import java.io.Serializable;
  * A simple hashtable, not synchronized, with fixed load factor.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: HashTable.java 489226 2006-12-21 00:05:36Z cam $
  */
 public class HashTable implements Serializable {
 
@@ -87,7 +88,7 @@ public class HashTable implements Serializable {
     public int size() {
         return count;
     }
-    
+
     /**
      * Gets the value of a variable
      * @return the value or null
@@ -124,7 +125,7 @@ public class HashTable implements Serializable {
             }
         }
 
-      	// The key is not in the hash table
+        // The key is not in the hash table
         int len = table.length;
         if (count++ >= (len - ( len >> 2 ))) {
             // more than 75% loaded: grow

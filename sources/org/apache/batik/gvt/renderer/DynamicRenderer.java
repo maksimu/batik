@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,8 +18,9 @@
  */
 package org.apache.batik.gvt.renderer;
 
-import java.awt.Point;
+import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -39,12 +41,12 @@ import org.apache.batik.util.HaltingThread;
  * Simple implementation of the Renderer that supports dynamic updates.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: DynamicRenderer.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class DynamicRenderer extends StaticRenderer {
 
-    final static int COPY_OVERHEAD      = 1000;
-    final static int COPY_LINE_OVERHEAD = 10;
+    static final int COPY_OVERHEAD      = 1000;
+    static final int COPY_LINE_OVERHEAD = 10;
 
     /**
      * Constructs a new dynamic renderer with the specified buffer image.
@@ -90,7 +92,7 @@ public class DynamicRenderer extends StaticRenderer {
             workingRaster = null;
             workingOffScreen = null;
             workingBaseRaster = null;
-            
+
             currentOffScreen = null;
             currentBaseRaster = null;
             currentRaster = null;
@@ -106,15 +108,15 @@ public class DynamicRenderer extends StaticRenderer {
             (workingBaseRaster.getHeight() < h)) {
 
             sm = sm.createCompatibleSampleModel(w, h);
-            
-            workingBaseRaster 
+
+            workingBaseRaster
                 = Raster.createWritableRaster(sm, new Point(0,0));
 
             workingRaster = workingBaseRaster.createWritableChild
                 (0, 0, w, h, 0, 0, null);
 
             workingOffScreen =  new BufferedImage
-                (rootCR.getColorModel(), 
+                (rootCR.getColorModel(),
                  workingRaster,
                  rootCR.getColorModel().isAlphaPremultiplied(), null);
         }
@@ -127,8 +129,8 @@ public class DynamicRenderer extends StaticRenderer {
     }
 
     /**
-     * Repaints the associated GVT tree under the list of <tt>areas</tt>.
-     * 
+     * Repaints the associated GVT tree under the list of <code>areas</code>.
+     *
      * If double buffered is true and this method completes cleanly it
      * will set the result of the repaint as the image returned by
      * getOffscreen otherwise the old image will still be returned.
@@ -137,7 +139,7 @@ public class DynamicRenderer extends StaticRenderer {
      * by getOffscreen.
      *
      * @param devRLM regions to be repainted, in the current
-     * user space coordinate system.  
+     * user space coordinate system.
      */
     // long lastFrame = -1;
     public void repaint(RectListManager devRLM) {
@@ -177,6 +179,10 @@ public class DynamicRenderer extends StaticRenderer {
         boolean repaintAll = false;
 
         Rectangle dr = copyRaster.getBounds();
+        Rectangle sr = null;
+        if (currentRaster != null) {
+            sr = currentRaster.getBounds();
+        }
 
         // Ensure only one thread works on baseRaster at a time...
         synchronized (syncRaster) {
@@ -192,74 +198,84 @@ public class DynamicRenderer extends StaticRenderer {
                          copyRaster.createWritableTranslatedChild(0, 0),
                          workingOffScreen.isAlphaPremultiplied(), null);
                     g2d = GraphicsUtil.createGraphics(tmpBI);
-                    g2d.translate(-copyRaster.getMinX(), 
+                    g2d.translate(-copyRaster.getMinX(),
                                   -copyRaster.getMinY());
                 }
 
-                
+
                 if ((isDoubleBuffered) &&
-                    (currentRaster != null) && 
+                    (currentRaster != null) &&
                     (damagedAreas  != null)) {
-                    damagedAreas.subtract(devRLM, COPY_OVERHEAD, 
+                    damagedAreas.subtract(devRLM, COPY_OVERHEAD,
                                           COPY_LINE_OVERHEAD);
-                    damagedAreas.mergeRects(COPY_OVERHEAD, 
-                                            COPY_LINE_OVERHEAD); 
+                    damagedAreas.mergeRects(COPY_OVERHEAD,
+                                            COPY_LINE_OVERHEAD);
+
+                    // color-objects are immutable, so we can reuse this handful of instances
+                    Color fillColor   = new Color( 0, 0, 255, 50 );
+                    Color borderColor = new Color( 0, 0,   0, 50 );
 
                     Iterator iter = damagedAreas.iterator();
                     while (iter.hasNext()) {
                         Rectangle r = (Rectangle)iter.next();
                         if (!dr.intersects(r)) continue;
                         r = dr.intersection(r);
+                        if (sr != null && !sr.intersects(r)) continue;
+                        r = sr.intersection(r);
                         // System.err.println("Copy: " + r);
                         Raster src = currentRaster.createWritableChild
                             (r.x, r.y, r.width, r.height, r.x, r.y, null);
                         GraphicsUtil.copyData(src, copyRaster);
                         if (g2d != null) {
-                            g2d.setPaint(new java.awt.Color(0,0,255,50));
+                            g2d.setPaint( fillColor );
                             g2d.fill(r);
-                            g2d.setPaint(new java.awt.Color(0,0,0,50));
+                            g2d.setPaint( borderColor );
                             g2d.draw(r);
                         }
                     }
                 }
+
+                Color fillColor   = new Color( 255, 0, 0, 50 );
+                Color borderColor = new Color(   0, 0, 0, 50 );
 
                 Iterator iter = devRLM.iterator();
                 while (iter.hasNext()) {
                     Rectangle r = (Rectangle)iter.next();
                     if (!dr.intersects(r)) continue;
                     r = dr.intersection(r);
-                    
+
                     // System.err.println("Render: " + r);
                     WritableRaster dst = copyRaster.createWritableChild
                         (r.x, r.y, r.width, r.height, r.x, r.y, null);
                     cr.copyData(dst);
                     if (g2d != null) {
-                        g2d.setPaint(new java.awt.Color(255,0,0,50));
+                        g2d.setPaint( fillColor );
                         g2d.fill(r);
-                        g2d.setPaint(new java.awt.Color(0,0,0,50));
+                        g2d.setPaint( borderColor );
                         g2d.draw(r);
                     }
                 }
             }
         }
 
-        if (HaltingThread.hasBeenHalted())
+        if (HaltingThread.hasBeenHalted()) {
             return;
+        }
 
         // System.out.println("Dmg: "   + damagedAreas);
-        // System.out.println("Areas: " + devRects);
+        // System.out.println("Areas: " + devRLM);
 
         // Swap the buffers if the rendering completed cleanly.
         BufferedImage tmpBI = workingOffScreen;
-        
+
         workingBaseRaster = currentBaseRaster;
         workingRaster     = currentRaster;
         workingOffScreen  = currentOffScreen;
-        
+
         currentRaster     = copyRaster;
         currentBaseRaster = syncRaster;
         currentOffScreen  = tmpBI;
-        
+
         damagedAreas = devRLM;
     }
 }

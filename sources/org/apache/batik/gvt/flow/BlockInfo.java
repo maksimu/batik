@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,11 +27,15 @@ import java.util.Map;
 import org.apache.batik.gvt.font.GVTFont;
 import org.apache.batik.gvt.font.GVTLineMetrics;
 
+/**
+ *
+ * @version $Id: BlockInfo.java 498740 2007-01-22 18:35:57Z dvholten $
+ */
 public class BlockInfo {
-    public final static int ALIGN_START  = 0;
-    public final static int ALIGN_MIDDLE = 1;
-    public final static int ALIGN_END    = 2;
-    public final static int ALIGN_FULL   = 3;
+    public static final int ALIGN_START  = 0;
+    public static final int ALIGN_MIDDLE = 1;
+    public static final int ALIGN_END    = 2;
+    public static final int ALIGN_FULL   = 3;
 
     protected float   top;
     protected float   right;
@@ -52,7 +57,7 @@ public class BlockInfo {
 
     public BlockInfo(float top, float right, float bottom, float left,
                      float indent, int alignment, float lineHeight,
-                     List fontList, Map fontAttrs, 
+                     List fontList, Map fontAttrs,
                      boolean flowRegionBreak) {
         this.top    = top;
         this.right  = right;
@@ -87,7 +92,7 @@ public class BlockInfo {
     public void initLineInfo(FontRenderContext frc) {
         float fontSize = 12;
         Float fsFloat = (Float)fontAttrs.get(TextAttribute.SIZE);
-        if (fsFloat != null) 
+        if (fsFloat != null)
             fontSize = fsFloat.floatValue();
 
         Iterator i = fontList.iterator();
@@ -99,8 +104,8 @@ public class BlockInfo {
             break;
         }
         if (ascent == -1) {
-            ascent  = fontSize * .8f;
-            descent = fontSize * .2f;
+            ascent  = fontSize * 0.8f;
+            descent = fontSize * 0.2f;
         }
     }
 

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import java.awt.image.*;
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
  * @author <a href="mailto:vhardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: RHints.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class RHints implements Painter {
     public void paint(Graphics2D g) {
@@ -64,7 +65,7 @@ public class RHints implements Painter {
         //
         g.translate(0, 100);
         g.setRenderingHint(antialiasKey, antialiasOn);
-				g.setRenderingHint(textAntialiasKey, textAntialiasOn);
+                                g.setRenderingHint(textAntialiasKey, textAntialiasOn);
         g.setFont(defaultFont);
         g.drawString("Shape antialiasing", 10, 20);
 

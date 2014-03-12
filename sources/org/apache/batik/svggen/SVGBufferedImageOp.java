@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,7 +31,7 @@ import java.util.List;
  * an SVG filter.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SVGBufferedImageOp.java 594379 2007-11-13 01:08:28Z cam $
  * @see                org.apache.batik.svggen.SVGCustomBufferedImageOp
  * @see                org.apache.batik.svggen.SVGLookupOp
  * @see                org.apache.batik.svggen.SVGRescaleOp
@@ -115,11 +116,11 @@ public class SVGBufferedImageOp extends AbstractSVGFilterConverter {
 
         if(filterDesc == null){
             if(op instanceof LookupOp)
-                filterDesc = svgLookupOp.toSVG((LookupOp)op, filterRect);
+                filterDesc = svgLookupOp.toSVG(op, filterRect);
             else if(op instanceof RescaleOp)
-                filterDesc = svgRescaleOp.toSVG((RescaleOp)op, filterRect);
+                filterDesc = svgRescaleOp.toSVG(op, filterRect);
             else if(op instanceof ConvolveOp)
-                filterDesc = svgConvolveOp.toSVG((ConvolveOp)op, filterRect);
+                filterDesc = svgConvolveOp.toSVG(op, filterRect);
         }
 
         return filterDesc;

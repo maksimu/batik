@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,6 +20,10 @@ package org.apache.batik.dom.svg;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.apache.batik.anim.values.AnimatableLengthListValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 import org.apache.batik.parser.ParseException;
 
@@ -35,9 +40,9 @@ import org.w3c.dom.svg.SVGLengthList;
  * interface.
  *
  * @author <a href="mailto:nicolas.socheleau@bitflash.com">Nicolas Socheleau</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedLengthList.java 527382 2007-04-11 04:31:58Z cam $
  */
-public class SVGOMAnimatedLengthList 
+public class SVGOMAnimatedLengthList
     extends AbstractSVGAnimatedValue
     implements SVGAnimatedLengthList {
 
@@ -113,22 +118,63 @@ public class SVGOMAnimatedLengthList
     }
 
     /**
-     * Sets the animated value.
+     * Throws an exception if the length list value is malformed.
      */
-    public void setAnimatedValue(short[] types, float[] values) {
-        if (animVal == null) {
-            animVal = new AnimSVGLengthList();
+    public void check() {
+        if (!hasAnimVal) {
+            if (baseVal == null) {
+                baseVal = new BaseSVGLengthList();
+            }
+            baseVal.revalidate();
+            if (baseVal.missing) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+            }
+            if (baseVal.malformed) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                     baseVal.getValueAsString());
+            }
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(types, values);
-        fireAnimatedAttributeListeners();
     }
 
     /**
-     * Resets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGLengthList ll = getBaseVal();
+        int n = ll.getNumberOfItems();
+        short[] types = new short[n];
+        float[] values = new float[n];
+        for (int i = 0; i < n; i++) {
+            SVGLength l = ll.getItem(i);
+            types[i] = l.getUnitType();
+            values[i] = l.getValueInSpecifiedUnits();
+        }
+        return new AnimatableLengthListValue
+            (target, types, values,
+             target.getPercentageInterpretation
+                 (getNamespaceURI(), getLocalName(), false));
+    }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            AnimatableLengthListValue animLengths =
+                (AnimatableLengthListValue) val;
+            if (animVal == null) {
+                animVal = new AnimSVGLengthList();
+            }
+            animVal.setAnimatedValue(animLengths.getLengthTypes(),
+                                     animLengths.getLengthValues());
+        }
         fireAnimatedAttributeListeners();
     }
 
@@ -170,11 +216,21 @@ public class SVGOMAnimatedLengthList
             fireAnimatedAttributeListeners();
         }
     }
-    
+
     /**
      * {@link SVGLengthList} implementation for the base length list value.
      */
     public class BaseSVGLengthList extends AbstractSVGLengthList {
+
+        /**
+         * Whether the value is missing.
+         */
+        protected boolean missing;
+
+        /**
+         * Whether the value is malformed.
+         */
+        protected boolean malformed;
 
         /**
          * Creates a new BaseSVGLengthList.
@@ -232,6 +288,26 @@ public class SVGOMAnimatedLengthList
         }
 
         /**
+         * Resets the value of the associated attribute.
+         */
+        protected void resetAttribute() {
+            super.resetAttribute();
+            missing = false;
+            malformed = false;
+        }
+
+        /**
+         * Appends the string representation of the given {@link SVGItem} to
+         * the DOM attribute.  This is called in response to an append to
+         * the list.
+         */
+        protected void resetAttribute(SVGItem item) {
+            super.resetAttribute(item);
+            missing = false;
+            malformed = false;
+        }
+
+        /**
          * Initializes the list, if needed.
          */
         protected void revalidate() {
@@ -239,12 +315,15 @@ public class SVGOMAnimatedLengthList
                 return;
             }
 
+            valid = true;
+            missing = false;
+            malformed = false;
+
             String s = getValueAsString();
             boolean isEmpty = s != null && s.length() == 0;
             if (s == null || isEmpty && !emptyAllowed) {
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, s);
+                missing = true;
+                return;
             }
             if (isEmpty) {
                 itemList = new ArrayList(1);
@@ -261,12 +340,9 @@ public class SVGOMAnimatedLengthList
                 } catch (ParseException e) {
                     itemList = new ArrayList(1);
                     valid = true;
-                    throw new LiveAttributeException
-                        (element, localName,
-                         LiveAttributeException.ERR_ATTRIBUTE_MALFORMED, s);
+                    malformed = true;
                 }
             }
-            valid = true;
         }
     }
 
@@ -334,7 +410,7 @@ public class SVGOMAnimatedLengthList
             if (itemList.size() == 0) {
                 return "";
             }
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer( itemList.size() * 8 );
             Iterator i = itemList.iterator();
             if (i.hasNext()) {
                 sb.append(((SVGItem) i.next()).getValueAsString());
@@ -419,14 +495,14 @@ public class SVGOMAnimatedLengthList
             int i = 0;
             while (i < size && i < types.length) {
                 SVGLengthItem l = (SVGLengthItem) itemList.get(i);
-                l.unitType = types[i];
-                l.value = values[i];
-                l.direction = direction;
+                l.unitType  = types[i];
+                l.value     = values[i];
+                l.direction = this.direction;
                 i++;
             }
             while (i < types.length) {
                 appendItemImpl(new SVGLengthItem(types[i], values[i],
-                                                 direction));
+                                                 this.direction));
                 i++;
             }
             while (size > types.length) {

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,6 +20,7 @@ package org.apache.batik.swing;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+// import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -51,13 +53,18 @@ import org.apache.batik.swing.gvt.AbstractResetTransformInteractor;
 import org.apache.batik.swing.gvt.AbstractRotateInteractor;
 import org.apache.batik.swing.gvt.AbstractZoomInteractor;
 import org.apache.batik.swing.gvt.Interactor;
+// import org.apache.batik.swing.gvt.Overlay;
 import org.apache.batik.swing.svg.JSVGComponent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.swing.svg.SVGUserAgent;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLConstants;
+// import org.apache.batik.util.gui.DOMViewer;
+// import org.apache.batik.util.gui.DOMViewerController;
+// import org.apache.batik.util.gui.ElementOverlayManager;
 import org.apache.batik.util.gui.JErrorPane;
 
+// import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.events.Event;
@@ -67,15 +74,15 @@ import org.w3c.dom.svg.SVGDocument;
 
 /**
  * This class represents a general-purpose swing SVG component. The
- * <tt>JSVGCanvas</tt> does not provided additional functionalities compared to
- * the <tt>JSVGComponent</tt> but simply provides an API conformed to the
+ * <code>JSVGCanvas</code> does not provided additional functionalities compared to
+ * the <code>JSVGComponent</code> but simply provides an API conformed to the
  * JavaBean specification. The only major change between the
- * <tt>JSVGComponent</tt> and this component is that interactors and text
+ * <code>JSVGComponent</code> and this component is that interactors and text
  * selection are activated by default.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: JSVGCanvas.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class JSVGCanvas extends JSVGComponent {
 
@@ -165,8 +172,8 @@ public class JSVGCanvas extends JSVGComponent {
     private boolean isResetTransformInteractorEnabled = true;
 
     /**
-     * The <tt>PropertyChangeSupport</tt> used to fire
-     * <tt>PropertyChangeEvent</tt>.
+     * The <code>PropertyChangeSupport</code> used to fire
+     * <code>PropertyChangeEvent</code>.
      */
     protected PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -193,7 +200,7 @@ public class JSVGCanvas extends JSVGComponent {
      * This is used as the value in the toolTipDocs WeakHashMap.
      * This way we can tell if a document has already been added.
      */
-    protected final static Object MAP_TOKEN = new Object();
+    protected static final Object MAP_TOKEN = new Object();
     /**
      * The time of the last tool tip event.
      */
@@ -254,7 +261,7 @@ public class JSVGCanvas extends JSVGComponent {
 
     /**
      * Builds the ActionMap of this canvas with a set of predefined
-     * <tt>Action</tt>s.
+     * <code>Action</code>s.
      */
     protected void installActions() {
         ActionMap actionMap = getActionMap();
@@ -297,7 +304,7 @@ public class JSVGCanvas extends JSVGComponent {
 
         /**
      * Builds the InputMap of this canvas with a set of predefined
-     * <tt>Action</tt>s.
+     * <code>Action</code>s.
      */
     protected void installKeyboardActions() {
 
@@ -339,7 +346,7 @@ public class JSVGCanvas extends JSVGComponent {
     }
 
     /**
-     * Adds the specified <tt>PropertyChangeListener</tt>.
+     * Adds the specified <code>PropertyChangeListener</code>.
      *
      * @param pcl the property change listener to add
      */
@@ -348,7 +355,7 @@ public class JSVGCanvas extends JSVGComponent {
     }
 
     /**
-     * Removes the specified <tt>PropertyChangeListener</tt>.
+     * Removes the specified <code>PropertyChangeListener</code>.
      *
      * @param pcl the property change listener to remove
      */
@@ -357,7 +364,7 @@ public class JSVGCanvas extends JSVGComponent {
     }
 
     /**
-     * Adds the specified <tt>PropertyChangeListener</tt> for the specified
+     * Adds the specified <code>PropertyChangeListener</code> for the specified
      * property.
      *
      * @param propertyName the name of the property to listen on
@@ -369,7 +376,7 @@ public class JSVGCanvas extends JSVGComponent {
     }
 
     /**
-     * Removes the specified <tt>PropertyChangeListener</tt> for the specified
+     * Removes the specified <code>PropertyChangeListener</code> for the specified
      * property.
      *
      * @param propertyName the name of the property that was listened on
@@ -541,7 +548,7 @@ public class JSVGCanvas extends JSVGComponent {
     /**
      * To hide the listener methods. This class just reset the tooltip.
      */
-    protected class CanvasSVGListener extends ExtendedSVGListener {
+    protected class CanvasSVGListener extends SVGListener {
 
         /**
          * Called when the loading of a document was started.
@@ -583,6 +590,51 @@ public class JSVGCanvas extends JSVGComponent {
 
         super.installSVGDocument(doc);
     }
+
+//     // DOMViewerController
+// 
+//     /**
+//      * DOMViewerController implementation.
+//      */
+//     protected class CanvasDOMViewerController implements DOMViewerController {
+// 
+//         public boolean canEdit() {
+//             return getUpdateManager() != null;
+//         }
+// 
+//         public ElementOverlayManager createSelectionManager() {
+//             if (canEdit()) {
+//                 return new ElementOverlayManager(JSVGCanvas.this);
+//             }
+//             return null;
+//         }
+// 
+//         public Document getDocument() {
+//             return svgDocument;
+//         }
+// 
+//         public void performUpdate(Runnable r) {
+//             if (canEdit()) {
+//                 getUpdateManager().getUpdateRunnableQueue().invokeLater(r);
+//             } else {
+//                 r.run();
+//             }
+//         }
+// 
+//         public void removeSelectionOverlay(Overlay selectionOverlay) {
+//             getOverlays().remove(selectionOverlay);
+//         }
+// 
+//         public void selectNode(Node node) {
+//             DOMViewer domViewer = new DOMViewer(this);
+//             Rectangle fr = getBounds();
+//             Dimension td = domViewer.getSize();
+//             domViewer.setLocation(fr.x + (fr.width - td.width) / 2,
+//                                   fr.y + (fr.height - td.height) / 2);
+//             domViewer.setVisible(true);
+//             domViewer.selectNode(node);
+//         }
+//     }
 
     // ----------------------------------------------------------------------
     // Actions
@@ -796,8 +848,8 @@ public class JSVGCanvas extends JSVGComponent {
     // ----------------------------------------------------------------------
 
     /**
-     * The <tt>CanvasUserAgent</tt> only adds tooltips to the behavior of the
-     * default <tt>BridgeUserAgent</tt>. A tooltip will be displayed
+     * The <code>CanvasUserAgent</code> only adds tooltips to the behavior of the
+     * default <code>BridgeUserAgent</code>. A tooltip will be displayed
      * wheneven the mouse lingers over an element which has a &lt;title&gt; or a
      * &lt;desc&gt; child element.
      */
@@ -819,12 +871,12 @@ public class JSVGCanvas extends JSVGComponent {
          * Because these elements can appear in any order, here
          * is the algorithm used to build the tool tip:<br />
          * <ul>
-         * <li>If a &lt;title&gt; is passed to <tt>handleElement</tt>
+         * <li>If a &lt;title&gt; is passed to <code>handleElement</code>
          *     the method checks if there is a &gt;desc&gt; peer. If
          *     there is one, nothing is done (because the desc will do
          *     it). If there in none, the tool tip is set to the value
          *     of the &lt;title&gt; element content.</li>
-         * <li>If a &lt;desc&gt; is passed to <tt>handleElement</tt>
+         * <li>If a &lt;desc&gt; is passed to <code>handleElement</code>
          *     the method checks if there is a &lt;title&gt; peer. If there
          *     is one, the content of that peer is pre-pended to the
          *     content of the &lt;desc&gt; element.</li>
@@ -835,12 +887,12 @@ public class JSVGCanvas extends JSVGComponent {
 
             // Don't handle tool tips unless we are interactive.
             if (!isInteractive()) return;
-            
+
             if (!SVGConstants.SVG_NAMESPACE_URI.equals(elt.getNamespaceURI()))
                 return;
 
             // Don't handle tool tips for the root SVG element.
-            if (elt.getParentNode() == 
+            if (elt.getParentNode() ==
                 elt.getOwnerDocument().getDocumentElement()) {
                 return;
             }
@@ -854,13 +906,13 @@ public class JSVGCanvas extends JSVGComponent {
             Element descPeer = null;
             Element titlePeer = null;
             if (elt.getLocalName().equals(SVGConstants.SVG_TITLE_TAG)) {
-                if (data == Boolean.TRUE) 
+                if (data == Boolean.TRUE)
                     titlePeer = elt;
                 descPeer = getPeerWithTag(parent,
                                            SVGConstants.SVG_NAMESPACE_URI,
                                            SVGConstants.SVG_DESC_TAG);
             } else if (elt.getLocalName().equals(SVGConstants.SVG_DESC_TAG)) {
-                if (data == Boolean.TRUE) 
+                if (data == Boolean.TRUE)
                     descPeer = elt;
                 titlePeer = getPeerWithTag(parent,
                                            SVGConstants.SVG_NAMESPACE_URI,
@@ -976,7 +1028,7 @@ public class JSVGCanvas extends JSVGComponent {
                                       String nameSpaceURI,
                                       String localName) {
 
-            Element p = (Element)parent;
+            Element p = parent;
             if (p == null) {
                 return null;
             }
@@ -997,7 +1049,7 @@ public class JSVGCanvas extends JSVGComponent {
 
         /**
          * Returns a boolean defining whether or not there is a peer of
-         * <tt>elt</tt> with the given qualified tag.
+         * <code>elt</code> with the given qualified tag.
          */
         public boolean hasPeerWithTag(Element elt,
                                       String nameSpaceURI,
@@ -1107,8 +1159,8 @@ public class JSVGCanvas extends JSVGComponent {
 
         protected int lastX, lastY;
 
-        public LocationListener () { 
-            lastX = 0; lastY = 0; 
+        public LocationListener () {
+            lastX = 0; lastY = 0;
         }
 
         public void mouseMoved(MouseEvent evt) {
@@ -1126,13 +1178,13 @@ public class JSVGCanvas extends JSVGComponent {
     }
 
     /**
-     * Sets a specific tooltip on the JSVGCanvas when a given event occurs. 
-     * This listener is used in the handleElement method to set, remove or 
+     * Sets a specific tooltip on the JSVGCanvas when a given event occurs.
+     * This listener is used in the handleElement method to set, remove or
      * modify the JSVGCanvas tooltip on mouseover and on mouseout.<br/>
      *
-     * Because we are on a single <tt>JComponent</tt> we trigger an artificial
-     * <tt>MouseEvent</tt> when the toolTip is set to a non-null value, so as 
-     * to make sure it will show after the <tt>ToolTipManager</tt>'s default 
+     * Because we are on a single <code>JComponent</code> we trigger an artificial
+     * <code>MouseEvent</code> when the toolTip is set to a non-null value, so as
+     * to make sure it will show after the <code>ToolTipManager</code>'s default
      * delay.
      */
     protected class ToolTipModifier implements EventListener {
@@ -1162,7 +1214,7 @@ public class JSVGCanvas extends JSVGComponent {
                 // related target is one it is entering or null.
                 org.w3c.dom.events.MouseEvent mouseEvt;
                 mouseEvt = ((org.w3c.dom.events.MouseEvent)evt);
-                lastTarget = mouseEvt.getRelatedTarget(); 
+                lastTarget = mouseEvt.getRelatedTarget();
             }
 
             if (toolTipMap != null) {

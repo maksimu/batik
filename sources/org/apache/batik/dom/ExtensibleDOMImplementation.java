@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,8 +22,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Locale;
-import java.util.MissingResourceException;
 
 import org.apache.batik.css.engine.CSSContext;
 import org.apache.batik.css.engine.CSSEngine;
@@ -31,15 +30,15 @@ import org.apache.batik.css.engine.value.ValueManager;
 import org.apache.batik.css.parser.ExtendedParser;
 import org.apache.batik.css.parser.ExtendedParserWrapper;
 import org.apache.batik.dom.util.DOMUtilities;
-import org.apache.batik.dom.util.DoublyIndexedTable;
-import org.apache.batik.i18n.Localizable;
-import org.apache.batik.i18n.LocalizableSupport;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.Service;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.batik.xml.XMLUtilities;
 
 import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.css.DOMImplementationCSS;
 import org.w3c.dom.css.ViewCSS;
@@ -51,14 +50,13 @@ import org.w3c.dom.css.ViewCSS;
  * {@link org.apache.batik.util.Service}).
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: ExtensibleDOMImplementation.java 728570 2008-12-22 02:12:35Z cam $
  */
-public abstract class ExtensibleDOMImplementation 
+public abstract class ExtensibleDOMImplementation
     extends AbstractDOMImplementation
     implements DOMImplementationCSS,
-               StyleSheetFactory,
-               Localizable {
-    
+               StyleSheetFactory {
+
     /**
      * The custom elements factories.
      */
@@ -75,57 +73,15 @@ public abstract class ExtensibleDOMImplementation
     protected List customShorthandManagers;
 
     /**
-     * The error messages bundle class name.
-     */
-    protected final static String RESOURCES =
-        "org.apache.batik.dom.resources.Messages";
-
-    /**
-     * The localizable support for the error messages.
-     */
-    protected LocalizableSupport localizableSupport;
-
-    /**
      * Creates a new DOMImplementation.
      */
     public ExtensibleDOMImplementation() {
-        initLocalizable();
-
         Iterator iter = getDomExtensions().iterator();
 
         while(iter.hasNext()) {
             DomExtension de = (DomExtension)iter.next();
             de.registerTags(this);
         }
-    }
-
-    // Localizable //////////////////////////////////////////////////////
-
-    /**
-     * Implements {@link Localizable#setLocale(Locale)}.
-     */
-    public void setLocale(Locale l) {
-	localizableSupport.setLocale(l);
-    }
-
-    /**
-     * Implements {@link Localizable#getLocale()}.
-     */
-    public Locale getLocale() {
-        return localizableSupport.getLocale();
-    }
-
-    protected void initLocalizable() {
-        localizableSupport =
-            new LocalizableSupport(RESOURCES, getClass().getClassLoader());
-    }
-
-    /**
-     * Implements {@link Localizable#formatMessage(String,Object[])}.
-     */
-    public String formatMessage(String key, Object[] args)
-        throws MissingResourceException {
-        return localizableSupport.formatMessage(key, args);
     }
 
     /**
@@ -163,7 +119,7 @@ public abstract class ExtensibleDOMImplementation
     /**
      * Creates new CSSEngine and attach it to the document.
      */
-    public CSSEngine createCSSEngine(AbstractStylableDocument doc, 
+    public CSSEngine createCSSEngine(AbstractStylableDocument doc,
                                      CSSContext ctx) {
         String pn = XMLResourceDescriptor.getCSSParserClassName();
         Parser p;
@@ -213,10 +169,10 @@ public abstract class ExtensibleDOMImplementation
         return result;
     }
 
-    public abstract CSSEngine createCSSEngine(AbstractStylableDocument doc,  
+    public abstract CSSEngine createCSSEngine(AbstractStylableDocument doc,
                                               CSSContext               ctx,
                                               ExtendedParser           ep,
-                                              ValueManager     []      vms, 
+                                              ValueManager     []      vms,
                                               ShorthandManager []      sms);
 
     /**
@@ -251,6 +207,33 @@ public abstract class ExtensibleDOMImplementation
                                     document);
     }
 
+    /**
+     * <b>DOM</b>: Implements {@link
+     * DOMImplementation#createDocumentType(String,String,String)}.
+     */
+    public DocumentType createDocumentType(String qualifiedName,
+                                           String publicId,
+                                           String systemId) {
+
+        if (qualifiedName == null) {
+            qualifiedName = "";
+        }
+        int test = XMLUtilities.testXMLQName(qualifiedName);
+        if ((test & XMLUtilities.IS_XML_10_NAME) == 0) {
+            throw new DOMException
+                (DOMException.INVALID_CHARACTER_ERR,
+                 formatMessage("xml.name",
+                               new Object[] { qualifiedName }));
+        }
+        if ((test & XMLUtilities.IS_XML_10_QNAME) == 0) {
+            throw new DOMException
+                (DOMException.INVALID_CHARACTER_ERR,
+                 formatMessage("invalid.qname",
+                               new Object[] { qualifiedName }));
+        }
+        return new GenericDocumentType(qualifiedName, publicId, systemId);
+    }
+
     // The element factories /////////////////////////////////////////////////
 
     /**
@@ -267,7 +250,7 @@ public abstract class ExtensibleDOMImplementation
 
     protected static List extensions = null;
 
-    protected synchronized static List getDomExtensions() {
+    protected static synchronized List getDomExtensions() {
         if (extensions != null)
             return extensions;
 

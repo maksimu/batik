@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,12 +19,12 @@
 package org.apache.batik.util;
 
 /**
- * This <tt>SecurityManager</tt> extension exposes the <tt>getClassContext</tt>
- * method so that it can be used by the <tt>BatikSecuritySupport</tt> or other
+ * This <code>SecurityManager</code> extension exposes the <code>getClassContext</code>
+ * method so that it can be used by the <code>BatikSecuritySupport</code> or other
  * security related class.
  *
  * @author <a mailto="vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: BatikSecurityManager.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class BatikSecurityManager extends SecurityManager {
     /**

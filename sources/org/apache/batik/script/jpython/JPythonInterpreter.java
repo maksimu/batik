@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,7 +30,7 @@ import org.python.util.PythonInterpreter;
  * A simple implementation of <code>Interpreter</code> interface to use
  * JPython python parser.
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
- * @version $Id$
+ * @version $Id: JPythonInterpreter.java 801512 2009-08-06 05:33:28Z cam $
  */
 public class JPythonInterpreter implements org.apache.batik.script.Interpreter {
     private PythonInterpreter interpreter = null;
@@ -39,6 +40,14 @@ public class JPythonInterpreter implements org.apache.batik.script.Interpreter {
     }
 
     // org.apache.batik.script.Intepreter implementation
+
+    /**
+     * Returns the content types of the scripting languages this interpreter
+     * handles.
+     */
+    public String[] getMimeTypes() {
+        return JPythonInterpreterFactory.JPYTHON_MIMETYPES;
+    }
 
     public Object evaluate(Reader scriptreader)
         throws IOException {

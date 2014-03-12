@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,9 +19,13 @@
 package org.apache.batik.dom;
 
 import java.io.Serializable;
+import java.util.Locale;
+import java.util.MissingResourceException;
 
 import org.apache.batik.dom.events.DocumentEventSupport;
 import org.apache.batik.dom.events.EventSupport;
+import org.apache.batik.i18n.Localizable;
+import org.apache.batik.i18n.LocalizableSupport;
 import org.apache.batik.dom.util.HashTable;
 
 import org.w3c.dom.DOMImplementation;
@@ -30,12 +35,25 @@ import org.w3c.dom.DOMImplementation;
  * {@link org.w3c.dom.css.DOMImplementationCSS} interfaces.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractDOMImplementation.java 728570 2008-12-22 02:12:35Z cam $
  */
 
 public abstract class AbstractDOMImplementation
         implements DOMImplementation,
+                   Localizable,
                    Serializable {
+
+    /**
+     * The error messages bundle class name.
+     */
+    protected static final String RESOURCES =
+        "org.apache.batik.dom.resources.Messages";
+
+    /**
+     * The localizable support for the error messages.
+     */
+    protected LocalizableSupport localizableSupport =
+        new LocalizableSupport(RESOURCES, getClass().getClassLoader());
 
     /**
      * The supported features.
@@ -82,13 +100,13 @@ public abstract class AbstractDOMImplementation
             // All features are directly castable.
             feature = feature.substring(1);
         }
-	Object v = features.get(feature.toLowerCase());
-	if (v == null) {
-	    return false;
-	}
-	if (version == null || version.length() == 0) {
-	    return true;
-	}
+        Object v = features.get(feature.toLowerCase());
+        if (v == null) {
+            return false;
+        }
+        if (version == null || version.length() == 0) {
+            return true;
+        }
         if (v instanceof String) {
             return version.equals(v);
         } else {
@@ -127,5 +145,32 @@ public abstract class AbstractDOMImplementation
      */
     public EventSupport createEventSupport(AbstractNode n) {
         return new EventSupport(n);
+    }
+
+    // Localizable //////////////////////////////////////////////////////
+
+    /**
+     * Implements {@link Localizable#setLocale(Locale)}.
+     */
+    public void setLocale(Locale l) {
+        localizableSupport.setLocale(l);
+    }
+
+    /**
+     * Implements {@link Localizable#getLocale()}.
+     */
+    public Locale getLocale() {
+        return localizableSupport.getLocale();
+    }
+
+    protected void initLocalizable() {
+    }
+
+    /**
+     * Implements {@link Localizable#formatMessage(String,Object[])}.
+     */
+    public String formatMessage(String key, Object[] args)
+        throws MissingResourceException {
+        return localizableSupport.formatMessage(key, args);
     }
 }

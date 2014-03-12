@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,7 +38,7 @@ import org.apache.batik.util.SoftReferenceCache;
  * </p>
  *
  * @author <a href="mailto:thomas.deweese@kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: URLImageCache.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class URLImageCache extends SoftReferenceCache {
 
@@ -51,7 +52,7 @@ public class URLImageCache extends SoftReferenceCache {
     public URLImageCache() { }
 
     /**
-     * Check if <tt>request(url)</tt> will return with a Filter
+     * Check if <code>request(url)</code> will return with a Filter
      * (not putting you on the hook for it).  Note that it is possible
      * that this will return true but between this call and the call
      * to request the soft-reference will be cleared.  So it
@@ -63,7 +64,7 @@ public class URLImageCache extends SoftReferenceCache {
     }
 
     /**
-     * Check if <tt>request(url)</tt> will return immediately with the
+     * Check if <code>request(url)</code> will return immediately with the
      * Filter.  Note that it is possible that this will return
      * true but between this call and the call to request the
      * soft-reference will be cleared.

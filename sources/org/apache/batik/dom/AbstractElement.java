@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,21 +27,21 @@ import org.apache.batik.util.XMLConstants;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.ElementTraversal;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.TypeInfo;
-import org.w3c.dom.events.DocumentEvent;
 import org.w3c.dom.events.MutationEvent;
 
 /**
  * This class implements the {@link org.w3c.dom.Element} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractElement.java 601944 2007-12-07 01:01:23Z cam $
  */
 public abstract class AbstractElement
     extends    AbstractParentChildNode
-    implements Element {
+    implements Element, ElementTraversal {
 
     /**
      * The attributes of this element.
@@ -94,7 +95,7 @@ public abstract class AbstractElement
      * <b>DOM</b>: Implements {@link org.w3c.dom.Node#getAttributes()}.
      */
     public NamedNodeMap getAttributes() {
-      	return (attributes == null)
+        return (attributes == null)
             ? attributes = createAttributes()
             : attributes;
     }
@@ -194,7 +195,7 @@ public abstract class AbstractElement
                    new Object[] { oldAttr.getName() });
         }
         String nsURI = oldAttr.getNamespaceURI();
-      	return (Attr)attributes.removeNamedItemNS(nsURI,
+        return (Attr)attributes.removeNamedItemNS(nsURI,
                                                   (nsURI==null
                                                    ? oldAttr.getNodeName()
                                                    : oldAttr.getLocalName()));
@@ -245,8 +246,8 @@ public abstract class AbstractElement
      * org.w3c.dom.Element#setAttributeNS(String,String,String)}.
      */
     public void setAttributeNS(String namespaceURI,
-			       String qualifiedName,
-			       String value) throws DOMException {
+                               String qualifiedName,
+                               String value) throws DOMException {
 
         if (attributes == null) {
             attributes = createAttributes();
@@ -270,14 +271,14 @@ public abstract class AbstractElement
      * org.w3c.dom.Element#removeAttributeNS(String,String)}.
      */
     public void removeAttributeNS(String namespaceURI,
-				  String localName) throws DOMException {
+                                  String localName) throws DOMException {
         if (namespaceURI != null && namespaceURI.length() == 0) {
             namespaceURI = null;
         }
         if (!hasAttributeNS(namespaceURI, localName)) {
                   return;
         }
-      	attributes.removeNamedItemNS(namespaceURI, localName);
+        attributes.removeNamedItemNS(namespaceURI, localName);
     }
 
     /**
@@ -285,7 +286,7 @@ public abstract class AbstractElement
      * org.w3c.dom.Element#getAttributeNodeNS(String,String)}.
      */
     public Attr getAttributeNodeNS(String namespaceURI,
-				   String localName) {
+                                   String localName) {
         if (namespaceURI != null && namespaceURI.length() == 0) {
             namespaceURI = null;
         }
@@ -385,9 +386,9 @@ public abstract class AbstractElement
             return null;
         }
         int len = nnm.getLength();
-        for ( int i = 0; i < len; i++ ) {
-            AbstractAttr a = (AbstractAttr)nnm.item( i );
-            if ( a.isId() ) {
+        for (int i = 0; i < len; i++) {
+            AbstractAttr a = (AbstractAttr)nnm.item(i);
+            if (a.isId()) {
                 return a;
             }
         }
@@ -480,7 +481,7 @@ public abstract class AbstractElement
      * Creates the attribute list.
      */
     protected NamedNodeMap createAttributes() {
-      	return new NamedNodeHashMap();
+        return new NamedNodeHashMap();
     }
 
     /**
@@ -633,9 +634,8 @@ public abstract class AbstractElement
         }
         AbstractDocument doc = getCurrentDocument();
         if (doc.getEventsEnabled() && !oldv.equals(newv)) {
-            DocumentEvent de = (DocumentEvent)doc;
             DOMMutationEvent ev
-                      = (DOMMutationEvent) de.createEvent("MutationEvents");
+                      = (DOMMutationEvent) doc.createEvent("MutationEvents");
             ev.initMutationEventNS(XMLConstants.XML_EVENTS_NAMESPACE_URI,
                                          "DOMAttrModified",
                                          true,    // canBubbleArg
@@ -665,6 +665,72 @@ public abstract class AbstractElement
      * Called when an attribute has been removed.
      */
     protected void attrRemoved(Attr node, String oldv) {
+    }
+
+    // ElementTraversal //////////////////////////////////////////////////////
+
+    /**
+     * <b>DOM</b>: Implements {@link ElementTraversal#getFirstElementChild()}.
+     */
+    public Element getFirstElementChild() {
+        Node n = getFirstChild();
+        while (n != null) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) n;
+            }
+            n = n.getNextSibling();
+        }
+        return null;
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link ElementTraversal#getLastElementChild()}.
+     */
+    public Element getLastElementChild() {
+        Node n = getLastChild();
+        while (n != null) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) n;
+            }
+            n = n.getPreviousSibling();
+        }
+        return null;
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link ElementTraversal#getNextElementSibling()}.
+     */
+    public Element getNextElementSibling() {
+        Node n = getNextSibling();
+        while (n != null) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) n;
+            }
+            n = n.getNextSibling();
+        }
+        return null;
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link ElementTraversal#getPreviousElementSibling()}.
+     */
+    public Element getPreviousElementSibling() {
+        Node n = getPreviousSibling();
+        while (n != null) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) n;
+            }
+            n = n.getPreviousSibling();
+        }
+        return (Element) n;
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link ElementTraversal#getChildElementCount()}.
+     */
+    public int getChildElementCount() {
+        getChildNodes();
+        return childNodes.elementChildren;
     }
 
     /**

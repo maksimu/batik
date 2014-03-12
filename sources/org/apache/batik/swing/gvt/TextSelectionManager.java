@@ -1,10 +1,11 @@
 /*
 
-Copyright 1999-2003  The Apache Software Foundation 
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
 
 http://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,10 +25,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.BasicStroke;
 import java.awt.geom.AffineTransform;
 
 import org.apache.batik.gvt.Selectable;
-import org.apache.batik.gvt.event.AWTEventDispatcher;
+import org.apache.batik.gvt.event.EventDispatcher;
 import org.apache.batik.gvt.event.GraphicsNodeMouseEvent;
 import org.apache.batik.gvt.event.GraphicsNodeMouseListener;
 import org.apache.batik.gvt.event.SelectionEvent;
@@ -39,14 +41,14 @@ import org.apache.batik.gvt.text.Mark;
  * This class represents an object which manage GVT text nodes selection.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: TextSelectionManager.java 666001 2008-06-10 08:15:08Z cam $
  */
 public class TextSelectionManager {
 
     /**
      * The cursor indicating that a text selection operation is under way.
      */
-    public final static Cursor TEXT_CURSOR = new Cursor(Cursor.TEXT_CURSOR);
+    public static final Cursor TEXT_CURSOR = new Cursor(Cursor.TEXT_CURSOR);
 
     /**
      * The text selector.
@@ -56,7 +58,7 @@ public class TextSelectionManager {
     /**
      * The associated JGVTComponent.
      */
-    protected AbstractJGVTComponent component;
+    protected JGVTComponent component;
 
     /**
      * The selection overlay.
@@ -91,10 +93,10 @@ public class TextSelectionManager {
     /**
      * The color of the outline of the selection overlay.
      */
-    protected Color selectionOverlayStrokeColor = new Color(255, 255, 255, 255);
+    protected Color selectionOverlayStrokeColor = Color.white;
 
     /**
-     * A flag bit that indicates whether or not the selection overlay is 
+     * A flag bit that indicates whether or not the selection overlay is
      * painted in XOR mode.
      */
     protected boolean xorMode = false;
@@ -107,8 +109,8 @@ public class TextSelectionManager {
     /**
      * Creates a new TextSelectionManager.
      */
-    public TextSelectionManager(AbstractJGVTComponent comp,
-                                AWTEventDispatcher ed) {
+    public TextSelectionManager(JGVTComponent comp,
+                                EventDispatcher ed) {
         textSelector = new ConcreteTextSelector();
         textSelectionListener = new TextSelectionListener();
         textSelector.addSelectionListener(textSelectionListener);
@@ -121,7 +123,7 @@ public class TextSelectionManager {
     }
 
     /**
-     * Add a selection listener to be notified when the 
+     * Add a selection listener to be notified when the
      * text selection changes in the document.
      */
     public void addSelectionListener(SelectionListener sl) {
@@ -129,7 +131,7 @@ public class TextSelectionManager {
     }
 
     /**
-     * Remove a selection listener to be notified when the 
+     * Remove a selection listener to be notified when the
      * text selection changes in the document.
      */
     public void removeSelectionListener(SelectionListener sl) {
@@ -142,7 +144,7 @@ public class TextSelectionManager {
      * @param color the new color of the selection overlay
      */
     public void setSelectionOverlayColor(Color color) {
-        this.selectionOverlayColor = color;
+        selectionOverlayColor = color;
     }
 
     /**
@@ -156,10 +158,10 @@ public class TextSelectionManager {
      * Sets the color of the outline of the selection overlay to the specified
      * color.
      *
-     * @param color the new color of the outline of the selection overlay 
+     * @param color the new color of the outline of the selection overlay
      */
     public void setSelectionOverlayStrokeColor(Color color) {
-        this.selectionOverlayStrokeColor = color;
+        selectionOverlayStrokeColor = color;
     }
 
     /**
@@ -173,10 +175,10 @@ public class TextSelectionManager {
      * Sets whether or not the selection overlay will be painted in XOR mode,
      * depending on the specified parameter.
      *
-     * @param state true implies the selection overlay will be in XOR mode 
+     * @param state true implies the selection overlay will be in XOR mode
      */
     public void setSelectionOverlayXORMode(boolean state) {
-        this.xorMode = state;
+        xorMode = state;
     }
 
     /**
@@ -296,7 +298,8 @@ public class TextSelectionManager {
             if (selectionHighlight != null) {
                 if (r != null) {
                     Rectangle r2 = getHighlightBounds();
-                    component.repaint(r.union(r2));
+                    r2.add( r );   // r2 = r2 union r
+                    component.repaint( r2 );
                 } else {
                     component.repaint(getHighlightBounds());
                 }
@@ -346,7 +349,7 @@ public class TextSelectionManager {
                     g2d.setColor(selectionOverlayColor);
                     g2d.fill(s);
                     if (selectionOverlayStrokeColor != null) {
-                        g2d.setStroke(new java.awt.BasicStroke(1.0f));
+                        g2d.setStroke(new BasicStroke(1.0f));
                         g2d.setColor(selectionOverlayStrokeColor);
                         g2d.draw(s);
                     }

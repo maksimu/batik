@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,14 +24,14 @@ import java.awt.geom.Rectangle2D;
 import java.util.Calendar;
 
 import org.apache.batik.anim.AbstractAnimation;
-import org.apache.batik.anim.AnimatableElement;
 import org.apache.batik.anim.AnimationEngine;
-import org.apache.batik.anim.AnimationTarget;
-import org.apache.batik.anim.AnimationTargetListener;
 import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.css.engine.CSSEngineEvent;
 import org.apache.batik.dom.AbstractNode;
+import org.apache.batik.dom.anim.AnimatableElement;
+import org.apache.batik.dom.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTargetListener;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.SVGAnimationContext;
 import org.apache.batik.dom.svg.SVGOMElement;
@@ -48,7 +49,7 @@ import org.w3c.dom.svg.SVGElement;
  * An abstract base class for the SVG animation element bridges.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGAnimationElementBridge.java 580684 2007-09-30 09:05:57Z cam $
  */
 public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
         implements GenericBridge,
@@ -364,6 +365,8 @@ public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
         if (element.getSVGContext() == null) {
             // Only remove the animation if this is not part of a rebuild.
             eng.removeAnimation(animation);
+            timedElement.deinitialize();
+            timedElement = null;
             element = null;
         }
     }
@@ -422,33 +425,46 @@ public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
     // SVGAnimationContext ///////////////////////////////////////////////////
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getTargetElement()}.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getTargetElement()}.
      */
     public SVGElement getTargetElement() {
         return targetElement;
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getStartTime()}.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getStartTime()}.
      */
     public float getStartTime() {
         return timedElement.getCurrentBeginTime();
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getCurrentTime()}.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getCurrentTime()}.
      */
     public float getCurrentTime() {
         return timedElement.getLastSampleTime();
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getSimpleDuration()}.
-     * With the difference that an indefinite simple duration is returned as
-     * {@link TimedElement.INDEFINITE}, rather than throwing an exception.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getSimpleDuration()}.  With the
+     * difference that an indefinite simple duration is returned as
+     * {@link TimedElement#INDEFINITE}, rather than throwing an exception.
      */
     public float getSimpleDuration() {
         return timedElement.getSimpleDur();
+    }
+
+    /**
+     * Returns the time that the document would seek to if this animation
+     * element were hyperlinked to, or <code>NaN</code> if there is no
+     * such begin time.
+     */
+    public float getHyperlinkBeginTime() {
+        return timedElement.getHyperlinkBeginTime();
     }
 
     // ElementTimeControl ////////////////////////////////////////////////////
@@ -494,6 +510,13 @@ public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
     }
 
     /**
+     * Returns whether this is a constant animation (i.e., a 'set' animation).
+     */
+    protected boolean isConstantAnimation() {
+        return false;
+    }
+
+    /**
      * A TimedElement class for SVG animation elements.
      */
     protected class SVGTimedElement extends TimedElement {
@@ -528,9 +551,13 @@ public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
 
         /**
          * Invoked to indicate that this timed element became inactive.
+         * @param stillActive if true, indicates that the element is still
+         *                    actually active, but between the end of the
+         *                    computed repeat duration and the end of the
+         *                    interval
          * @param isFrozen whether the element is frozen or not
          */
-        protected void toInactive(boolean isFrozen) {
+        protected void toInactive(boolean stillActive, boolean isFrozen) {
             eng.toInactive(animation, isFrozen);
         }
 
@@ -587,12 +614,11 @@ public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
         }
 
         /**
-         * Returns the event target that is the parent of the given
-         * timed element.  Used for eventbase timing specifiers where
-         * the element ID is omitted.
+         * Returns the target of this animation as an {@link EventTarget}.  Used
+         * for eventbase timing specifiers where the element ID is omitted.
          */
-        protected EventTarget getParentEventTarget(TimedElement e) {
-            return AnimationSupport.getParentEventTarget(e);
+        protected EventTarget getAnimationEventTarget() {
+            return targetElement;
         }
 
         /**
@@ -616,6 +642,14 @@ public abstract class SVGAnimationElementBridge extends AbstractSVGBridge
                 }
             }
             return super.toString();
+        }
+
+        /**
+         * Returns whether this timed element is for a constant animation (i.e.,
+         * a 'set' animation.
+         */
+        protected boolean isConstantAnimation() {
+            return SVGAnimationElementBridge.this.isConstantAnimation();
         }
     }
 }

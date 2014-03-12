@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,15 +24,17 @@ import java.io.StreamCorruptedException;
 
 /**
  * This Image tag registry entry is built around the notion of magic
- * numbers.  These are strings of bytes that are at a well known
+ * numbers. These are strings of bytes that are at a well known
  * location in the input stream (often the start).
  *
- * This base class can handle the compatiblity check based on a list
+ * This base class can handle the compatibility check based on a list
  * of Magic Numbers that correspond to your format (Some formats have
  * multiple magic numbers associated with them).
+ *
+ * @version $Id: MagicNumberRegistryEntry.java 1070135 2011-02-12 19:17:53Z jeremias $
  */
-public abstract class MagicNumberRegistryEntry 
-    extends AbstractRegistryEntry 
+public abstract class MagicNumberRegistryEntry
+    extends AbstractRegistryEntry
     implements StreamRegistryEntry {
 
     public static final float PRIORITY = 1000;
@@ -45,7 +48,7 @@ public abstract class MagicNumberRegistryEntry
         int offset;
         byte [] magicNumber;
         byte [] buffer;
-        
+
         /**
          *  Constructor.
          * @param offset the location of the magic number in file.
@@ -53,13 +56,13 @@ public abstract class MagicNumberRegistryEntry
          */
         public MagicNumber(int offset, byte[]magicNumber) {
             this.offset = offset;
-            this.magicNumber = (byte[])magicNumber.clone();
+            this.magicNumber = magicNumber.clone();
             buffer = new byte[magicNumber.length];
         }
 
         /**
          * Returns the maximum number of bytes that will be read for
-         * this magic number compairison.  
+         * this magic number comparison.
          */
         int getReadlimit() {
             return offset+magicNumber.length;
@@ -68,7 +71,7 @@ public abstract class MagicNumberRegistryEntry
         /**
          * Performs the check of is.
          */
-        boolean isMatch(InputStream is) 
+        boolean isMatch(InputStream is)
             throws StreamCorruptedException {
             int idx = 0;
             is.mark(getReadlimit());
@@ -76,20 +79,25 @@ public abstract class MagicNumberRegistryEntry
                 // Skip to the offset location.
                 while (idx < offset) {
                     int rn = (int)is.skip(offset-idx);
-                    if (rn == -1) return false;
+                    if (rn == -1) {
+                        return false;
+                    }
                     idx += rn;
                 }
-		
+
                 idx = 0;
                 while (idx < buffer.length) {
                     int rn = is.read(buffer, idx, buffer.length-idx);
-                    if (rn == -1) return false;
+                    if (rn == -1) {
+                        return false;
+                    }
                     idx += rn;
                 }
-		
+
                 for (int i=0; i<magicNumber.length; i++) {
-                    if (magicNumber[i] != buffer[i])
+                    if (magicNumber[i] != buffer[i]) {
                         return false;
+                    }
                 }
             } catch (IOException ioe) {
                 return false;
@@ -97,7 +105,7 @@ public abstract class MagicNumberRegistryEntry
                 try {
                     // Make sure we always put back what we have read.
                     // If this throws an IOException then the current
-                    // stream should be closed an reopend by the registry.
+                    // stream should be closed an reopened by the registry.
                     is.reset();
                 } catch (IOException ioe) {
                     throw new StreamCorruptedException(ioe.getMessage());
@@ -129,7 +137,7 @@ public abstract class MagicNumberRegistryEntry
         magicNumbers    = new MagicNumber[1];
         magicNumbers[0] = new MagicNumber(offset, magicNumber);
     }
-    
+
     /**
      * Constructor, simplifies construction of entry when only
      * one extension and one magic number is required.
@@ -145,7 +153,7 @@ public abstract class MagicNumberRegistryEntry
                                     int offset, byte[] magicNumber) {
         this(name, PRIORITY, ext, mimeType, offset, magicNumber);
     }
-    
+
     /**
      * Constructor, simplifies construction of entry when only
      * one extension is required.
@@ -198,7 +206,7 @@ public abstract class MagicNumberRegistryEntry
         magicNumbers    = new MagicNumber[1];
         magicNumbers[0] = new MagicNumber(offset, magicNumber);
     }
-    
+
     /**
      * Constructor, simplifies construction of entry when only
      * one magic number is required.
@@ -214,7 +222,7 @@ public abstract class MagicNumberRegistryEntry
                                     int offset, byte[] magicNumbers) {
         this(name, PRIORITY, exts, mimeTypes, offset, magicNumbers);
     }
-    
+
     /**
      * Constructor
      * @param name Format Name
@@ -231,7 +239,7 @@ public abstract class MagicNumberRegistryEntry
         super(name, priority, exts, mimeTypes);
         this.magicNumbers = magicNumbers;
     }
-    
+
     /**
      * Constructor
      * @param name Format Name
@@ -245,7 +253,7 @@ public abstract class MagicNumberRegistryEntry
                                     MagicNumber [] magicNumbers) {
         this(name, PRIORITY, exts, mimeTypes, magicNumbers);
     }
-    
+
     /**
      * Constructor, allows for overriding the default priority of
      * magic number entries.  This should be needed very rarely since
@@ -266,26 +274,29 @@ public abstract class MagicNumberRegistryEntry
     }
 
     /**
-     * Returns the maximume read ahead needed for all magic numbers.
+     * Returns the maximum read ahead needed for all magic numbers.
      */
     public int getReadlimit() {
         int maxbuf = 0;
         for (int i=0; i<magicNumbers.length; i++) {
             int req = magicNumbers[i].getReadlimit();
-            if (req > maxbuf) maxbuf = req;
+            if (req > maxbuf) {
+                maxbuf = req;
+            }
         }
         return maxbuf;
     }
-    
+
     /**
      * Check if the stream contains an image that can be
      * handled by this format handler
      */
-    public boolean isCompatibleStream(InputStream is) 
+    public boolean isCompatibleStream(InputStream is)
         throws StreamCorruptedException {
         for (int i=0; i<magicNumbers.length; i++) {
-            if (magicNumbers[i].isMatch(is)) 
+            if (magicNumbers[i].isMatch(is)) {
                 return true;
+            }
         }
 
         return false;

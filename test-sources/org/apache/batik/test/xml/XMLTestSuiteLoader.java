@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -36,10 +37,10 @@ import org.w3c.dom.NodeList;
 
 /**
  * This class loads an XML document describing a test suite
- * into a <tt>TestSuite</tt> object.
+ * into a <code>TestSuite</code> object.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: XMLTestSuiteLoader.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class XMLTestSuiteLoader implements XTSConstants {
 
@@ -54,7 +55,7 @@ public class XMLTestSuiteLoader implements XTSConstants {
         = "xml.XMLTestSuiteLoader.error.test.suite.loading.exception";
 
     /**
-     * An error happened while processing a <tt>Test</tt>
+     * An error happened while processing a <code>Test</code>
      * description.
      * {0} : the <test> "className" attribute value
      * {1} : exception's class name
@@ -76,7 +77,7 @@ public class XMLTestSuiteLoader implements XTSConstants {
     }
 
     /**
-     * Loads the URI as a <tt>Document</tt>
+     * Loads the URI as a <code>Document</code>
      */
     protected static Document loadTestSuiteDocument(String testSuiteURI)
         throws TestException{
@@ -105,7 +106,7 @@ public class XMLTestSuiteLoader implements XTSConstants {
     }
 
     /**
-     * Builds a <tt>TestSuite</tt> from an input element.
+     * Builds a <code>TestSuite</code> from an input element.
      * This method assumes that element is a &lt;testSuite&gt;
      * instance, as the input document should have been
      * validated when loaded.

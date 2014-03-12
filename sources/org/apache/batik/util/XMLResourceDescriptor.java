@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,32 +29,32 @@ import java.util.MissingResourceException;
  * modules.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: XMLResourceDescriptor.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class XMLResourceDescriptor {
 
     /**
      * The XML parser class name key.
      */
-    public final static String XML_PARSER_CLASS_NAME_KEY =
+    public static final String XML_PARSER_CLASS_NAME_KEY =
         "org.xml.sax.driver";
 
     /**
      * The CSS parser class name key.
      */
-    public final static String CSS_PARSER_CLASS_NAME_KEY =
+    public static final String CSS_PARSER_CLASS_NAME_KEY =
         "org.w3c.css.sac.driver";
 
     /**
      * The resources file name
      */
-    public final static String RESOURCES =
+    public static final String RESOURCES =
         "resources/XMLResourceDescriptor.properties";
 
     /**
      * The resource bundle
      */
-    protected static Properties parserProps = null;;
+    protected static Properties parserProps = null;
 
     /**
      * The class name of the XML parser to use.
@@ -69,13 +70,13 @@ public class XMLResourceDescriptor {
         if (parserProps != null) return parserProps;
 
         parserProps = new Properties();
-        try { 
+        try {
             Class cls = XMLResourceDescriptor.class;
             InputStream is = cls.getResourceAsStream(RESOURCES);
             parserProps.load(is);
-        } catch (IOException ioe) { 
+        } catch (IOException ioe) {
             throw new MissingResourceException(ioe.getMessage(),
-                                               RESOURCES, null); 
+                                               RESOURCES, null);
         }
         return parserProps;
     }
@@ -84,9 +85,9 @@ public class XMLResourceDescriptor {
      * Returns the class name of the XML parser to use.
      *
      * <p>This method first checks if any XML parser has been specified using
-     * the <tt>setXMLParserClassName</tt> method. If any, this method will
+     * the <code>setXMLParserClassName</code> method. If any, this method will
      * return the value of the property 'org.xml.sax.driver' specified in the
-     * <tt>resources/XMLResourceDescriptor.properties</tt> resource file.
+     * <code>resources/XMLResourceDescriptor.properties</code> resource file.
      */
     public static String getXMLParserClassName() {
         if (xmlParserClassName == null) {
@@ -109,10 +110,10 @@ public class XMLResourceDescriptor {
      * Returns the class name of the CSS parser to use.
      *
      * <p>This method first checks if any CSS parser has been
-     * specified using the <tt>setCSSParserClassName</tt> method. If
+     * specified using the <code>setCSSParserClassName</code> method. If
      * any, this method will return the value of the property
      * 'org.w3c.css.sac.driver' specified in the
-     * <tt>resources/XMLResourceDescriptor.properties</tt> resource
+     * <code>resources/XMLResourceDescriptor.properties</code> resource
      * file.
      */
     public static String getCSSParserClassName() {

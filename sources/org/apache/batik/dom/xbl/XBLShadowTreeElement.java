@@ -22,6 +22,8 @@ import org.w3c.dom.Element;
 /**
  * The interface for xbl:shadowTree elements.
  * Eventually will move to org.w3c.dom.xbl (or some such package).
+ *
+ * @version $Id: XBLShadowTreeElement.java 498740 2007-01-22 18:35:57Z dvholten $
  */
 public interface XBLShadowTreeElement extends Element {
 

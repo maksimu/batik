@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003-2004,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -45,7 +46,7 @@ import org.w3c.dom.svg.SVGException;
  * </p>
  *
  * @author <a href="mailto:nicolas.socheleau@bitflash.com">Nicolas Socheleau</a>
- * @version $Id$
+ * @version $Id: AbstractSVGList.java 511565 2007-02-25 18:04:46Z dvholten $
  */
 public abstract class AbstractSVGList {
 
@@ -422,7 +423,8 @@ public abstract class AbstractSVGList {
         Iterator it = value.iterator();
         if (it.hasNext()) {
             SVGItem item = (SVGItem) it.next();
-            StringBuffer buf = new StringBuffer(item.getValueAsString());
+            StringBuffer buf = new StringBuffer( value.size() * 8 );
+            buf.append(  item.getValueAsString() );
             while (it.hasNext()) {
                 item = (SVGItem) it.next();
                 buf.append(getItemSeparator());
@@ -455,10 +457,8 @@ public abstract class AbstractSVGList {
      * the list.
      */
     protected void resetAttribute(SVGItem item) {
-        StringBuffer buf = new StringBuffer(getValueAsString());
-        buf.append(getItemSeparator());
-        buf.append(item.getValueAsString());
-        setAttributeValue(buf.toString());
+        String newValue = getValueAsString() + getItemSeparator() + item.getValueAsString();
+        setAttributeValue( newValue );
         valid = true;
     }
 

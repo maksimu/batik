@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,10 +23,10 @@ import java.io.File;
 import javax.swing.filechooser.FileFilter;
 
 /**
- * This class filters file for a given <tt>SquiggleInputHandler</tt>
+ * This class filters file for a given <code>SquiggleInputHandler</code>
  *
  * @author <a mailto="vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SquiggleInputHandlerFilter.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SquiggleInputHandlerFilter extends FileFilter {
     protected SquiggleInputHandler handler;
@@ -40,7 +41,7 @@ public class SquiggleInputHandlerFilter extends FileFilter {
 
     public String getDescription() {
         StringBuffer sb = new StringBuffer();
-        String extensions[] = handler.getHandledExtensions();
+        String[] extensions = handler.getHandledExtensions();
         int n = extensions != null ? extensions.length : 0;
         for (int i=0; i<n; i++) {
             if (i > 0) {
@@ -50,7 +51,7 @@ public class SquiggleInputHandlerFilter extends FileFilter {
         }
 
         if (n > 0) {
-            sb.append(" ");
+            sb.append( ' ' );
         }
 
         sb.append(handler.getDescription());

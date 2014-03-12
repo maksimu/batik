@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import org.w3c.dom.UserDataHandler;
  * Tests Node.setUserData and Node.getUserData.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: NodeGetUserDataTest.java 601946 2007-12-07 01:02:56Z cam $
  */
 public class NodeGetUserDataTest extends DOM3Test {
     static class UserHandler implements UserDataHandler {
@@ -41,7 +42,7 @@ public class NodeGetUserDataTest extends DOM3Test {
             return count;
         }
     }
-    public boolean runImplBase() throws Exception {
+    public boolean runImplBasic() throws Exception {
         UserHandler udh = new UserHandler();
         Document doc = newDoc();
         AbstractNode n = (AbstractNode) doc.createElementNS(null, "test");

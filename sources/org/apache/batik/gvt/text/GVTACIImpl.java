@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,7 +38,7 @@ import java.util.Set;
  * GVTAttributedCharacterIterator.TextAttributes.
  *
  * @author <a href="mailto:bill.haneman@ireland.sun.com">Bill Haneman</a>
- * @version $Id$
+ * @version $Id: GVTACIImpl.java 1372129 2012-08-12 15:31:50Z helder $
  */
 
 public class GVTACIImpl
@@ -66,7 +67,7 @@ public class GVTACIImpl
     /**
      * Constructs a GVTACIImpl whose contents are
      *     equivalent to those of aci.
-     * This constructor creates a new copy of the source data in <tt>aci</tt>.
+     * This constructor creates a new copy of the source data in <code>aci</code>.
      */
     public GVTACIImpl(AttributedCharacterIterator aci) {
         buildAttributeTables(aci);
@@ -92,11 +93,11 @@ public class GVTACIImpl
     /**
      * Sets values of a per-character attribute associated with the
      *     content string.
-     * Characters from <tt>beginIndex</tt> to <tt>endIndex</tt>
-     *     (zero-offset) are assigned values for attribute key <tt>attr</tt>
-     *     from the array <tt>attValues.</tt>
+     * Characters from <code>beginIndex</code> to <code>endIndex</code>
+     *     (zero-offset) are assigned values for attribute key <code>attr</code>
+     *     from the array <code>attValues.</code>
      * If the length of attValues is less than character span
-     *     <tt>(endIndex-beginIndex)</tt> the last value is duplicated;
+     *     <code>(endIndex-beginIndex)</code> the last value is duplicated;
      *     if attValues is longer than the character span
      *     the extra values are ignored.
      * Note that if either beginIndex or endIndex are outside the bounds
@@ -364,7 +365,7 @@ public class GVTACIImpl
         mapList = new ArrayList(length);
         charInRun = new int[length];
         char  c = aci.first();
-        char chars[] = new char[length];
+        char[] chars = new char[length];
         for (int i = 0; i < length; ++i) {
             chars[i] = c;
             charInRun[i] = SINGLETON;

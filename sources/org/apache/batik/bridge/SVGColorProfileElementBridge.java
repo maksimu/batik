@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -32,11 +33,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class bridges an SVG <tt>color-profile</tt> element with an
- * <tt>ICC_ColorSpace</tt> object.
+ * This class bridges an SVG <code>color-profile</code> element with an
+ * <code>ICC_ColorSpace</code> object.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$ */
+ * @version $Id: SVGColorProfileElementBridge.java 1372129 2012-08-12 15:31:50Z helder $ */
 public class SVGColorProfileElementBridge extends AbstractSVGBridge
     implements ErrorConstants {
 
@@ -65,7 +66,7 @@ public class SVGColorProfileElementBridge extends AbstractSVGBridge
                                                    Element paintedElement,
                                                    String iccProfileName) {
         // Check if there is one if the cache.
-        ICCColorSpaceExt cs = cache.request(iccProfileName.toLowerCase());
+        ICCColorSpaceExt cs = cache.request(iccProfileName.toLowerCase()); // todo locale??
         if (cs != null){
             return cs;
         }
@@ -106,18 +107,18 @@ public class SVGColorProfileElementBridge extends AbstractSVGBridge
             }
 
             ParsedURL purl = new ParsedURL(pDocURL, href);
-            if (!purl.complete()) 
+            if (!purl.complete())
                 throw new BridgeException(ctx, paintedElement, ERR_URI_MALFORMED,
                                           new Object[] {href});
             try {
                 ctx.getUserAgent().checkLoadExternalResource(purl, pDocURL);
                 p = ICC_Profile.getInstance(purl.openStream());
-            } catch (IOException e) {
-                throw new BridgeException(ctx, paintedElement, ERR_URI_IO,
+            } catch (IOException ioEx) {
+                throw new BridgeException(ctx, paintedElement, ioEx, ERR_URI_IO,
                                           new Object[] {href});
                 // ??? IS THAT AN ERROR FOR THE SVG SPEC ???
-            } catch (SecurityException e) {
-                throw new BridgeException(ctx, paintedElement, ERR_URI_UNSECURE,
+            } catch (SecurityException secEx) {
+                throw new BridgeException(ctx, paintedElement, secEx, ERR_URI_UNSECURE,
                                           new Object[] {href});
             }
         }

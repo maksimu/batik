@@ -1,13 +1,14 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-  
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-  
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +18,7 @@
  */
 package org.apache.batik.anim;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,15 +27,17 @@ import org.apache.batik.anim.timing.TimedDocumentRoot;
 import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.anim.timing.TimegraphListener;
 import org.apache.batik.anim.values.AnimatableValue;
-import org.apache.batik.dom.util.DoublyIndexedTable;
+import org.apache.batik.dom.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTargetListener;
+import org.apache.batik.util.DoublyIndexedTable;
 
 import org.w3c.dom.Document;
 
 /**
  * An abstract base class for managing animation in a document.
- * 
+ *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimationEngine.java 711768 2008-11-06 04:16:39Z cam $
  */
 public abstract class AnimationEngine {
 
@@ -51,6 +55,12 @@ public abstract class AnimationEngine {
      * The root time container for the document.
      */
     protected TimedDocumentRoot timedDocumentRoot;
+
+    /**
+     * The time at which the document was paused, or 0 if the document is not
+     * paused.
+     */
+    protected long pauseTime;
 
     /**
      * Map of AnimationTargets to TargetInfo objects.
@@ -76,6 +86,94 @@ public abstract class AnimationEngine {
     }
 
     /**
+     * Disposes this animation engine.
+     */
+    public void dispose() {
+        // Remove any target listeners that are registered.
+        Iterator i = targets.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry e = (Map.Entry) i.next();
+            AnimationTarget target = (AnimationTarget) e.getKey();
+            TargetInfo info = (TargetInfo) e.getValue();
+
+            Iterator j = info.xmlAnimations.iterator();
+            while (j.hasNext()) {
+                DoublyIndexedTable.Entry e2 =
+                    (DoublyIndexedTable.Entry) j.next();
+                String namespaceURI = (String) e2.getKey1();
+                String localName = (String) e2.getKey2();
+                Sandwich sandwich = (Sandwich) e2.getValue();
+                if (sandwich.listenerRegistered) {
+                    target.removeTargetListener(namespaceURI, localName, false,
+                                                targetListener);
+                }
+            }
+
+            j = info.cssAnimations.entrySet().iterator();
+            while (j.hasNext()) {
+                Map.Entry e2 = (Map.Entry) j.next();
+                String propertyName = (String) e2.getKey();
+                Sandwich sandwich = (Sandwich) e2.getValue();
+                if (sandwich.listenerRegistered) {
+                    target.removeTargetListener(null, propertyName, true,
+                                                targetListener);
+                }
+            }
+        }
+    }
+
+    /**
+     * Pauses the animations.
+     */
+    public void pause() {
+        if (pauseTime == 0) {
+            pauseTime = System.currentTimeMillis();
+        }
+    }
+
+    /**
+     * Unpauses the animations.
+     */
+    public void unpause() {
+        if (pauseTime != 0) {
+            Calendar begin = timedDocumentRoot.getDocumentBeginTime();
+            int dt = (int) (System.currentTimeMillis() - pauseTime);
+            begin.add(Calendar.MILLISECOND, dt);
+            pauseTime = 0;
+        }
+    }
+
+    /**
+     * Returns whether animations are currently paused.
+     */
+    public boolean isPaused() {
+        return pauseTime != 0;
+    }
+
+    /**
+     * Returns the current document time.
+     */
+    public float getCurrentTime() {
+        return timedDocumentRoot.getCurrentTime();
+    }
+
+    /**
+     * Sets the current document time.
+     */
+    public float setCurrentTime(float t) {
+        boolean p = pauseTime != 0;
+        unpause();
+        Calendar begin = timedDocumentRoot.getDocumentBeginTime();
+        float now =
+            timedDocumentRoot.convertEpochTime(System.currentTimeMillis());
+        begin.add(Calendar.MILLISECOND, (int) ((now - t) * 1000));
+        if (p) {
+            pause();
+        }
+        return tick(t, true);
+    }
+
+    /**
      * Adds an animation to the document.
      * @param target the target element of the animation
      * @param type the type of animation (must be one of the
@@ -89,7 +187,7 @@ public abstract class AnimationEngine {
      */
     public void addAnimation(AnimationTarget target, short type, String ns,
                              String an, AbstractAnimation anim) {
-        org.apache.batik.anim.timing.Trace.enter(this, "addAnimation", new Object[] { target, new Short[type], ns, an, anim } ); try {
+        // org.apache.batik.anim.timing.Trace.enter(this, "addAnimation", new Object[] { target, new Short[type], ns, an, anim } ); try {
         timedDocumentRoot.addChild(anim.getTimedElement());
 
         AnimationInfo animInfo = getAnimationInfo(anim);
@@ -112,14 +210,14 @@ public abstract class AnimationEngine {
         if (anim.lowerAnimation == null) {
             sandwich.lowestAnimation = anim;
         }
-        } finally { org.apache.batik.anim.timing.Trace.exit(); }
+        // } finally { org.apache.batik.anim.timing.Trace.exit(); }
     }
 
     /**
      * Removes an animation from the document.
      */
     public void removeAnimation(AbstractAnimation anim) {
-        org.apache.batik.anim.timing.Trace.enter(this, "removeAnimation", new Object[] { anim } ); try {
+        // org.apache.batik.anim.timing.Trace.enter(this, "removeAnimation", new Object[] { anim } ); try {
         timedDocumentRoot.removeChild(anim.getTimedElement());
         AbstractAnimation nextHigher = anim.higherAnimation;
         if (nextHigher != null) {
@@ -132,13 +230,13 @@ public abstract class AnimationEngine {
         AnimationInfo animInfo = getAnimationInfo(anim);
         Sandwich sandwich = getSandwich(animInfo.target, animInfo.type,
                                         animInfo.attributeNamespaceURI,
-                                        animInfo.attributeLocalName);;
+                                        animInfo.attributeLocalName);
         if (sandwich.animation == anim) {
             sandwich.animation = null;
             sandwich.lowestAnimation = null;
             sandwich.shouldUpdate = true;
         }
-        } finally { org.apache.batik.anim.timing.Trace.exit(); }
+        // } finally { org.apache.batik.anim.timing.Trace.exit(); }
     }
 
     /**
@@ -194,14 +292,20 @@ public abstract class AnimationEngine {
         return info;
     }
 
+    protected static final Map.Entry[] MAP_ENTRY_ARRAY = new Map.Entry[0];
+
     /**
      * Updates the animations in the document to the given document time.
+     * @param time the document time to sample at
+     * @param hyperlinking whether the document should be seeked to the given
+     *                     time, as with hyperlinking
      */
-    protected void tick(float time) {
-        timedDocumentRoot.seekTo(time);
-        Iterator i = targets.entrySet().iterator();
-        while (i.hasNext()) {
-            Map.Entry e = (Map.Entry) i.next();
+    protected float tick(float time, boolean hyperlinking) {
+        float waitTime = timedDocumentRoot.seekTo(time, hyperlinking);
+        Map.Entry[] targetEntries =
+            (Map.Entry[]) targets.entrySet().toArray(MAP_ENTRY_ARRAY);
+        for (int i = 0; i < targetEntries.length; i++) {
+            Map.Entry e = targetEntries[i];
             AnimationTarget target = (AnimationTarget) e.getKey();
             TargetInfo info = (TargetInfo) e.getValue();
 
@@ -213,10 +317,18 @@ public abstract class AnimationEngine {
                 String namespaceURI = (String) e2.getKey1();
                 String localName = (String) e2.getKey2();
                 Sandwich sandwich = (Sandwich) e2.getValue();
-                if (sandwich.shouldUpdate || sandwich.animation.isDirty) {
-                    AnimatableValue av = sandwich.animation.getComposedValue();
-                    boolean usesUnderlying =
-                        sandwich.lowestAnimation.usesUnderlyingValue();
+                if (sandwich.shouldUpdate ||
+                        sandwich.animation != null
+                            && sandwich.animation.isDirty) {
+                    AnimatableValue av = null;
+                    boolean usesUnderlying = false;
+                    AbstractAnimation anim = sandwich.animation;
+                    if (anim != null) {
+                        av = anim.getComposedValue();
+                        usesUnderlying =
+                            sandwich.lowestAnimation.usesUnderlyingValue();
+                        anim.isDirty = false;
+                    }
                     if (usesUnderlying && !sandwich.listenerRegistered) {
                         target.addTargetListener(namespaceURI, localName, false,
                                                  targetListener);
@@ -228,7 +340,6 @@ public abstract class AnimationEngine {
                     }
                     target.updateAttributeValue(namespaceURI, localName, av);
                     sandwich.shouldUpdate = false;
-                    sandwich.animation.isDirty = false;
                 }
             }
 
@@ -238,10 +349,18 @@ public abstract class AnimationEngine {
                 Map.Entry e2 = (Map.Entry) j.next();
                 String propertyName = (String) e2.getKey();
                 Sandwich sandwich = (Sandwich) e2.getValue();
-                if (sandwich.shouldUpdate || sandwich.animation.isDirty) {
-                    AnimatableValue av = sandwich.animation.getComposedValue();
-                    boolean usesUnderlying =
-                        sandwich.lowestAnimation.usesUnderlyingValue();
+                if (sandwich.shouldUpdate ||
+                        sandwich.animation != null
+                            && sandwich.animation.isDirty) {
+                    AnimatableValue av = null;
+                    boolean usesUnderlying = false;
+                    AbstractAnimation anim = sandwich.animation;
+                    if (anim != null) {
+                        av = anim.getComposedValue();
+                        usesUnderlying =
+                            sandwich.lowestAnimation.usesUnderlyingValue();
+                        anim.isDirty = false;
+                    }
                     if (usesUnderlying && !sandwich.listenerRegistered) {
                         target.addTargetListener(null, propertyName, true,
                                                  targetListener);
@@ -258,7 +377,6 @@ public abstract class AnimationEngine {
                         target.updatePropertyValue(propertyName, av);
                     }
                     sandwich.shouldUpdate = false;
-                    sandwich.animation.isDirty = false;
                 }
             }
 
@@ -268,19 +386,26 @@ public abstract class AnimationEngine {
                 Map.Entry e2 = (Map.Entry) j.next();
                 String type = (String) e2.getKey();
                 Sandwich sandwich = (Sandwich) e2.getValue();
-                if (sandwich.shouldUpdate || sandwich.animation.isDirty) {
-                    AnimatableValue av = sandwich.animation.getComposedValue();
+                if (sandwich.shouldUpdate ||
+                        sandwich.animation != null
+                            && sandwich.animation.isDirty) {
+                    AnimatableValue av = null;
+                    AbstractAnimation anim = sandwich.animation;
+                    if (anim != null) {
+                        av = sandwich.animation.getComposedValue();
+                        anim.isDirty = false;
+                    }
                     target.updateOtherValue(type, av);
                     sandwich.shouldUpdate = false;
-                    sandwich.animation.isDirty = false;
                 }
             }
         }
+        return waitTime;
     }
 
     /**
      * Invoked to indicate an animation became active at the specified time.
-     * 
+     *
      * @param anim the animation
      * @param begin the time the element became active, in document simple time
      */
@@ -343,18 +468,17 @@ public abstract class AnimationEngine {
 
     /**
      * Invoked to indicate that this timed element became inactive.
-     * 
+     *
      * @param anim the animation
      * @param isFrozen whether the element is frozen or not
      */
     public void toInactive(AbstractAnimation anim, boolean isFrozen) {
         anim.isActive = false;
         anim.isFrozen = isFrozen;
-        if (!isFrozen) {
-            anim.value = null;
-        }
         anim.markDirty();
         if (!isFrozen) {
+            anim.value = null;
+            anim.beginTime = Float.NEGATIVE_INFINITY;
             moveToBottom(anim);
         }
     }
@@ -442,7 +566,7 @@ public abstract class AnimationEngine {
     /**
      * Invoked to indicate that this timed element has been sampled at the given
      * time.
-     * 
+     *
      * @param anim the animation
      * @param simpleTime the sample time in local simple time
      * @param simpleDur the simple duration of the element
@@ -537,7 +661,7 @@ public abstract class AnimationEngine {
         public boolean shouldUpdate;
 
         /**
-         * Whether an {@link AnimationEngineListener} has been registered to
+         * Whether an {@link AnimationTargetListener} has been registered to
          * listen for changes to the base value.
          */
         public boolean listenerRegistered;

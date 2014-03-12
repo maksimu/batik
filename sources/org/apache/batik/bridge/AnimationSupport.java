@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,6 +24,7 @@ import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.dom.events.DOMTimeEvent;
 import org.apache.batik.dom.svg.IdContainer;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
+import org.apache.batik.dom.svg.SVGOMUseShadowRoot;
 import org.apache.batik.util.XMLConstants;
 
 import org.w3c.dom.Element;
@@ -35,7 +37,7 @@ import org.w3c.dom.smil.TimeEvent;
  * Class that provides utilities for animation support.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimationSupport.java 579494 2007-09-26 07:40:20Z cam $
  */
 public abstract class AnimationSupport {
 
@@ -49,7 +51,7 @@ public abstract class AnimationSupport {
         evt.initTimeEventNS(XMLConstants.XML_EVENTS_NAMESPACE_URI, eventType,
                             null,
                             detail);
-        evt.setTimestamp(time.getTimeInMillis());
+        evt.setTimestamp(time.getTime().getTime());
         target.dispatchEvent(evt);
     }
 
@@ -76,21 +78,6 @@ public abstract class AnimationSupport {
     }
 
     /**
-     * Returns the event target that is the parent of the given
-     * timed element.  Used for eventbase timing specifiers where
-     * the element ID is omitted.
-     */
-    public static EventTarget getParentEventTarget(TimedElement e) {
-        if (e instanceof SVGAnimationElementBridge.SVGTimedElement) {
-            SVGAnimationElementBridge.SVGTimedElement ste =
-                (SVGAnimationElementBridge.SVGTimedElement) e;
-            Element elt = SVGUtilities.getParentElement(ste.getElement());
-            return (EventTarget) elt;
-        }
-        return null;
-    }
-
-    /**
      * Returns the element with the given ID, using the given node
      * as the context for the lookup.
      */
@@ -98,7 +85,11 @@ public abstract class AnimationSupport {
         Node p = n.getParentNode();
         while (p != null) {
             n = p;
-            p = n.getParentNode();
+            if (n instanceof SVGOMUseShadowRoot) {
+                p = ((SVGOMUseShadowRoot) n).getCSSParentNode();
+            } else {
+                p = n.getParentNode();
+            }
         }
         if (n instanceof IdContainer) {
             return ((IdContainer) n).getElementById(id);

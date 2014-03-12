@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,12 +19,12 @@
 package org.apache.batik.transcoder;
 
 /**
- * A default <tt>ErrorHandler</tt> that throws a
- * <tt>TranscoderException</tt> when a fatal error occured and display
+ * A default <code>ErrorHandler</code> that throws a
+ * <code>TranscoderException</code> when a fatal error occured and display
  * a message when a warning or an error occured.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: DefaultErrorHandler.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class DefaultErrorHandler implements ErrorHandler {
 

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +23,7 @@ package org.apache.batik.anim.timing;
  * specification.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: InstanceTime.java 580338 2007-09-28 13:13:46Z cam $
  */
 public class InstanceTime implements Comparable {
 
@@ -43,32 +44,23 @@ public class InstanceTime implements Comparable {
     protected boolean clearOnReset;
 
     /**
-     * The Interval on which this InstanceTime is dependent, or null
-     * if the InstanceTime was not created from a syncbase value.
-     */
-    protected Interval timebase;
-
-    /**
      * Creates a new InstanceTime.
      * @param creator the TimingSpecifier that created this InstanceTime
      * @param time the new time, in parent simple time
-     * @param timebase the interval from which this InstanceTime was created
      * @param clearOnReset whether this InstanceTime should be removed from
      *                     an instance time list upon element reset
      */
     public InstanceTime(TimingSpecifier creator,
                         float time,
-                        Interval timebase,
                         boolean clearOnReset) {
-        Trace.enter(this, null, new Object[] { creator, new Float(time), timebase, new Boolean(clearOnReset) } ); try {
+        // Trace.enter(this, null, new Object[] { creator, new Float(time), timebase, new Boolean(clearOnReset) } ); try {
         this.creator = creator;
         // XXX Convert time from the creator's syncbase's
         //     time system into this time system.  Not
         //     strictly necessary in SVG.
         this.time = time;
-        this.timebase = timebase;
         this.clearOnReset = clearOnReset;
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -91,16 +83,17 @@ public class InstanceTime implements Comparable {
      * has changed.
      * @param newTime the new time, in parent simple time
      */
-    void dependentUpdate(float newTime) {
-        Trace.enter(this, "dependentUpdate", new Object[] { new Float(newTime) } ); try {
+    float dependentUpdate(float newTime) {
+        // Trace.enter(this, "dependentUpdate", new Object[] { new Float(newTime) } ); try {
         // XXX Convert time from the creator's syncbase's
         //     time system into this time system.  Not
         //     strictly necessary in SVG.
         time = newTime;
         if (creator != null) {
-            creator.handleTimebaseUpdate(this, time);
+            return creator.handleTimebaseUpdate(this, time);
         }
-        } finally { Trace.exit(); }
+        return Float.POSITIVE_INFINITY;
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -116,6 +109,9 @@ public class InstanceTime implements Comparable {
      * Compares this InstanceTime with another.
      */
     public int compareTo(Object o) {
-        return Float.compare(time, ((InstanceTime) o).time);
+        InstanceTime it = (InstanceTime)o;
+        if (time == it.time) return 0;
+        if (time >  it.time) return 1;
+        return -1;
     }
 }

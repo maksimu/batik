@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,10 +18,7 @@
  */
 package org.apache.batik.dom.svg;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.apache.batik.anim.AnimationTargetListener;
+import org.apache.batik.dom.anim.AnimationTargetListener;
 import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.css.dom.CSSOMSVGColor;
 import org.apache.batik.css.dom.CSSOMSVGPaint;
@@ -35,6 +33,8 @@ import org.apache.batik.css.engine.value.Value;
 import org.apache.batik.css.engine.value.svg.SVGColorManager;
 import org.apache.batik.css.engine.value.svg.SVGPaintManager;
 import org.apache.batik.dom.AbstractDocument;
+import org.apache.batik.util.DoublyIndexedTable;
+import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Attr;
@@ -49,11 +49,23 @@ import org.w3c.dom.svg.SVGAnimatedString;
  * SVGStylable.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGStylableElement.java 1065441 2011-01-31 00:24:03Z cam $
  */
 public abstract class SVGStylableElement
     extends SVGOMElement
     implements CSSStylableElement {
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGOMElement.xmlTraitInformation);
+        t.put(null, SVG_CLASS_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_CDATA));
+        xmlTraitInformation = t;
+    }
 
     /**
      * The computed style map.
@@ -64,6 +76,16 @@ public abstract class SVGStylableElement
      * The override style declaration for this element.
      */
     protected OverrideStyleDeclaration overrideStyleDeclaration;
+
+    /**
+     * The 'class' attribute value.
+     */
+    protected SVGOMAnimatedString className;
+
+    /**
+     * The 'style' attribute value.
+     */
+    protected StyleDeclaration style;
 
     /**
      * Creates a new SVGStylableElement object.
@@ -78,6 +100,22 @@ public abstract class SVGStylableElement
      */
     protected SVGStylableElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        className = createLiveAnimatedString(null, SVG_CLASS_ATTRIBUTE);
     }
 
     /**
@@ -123,23 +161,15 @@ public abstract class SVGStylableElement
 
     /**
      * Returns the CSS base URL of this element.
-     * @throws IllegalArgumentException when the result of getBaseURI() 
+     * @throws IllegalArgumentException when the result of getBaseURI()
      *         cannot be used as an URL.
      */
-    public URL getCSSBase() {
+    public ParsedURL getCSSBase() {
         if (getXblBoundElement() != null) {
             return null;
         }
         String bu = getBaseURI();
-        if (bu == null) {
-            return null;
-        }
-        try {
-            return new URL(bu);
-        } catch (MalformedURLException e) {
-            String msg = "MalformedURLException:" + e.getMessage() + ':' + bu;
-            throw new IllegalArgumentException( msg );
-        }
+        return bu == null ? null : new ParsedURL(bu);
     }
 
     /**
@@ -167,13 +197,12 @@ public abstract class SVGStylableElement
     }
 
     // AnimationTarget ///////////////////////////////////////////////////////
-    
+
     /**
      * Updates a property value in this target.
      */
     public void updatePropertyValue(String pn, AnimatableValue val) {
         CSSStyleDeclaration over = getOverrideStyle();
-        //System.err.println(e.getAttributeNS(null, "id") + "." + pn + " val is " + val);
         if (val == null) {
             over.removeProperty(pn);
         } else {
@@ -197,8 +226,12 @@ public abstract class SVGStylableElement
      */
     public void addTargetListener(String ns, String an, boolean isCSS,
                                   AnimationTargetListener l) {
-        if (isCSS && svgContext != null) {
-            svgContext.addTargetListener(an, l);
+        if (isCSS) {
+            if (svgContext != null) {
+                SVGAnimationTargetContext actx =
+                    (SVGAnimationTargetContext) svgContext;
+                actx.addTargetListener(an, l);
+            }
         } else {
             super.addTargetListener(ns, an, isCSS, l);
         }
@@ -210,7 +243,11 @@ public abstract class SVGStylableElement
     public void removeTargetListener(String ns, String an, boolean isCSS,
                                      AnimationTargetListener l) {
         if (isCSS) {
-            svgContext.removeTargetListener(an, l);
+            if (svgContext != null) {
+                SVGAnimationTargetContext actx =
+                    (SVGAnimationTargetContext) svgContext;
+                actx.removeTargetListener(an, l);
+            }
         } else {
             super.removeTargetListener(ns, an, isCSS, l);
         }
@@ -222,14 +259,12 @@ public abstract class SVGStylableElement
      * <b>DOM</b>: Implements {@link org.w3c.dom.svg.SVGStylable#getStyle()}.
      */
     public CSSStyleDeclaration getStyle() {
-        CSSStyleDeclaration result =
-            (CSSStyleDeclaration)getLiveAttributeValue(null,
-                                                       SVG_STYLE_ATTRIBUTE);
-        if (result == null) {
+        if (style == null) {
             CSSEngine eng = ((SVGOMDocument)getOwnerDocument()).getCSSEngine();
-            result = new StyleDeclaration(eng);
+            style = new StyleDeclaration(eng);
+            putLiveAttributeValue(null, SVG_STYLE_ATTRIBUTE, style);
         }
-        return result;
+        return style;
     }
 
     /**
@@ -271,6 +306,9 @@ public abstract class SVGStylableElement
             }
         }
         putLiveAttributeValue(null, name, (LiveAttributeValue)result);
+        if (getAttributeNS(null, name).length() == 0) {
+            return null;
+        }
         return result;
     }
 
@@ -279,7 +317,14 @@ public abstract class SVGStylableElement
      * org.w3c.dom.svg.SVGStylable#getClassName()}.
      */
     public SVGAnimatedString getClassName() {
-        return getAnimatedStringAttribute(null, SVG_CLASS_ATTRIBUTE);
+        return className;
+    }
+
+    /**
+     * Returns the table of TraitInformation objects for this element.
+     */
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 
     /**
@@ -750,20 +795,5 @@ public abstract class SVGStylableElement
             ((SVGOMDocument) ownerDocument).overrideStylePropertyChanged
                 (SVGStylableElement.this, name, value, prio);
         }
-    }
-
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_CLASS_ATTRIBUTE)
-                    || ln.equals(SVG_STYLE_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            }
-        }
-        return super.getAttributeType(ns, ln);
     }
 }

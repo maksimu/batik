@@ -1,4 +1,4 @@
-xml-commons/java/external/LICENSE.dom-software.txt $Id$
+xml-commons/java/external/LICENSE.dom-software.txt $Id: LICENSE.dom-software.txt 201084 2002-12-09 16:15:21Z vhardy $
 
 
 This license came from: http://www.w3.org/Consortium/Legal/copyright-software-19980720
@@ -71,4 +71,4 @@ Other questions about this notice can be
 directed to site-policy@w3.org.
 
 webmaster
-(last updated $Date$)
+(last updated $Date: 2002-12-09 21:45:21 +0530 (Mon, 09 Dec 2002) $)

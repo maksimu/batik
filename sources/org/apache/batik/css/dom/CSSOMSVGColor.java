@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,7 +40,7 @@ import org.w3c.dom.svg.SVGNumberList;
  * This class implements the {@link SVGColor} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: CSSOMSVGColor.java 489226 2006-12-21 00:05:36Z cam $
  */
 public class CSSOMSVGColor
     implements SVGColor,
@@ -103,13 +104,13 @@ public class CSSOMSVGColor
      * org.w3c.dom.css.CSSValue#setCssText(String)}.
      */
     public void setCssText(String cssText) throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             iccColors = null;
             handler.textChanged(cssText);
-	}
+        }
     }
 
     /**
@@ -171,12 +172,12 @@ public class CSSOMSVGColor
      * org.w3c.dom.svg.SVGColor#setRGBColor(String)}.
      */
     public void setRGBColor(String color) {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             handler.rgbColorChanged(color);
-	}
+        }
     }
 
     /**
@@ -200,13 +201,13 @@ public class CSSOMSVGColor
      * org.w3c.dom.svg.SVGColor#setRGBColorICCColor(String,String)}.
      */
     public void setRGBColorICCColor(String rgb, String icc) {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             iccColors = null;
             handler.rgbColorICCColorChanged(rgb, icc);
-	}
+        }
     }
 
     /**
@@ -214,13 +215,13 @@ public class CSSOMSVGColor
      * org.w3c.dom.svg.SVGColor#setColor(short,String,String)}.
      */
     public void setColor(short type, String rgb, String icc) {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
     } else {
             iccColors = null;
             handler.colorChanged(type, rgb, icc);
-	}
+        }
     }
 
     // RGBColor ///////////////////////////////////////////////////
@@ -276,12 +277,12 @@ public class CSSOMSVGColor
      * <b>DOM</b>: Implements {@link SVGICCColor#setColorProfile(String)}.
      */
     public void setColorProfile(String colorProfile) throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             handler.colorProfileChanged(colorProfile);
-	}
+        }
     }
 
     /**
@@ -308,30 +309,30 @@ public class CSSOMSVGColor
      * <b>DOM</b>: Implements {@link SVGNumberList#clear()}.
      */
     public void clear() throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             iccColors = null;
             handler.colorsCleared();
-	}
+        }
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGNumberList#initialize(SVGNumber)}.
      */
     public SVGNumber initialize(SVGNumber newItem) throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             float f = newItem.getValue();
             iccColors = new ArrayList();
             SVGNumber result = new ColorNumber(f);
             iccColors.add(result);
             handler.colorsInitialized(f);
             return result;
-	}
+        }
     }
 
     /**
@@ -364,10 +365,10 @@ public class CSSOMSVGColor
      */
     public SVGNumber insertItemBefore(SVGNumber newItem, int index)
         throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             int n = getNumberOfItems();
             if (index < 0 || index > n) {
                 throw new DOMException(DOMException.INDEX_SIZE_ERR, "");
@@ -383,7 +384,7 @@ public class CSSOMSVGColor
             iccColors.add(index, result);
             handler.colorInsertedBefore(f, index);
             return result;
-	}
+        }
     }
 
     /**
@@ -392,10 +393,10 @@ public class CSSOMSVGColor
      */
     public SVGNumber replaceItem(SVGNumber newItem, int index)
         throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             int n = getNumberOfItems();
             if (index < 0 || index >= n) {
                 throw new DOMException(DOMException.INDEX_SIZE_ERR, "");
@@ -411,17 +412,17 @@ public class CSSOMSVGColor
             iccColors.set(index, result);
             handler.colorReplaced(f, index);
             return result;
-	}
+        }
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGNumberList#removeItem(int)}.
      */
     public SVGNumber removeItem(int index) throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             int n = getNumberOfItems();
             if (index < 0 || index >= n) {
                 throw new DOMException(DOMException.INDEX_SIZE_ERR, "");
@@ -437,17 +438,17 @@ public class CSSOMSVGColor
             }
             handler.colorRemoved(index);
             return result;
-	}
+        }
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGNumberList#appendItem(SVGNumber)}.
      */
     public SVGNumber appendItem (SVGNumber newItem) throws DOMException {
-	if (handler == null) {
+        if (handler == null) {
             throw new DOMException
                 (DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
-	} else {
+        } else {
             if (iccColors == null) {
                 int n = getNumberOfItems();
                 iccColors = new ArrayList(n);
@@ -460,7 +461,7 @@ public class CSSOMSVGColor
             iccColors.add(result);
             handler.colorAppend(f);
             return result;
-	}
+        }
     }
 
     /**

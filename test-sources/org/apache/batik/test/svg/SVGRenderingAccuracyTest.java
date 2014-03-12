@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -38,13 +39,13 @@ import org.w3c.dom.Document;
 
 /**
  * Checks for regressions in rendering a specific SVG document.
- * The <tt>Test</tt> will rasterize and SVG document and 
+ * The <code>Test</code> will rasterize and SVG document and 
  * compare it to a reference image. The test passes if the 
  * rasterized SVG and the reference image match exactly (i.e.,
  * all pixel values are the same).
  *
  * @author <a href="mailto:vhardy@apache.lorg">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SVGRenderingAccuracyTest.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGRenderingAccuracyTest extends AbstractRenderingAccuracyTest {
     /**
@@ -61,7 +62,7 @@ public class SVGRenderingAccuracyTest extends AbstractRenderingAccuracyTest {
      * Validating parser class name
      */
     public static final String VALIDATING_PARSER
-	= configuration.getString("validating.parser");
+        = configuration.getString("validating.parser");
 
     /**
      * Controls whether or not the SVG file should be
@@ -94,9 +95,9 @@ public class SVGRenderingAccuracyTest extends AbstractRenderingAccuracyTest {
      * If true, this test will use validation
      */
     public void setValidating(Boolean validate){
-	if (validate == null){
-	    throw new IllegalArgumentException();
-	}
+        if (validate == null){
+            throw new IllegalArgumentException();
+        }
         this.validate = validate.booleanValue();
     }
 
@@ -168,7 +169,7 @@ public class SVGRenderingAccuracyTest extends AbstractRenderingAccuracyTest {
     }
 
     /**
-     * Returns the <tt>ImageTranscoder</tt> the Test should
+     * Returns the <code>ImageTranscoder</code> the Test should
      * use
      */
     public ImageTranscoder getTestImageTranscoder(){

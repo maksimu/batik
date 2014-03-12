@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatablePreserveAspectRatioValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
+
 import org.apache.batik.util.SVGConstants;
 
 import org.w3c.dom.Attr;
@@ -28,7 +33,7 @@ import org.w3c.dom.svg.SVGPreserveAspectRatio;
  * This class implements the {@link SVGAnimatedPreserveAspectRatio} interface.
  *
  * @author <a href="mailto:tonny@kiyut.com">Tonny Kohar</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedPreserveAspectRatio.java 527382 2007-04-11 04:31:58Z cam $
  */
 public class SVGOMAnimatedPreserveAspectRatio
         extends AbstractSVGAnimatedValue
@@ -77,23 +82,49 @@ public class SVGOMAnimatedPreserveAspectRatio
         return animVal;
     }
 
+
     /**
-     * Sets the animated value.
+     * Throws an exception if the points list value is malformed.
      */
-    public void setAnimatedValue(short align, short meetOrSlice) {
-        if (animVal == null) {
-            animVal = new AnimSVGPARValue();
+    public void check() {
+        if (!hasAnimVal) {
+            if (baseVal == null) {
+                baseVal = new BaseSVGPARValue();
+            }
+            if (baseVal.malformed) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                     baseVal.getValueAsString());
+            }
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(align, meetOrSlice);
-        fireAnimatedAttributeListeners();
     }
 
     /**
-     * Resets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGPreserveAspectRatio par = getBaseVal();
+        return new AnimatablePreserveAspectRatioValue(target, par.getAlign(),
+                                                      par.getMeetOrSlice());
+    }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            if (animVal == null) {
+                animVal = new AnimSVGPARValue();
+            }
+            AnimatablePreserveAspectRatioValue animPAR =
+                (AnimatablePreserveAspectRatioValue) val;
+            animVal.setAnimatedValue(animPAR.getAlign(),
+                                     animPAR.getMeetOrSlice());
+        }
         fireAnimatedAttributeListeners();
     }
 
@@ -143,6 +174,11 @@ public class SVGOMAnimatedPreserveAspectRatio
     public class BaseSVGPARValue extends AbstractSVGPreserveAspectRatio {
 
         /**
+         * Whether the attribute is malformed.
+         */
+        protected boolean malformed;
+
+        /**
          * Creates a new BaseSVGPARValue.
          */
         public BaseSVGPARValue() {
@@ -166,6 +202,7 @@ public class SVGOMAnimatedPreserveAspectRatio
                 element.setAttributeNS
                     (null, SVGConstants.SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
                      value);
+                malformed = false;
             } finally {
                 changing = false;
             }
@@ -203,7 +240,7 @@ public class SVGOMAnimatedPreserveAspectRatio
         }
 
         /**
-         * <b>DOM</b>: Implements {@link SVGPreservAspectRatio#getAlign()}.
+         * <b>DOM</b>: Implements {@link SVGPreserveAspectRatio#getAlign()}.
          */
         public short getAlign() {
             if (hasAnimVal) {
@@ -213,7 +250,7 @@ public class SVGOMAnimatedPreserveAspectRatio
         }
         
         /**
-         * <b>DOM</b>: Implements {@link SVGPreservAspectRatio#getMeetOrSlice()}.
+         * <b>DOM</b>: Implements {@link SVGPreserveAspectRatio#getMeetOrSlice()}.
          */
         public short getMeetOrSlice() {
             if (hasAnimVal) {
@@ -223,7 +260,7 @@ public class SVGOMAnimatedPreserveAspectRatio
         }
 
         /**
-         * <b>DOM</b>: Implements {@link SVGPreservAspectRatio#setAlign(short)}.
+         * <b>DOM</b>: Implements {@link SVGPreserveAspectRatio#setAlign(short)}.
          */
         public void setAlign(short align) {
             throw element.createDOMException
@@ -232,7 +269,7 @@ public class SVGOMAnimatedPreserveAspectRatio
         }
 
         /**
-         * <b>DOM</b>: Implements {@link SVGPreservAspectRatio#setMeetOrSlice(short)}.
+         * <b>DOM</b>: Implements {@link SVGPreserveAspectRatio#setMeetOrSlice(short)}.
          */
         public void setMeetOrSlice(short meetOrSlice) {
             throw element.createDOMException

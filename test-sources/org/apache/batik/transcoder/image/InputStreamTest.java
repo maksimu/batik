@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import org.apache.batik.transcoder.TranscoderInput;
  * Test the ImageTranscoder input with a InputStream.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: InputStreamTest.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class InputStreamTest extends AbstractImageTranscoderTest {
 
@@ -38,35 +39,35 @@ public class InputStreamTest extends AbstractImageTranscoderTest {
     protected String refImageURI;
 
     /**
-     * Constructs a new <tt>InputStreamTest</tt>.
+     * Constructs a new <code>InputStreamTest</code>.
      *
      * @param inputURI the URI of the input image
      * @param refImageURI the URI of the reference image
      */
     public InputStreamTest(String inputURI, String refImageURI) {
-	this.inputURI = inputURI;
-	this.refImageURI = refImageURI;
+        this.inputURI = inputURI;
+        this.refImageURI = refImageURI;
     }
 
     /**
-     * Creates the <tt>TranscoderInput</tt>.
+     * Creates the <code>TranscoderInput</code>.
      */
     protected TranscoderInput createTranscoderInput() {
-	try {
-	    URL url = resolveURL(inputURI);
-	    InputStream istream = url.openStream();
-	    TranscoderInput input = new TranscoderInput(istream);
-	    input.setURI(url.toString()); // Needed for external resources
-	    return input;
-	} catch (IOException ex) {
+        try {
+            URL url = resolveURL(inputURI);
+            InputStream istream = url.openStream();
+            TranscoderInput input = new TranscoderInput(istream);
+            input.setURI(url.toString()); // Needed for external resources
+            return input;
+        } catch (IOException ex) {
             throw new IllegalArgumentException(inputURI);
-	}
+        }
     }
 
     /**
      * Returns the reference image for this test.
      */
     protected byte [] getReferenceImageData() {
-	return createBufferedImageData(resolveURL(refImageURI));
+        return createBufferedImageData(resolveURL(refImageURI));
     }
 }

@@ -21,6 +21,8 @@ package org.apache.batik.dom.svg12;
 /**
  * Interface for a global scripting object.
  * Eventually will move to a W3C package.
+ *
+ * @version $Id: Global.java 498740 2007-01-22 18:35:57Z dvholten $
  */
 public interface Global {
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,8 @@
  */
 package org.apache.batik.dom;
 
+import org.apache.batik.xml.XMLUtilities;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -24,15 +27,16 @@ import org.w3c.dom.DocumentType;
 
 /**
  * This class implements the {@link org.w3c.dom.DOMImplementation}.
- *
+ 
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: GenericDOMImplementation.java 728570 2008-12-22 02:12:35Z cam $
  */
 public class GenericDOMImplementation extends AbstractDOMImplementation {
+
     /**
      * The default instance of this class.
      */
-    protected final static DOMImplementation DOM_IMPLEMENTATION =
+    protected static final DOMImplementation DOM_IMPLEMENTATION =
         new GenericDOMImplementation();
 
     /**
@@ -52,25 +56,41 @@ public class GenericDOMImplementation extends AbstractDOMImplementation {
 
     /**
      * <b>DOM</b>: Implements {@link
-     * DOMImplementation#createDocumentType(String,String,String)}.
-     */
-    public DocumentType createDocumentType(String qualifiedName, 
-                                           String publicId, 
-                                           String systemId) {
-	throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-                               "Doctype not supported");
-    }
-
-    /**
-     * <b>DOM</b>: Implements {@link
      * DOMImplementation#createDocument(String,String,DocumentType)}.
      */
-    public Document createDocument(String namespaceURI, 
-                                   String qualifiedName, 
+    public Document createDocument(String namespaceURI,
+                                   String qualifiedName,
                                    DocumentType doctype) throws DOMException {
         Document result = new GenericDocument(doctype, this);
         result.appendChild(result.createElementNS(namespaceURI,
                                                   qualifiedName));
         return result;
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link
+     * DOMImplementation#createDocumentType(String,String,String)}.
+     */
+    public DocumentType createDocumentType(String qualifiedName,
+                                           String publicId,
+                                           String systemId) {
+
+        if (qualifiedName == null) {
+            qualifiedName = "";
+        }
+        int test = XMLUtilities.testXMLQName(qualifiedName);
+        if ((test & XMLUtilities.IS_XML_10_NAME) == 0) {
+            throw new DOMException
+                (DOMException.INVALID_CHARACTER_ERR,
+                 formatMessage("xml.name",
+                               new Object[] { qualifiedName }));
+        }
+        if ((test & XMLUtilities.IS_XML_10_QNAME) == 0) {
+            throw new DOMException
+                (DOMException.INVALID_CHARACTER_ERR,
+                 formatMessage("invalid.qname",
+                               new Object[] { qualifiedName }));
+        }
+        return new GenericDocumentType(qualifiedName, publicId, systemId);
     }
 }

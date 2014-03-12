@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,7 +22,7 @@ package org.apache.batik.anim.timing;
  * An abstract class for SMIL timing specifiers.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: TimingSpecifier.java 485485 2006-12-11 04:04:53Z cam $
  */
 public abstract class TimingSpecifier {
 
@@ -84,7 +85,8 @@ public abstract class TimingSpecifier {
      * This should be overridden in descendant classes that generate
      * time instances based on the interval of a timebase element.
      */
-    void newInterval(Interval interval) {
+    float newInterval(Interval interval) {
+        return Float.POSITIVE_INFINITY;
     }
 
     /**
@@ -92,7 +94,8 @@ public abstract class TimingSpecifier {
      * This should be overridden in descendant classes that generate
      * time instances based on the interval of a timebase element.
      */
-    void removeInterval(Interval interval) {
+    float removeInterval(Interval interval) {
+        return Float.POSITIVE_INFINITY;
     }
 
     /**
@@ -101,6 +104,7 @@ public abstract class TimingSpecifier {
      * in descendant classes that generate time instances based on the
      * interval of a timebase element.
      */
-    void handleTimebaseUpdate(InstanceTime instanceTime, float newTime) {
+    float handleTimebaseUpdate(InstanceTime instanceTime, float newTime) {
+        return Float.POSITIVE_INFINITY;
     }
 }

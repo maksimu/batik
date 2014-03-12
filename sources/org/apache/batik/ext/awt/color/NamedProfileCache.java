@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import org.apache.batik.util.SoftReferenceCache;
  * we have already loaded. 
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: NamedProfileCache.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class NamedProfileCache extends SoftReferenceCache {
 
@@ -39,7 +40,7 @@ public class NamedProfileCache extends SoftReferenceCache {
     public NamedProfileCache() { }
 
     /**
-     * Check if <tt>request(profileName)</tt> will return with a ICCColorSpaceExt
+     * Check if <code>request(profileName)</code> will return with a ICCColorSpaceExt
      * (not putting you on the hook for it).  Note that it is possible
      * that this will return true but between this call and the call
      * to request the soft-reference will be cleared.  So it
@@ -51,7 +52,7 @@ public class NamedProfileCache extends SoftReferenceCache {
     }
 
     /**
-     * Check if <tt>request(profileName)</tt> will return immediately with the
+     * Check if <code>request(profileName)</code> will return immediately with the
      * ICCColorSpaceExt.  Note that it is possible that this will return
      * true but between this call and the call to request the
      * soft-reference will be cleared.

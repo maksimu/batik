@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,13 +23,19 @@ import java.io.Reader;
 import java.io.Writer;
 
 /**
- * An hight level interface that represents an interpreter engine of
+ * A high level interface that represents an interpreter engine for
  * a particular scripting language.
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
- * @version $Id$
+ * @version $Id: Interpreter.java 801512 2009-08-06 05:33:28Z cam $
  */
 public interface Interpreter extends org.apache.batik.i18n.Localizable {
+
+    /**
+     * Returns the content types of the scripting languages this interpreter
+     * handles.
+     */
+    String[] getMimeTypes();
 
     /**
      * This method should evaluate a piece of script associated to a given 

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,19 +20,19 @@ package org.apache.batik.anim.values;
 
 import java.util.Arrays;
 
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 /**
  * An SVG path value in the animation system.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatablePathDataValue.java 479349 2006-11-26 11:54:23Z cam $
  */
 public class AnimatablePathDataValue extends AnimatableValue {
 
     /**
      * The path commands.  These must be one of the PATHSEG_*
-     * constants defined in {@link SVGPathSeg}.
+     * constants defined in {@link org.w3c.dom.svg.SVGPathSeg}.
      */
     protected short[] commands;
 
@@ -165,9 +166,33 @@ public class AnimatablePathDataValue extends AnimatableValue {
     }
 
     /**
-     * Returns the CSS text representation of the value.
+     * The path data commands.
      */
-    public String getCssText() {
-        return null;
+    protected static final char[] PATH_COMMANDS = {
+        ' ', 'z', 'M', 'm', 'L', 'l', 'C', 'c', 'Q', 'q', 'A', 'a', 'H', 'h',
+        'V', 'v', 'S', 's', 'T', 't'
+    };
+
+    /**
+     * The number of parameters for each path command.
+     */
+    protected static final int[] PATH_PARAMS = {
+        0, 0, 2, 2, 2, 2, 6, 6, 4, 4, 7, 7, 1, 1, 1, 1, 4, 4, 2, 2
+    };
+
+    /**
+     * Returns a string representation of this object.
+     */
+    public String toStringRep() {
+        StringBuffer sb = new StringBuffer();
+        int k = 0;
+        for (int i = 0; i < commands.length; i++) {
+            sb.append(PATH_COMMANDS[commands[i]]);
+            for (int j = 0; j < PATH_PARAMS[commands[i]]; j++) {
+                sb.append(' ');
+                sb.append(parameters[k++]);
+            }
+        }
+        return sb.toString();
     }
 }

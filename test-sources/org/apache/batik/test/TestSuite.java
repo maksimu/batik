@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,36 +19,36 @@
 package org.apache.batik.test;
 
 /**
- * A <tt>TestSuite</tt> is a composite test, that is, a test
- * made of multiple children <tt>Test</tt> cases. Running a 
- * <tt>TestSuite</tt> will simply run the children test cases.
+ * A <code>TestSuite</code> is a composite test, that is, a test
+ * made of multiple children <code>Test</code> cases. Running a
+ * <code>TestSuite</code> will simply run the children test cases.
  *
  * @author <a href="mailto:vhardy@apache.lorg">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: TestSuite.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface TestSuite extends Test {
     /**
-     * Adds a <tt>Test</tt> to the suite
+     * Adds a <code>Test</code> to the suite
      */
-    public void addTest(Test test);
+    void addTest(Test test);
 
     /**
-     * Removes a <tt>Test</tt> from the suite
+     * Removes a <code>Test</code> from the suite
      */
-    public void removeTest(Test test);
+    void removeTest(Test test);
 
     /**
-     * Returns this suite's <tt>Test</tt>. This should 
+     * Returns this suite's <code>Test</code>. This should
      * not return a reference to any internal structure
-     * held by the <tt>TestSuite</tt>. For example, if 
-     * an internal array is used, this shoudl return 
+     * held by the <code>TestSuite</code>. For example, if
+     * an internal array is used, this shoudl return
      * a copy of that array.
      */
-    public Test[] getChildrenTests();
+    Test[] getChildrenTests();
 
     /**
      * Returns the number of child tests
      */
-    public int getChildrenCount();
+    int getChildrenCount();
 
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import java.util.List;
  * This class implements a transform history mechanism.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: TransformHistory.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class TransformHistory {
     
@@ -41,7 +42,7 @@ public class TransformHistory {
 
     /**
      * Goes back of one position in the history.
-     * Assumes that <tt>canGoBack()</tt> is true.
+     * Assumes that <code>canGoBack()</code> is true.
      */
     public void back() {
         position -= 2;
@@ -56,7 +57,7 @@ public class TransformHistory {
 
     /**
      * Goes forward of one position in the history.
-     * Assumes that <tt>canGoForward()</tt> is true.
+     * Assumes that <code>canGoForward()</code> is true.
      */
     public void forward() {
     }

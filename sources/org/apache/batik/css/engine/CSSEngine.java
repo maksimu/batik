@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,8 +20,6 @@ package org.apache.batik.css.engine;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,12 +56,11 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.MutationEvent;
 
-
 /**
  * This is the base class for all the CSS engines.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: CSSEngine.java 648111 2008-04-15 04:04:15Z cam $
  */
 public abstract class CSSEngine {
 
@@ -138,7 +136,7 @@ public abstract class CSSEngine {
     /**
      * The document URI.
      */
-    protected URL documentURI;
+    protected ParsedURL documentURI;
 
     /**
      * Whether the document is a CSSNavigableDocument.
@@ -278,7 +276,7 @@ public abstract class CSSEngine {
     /**
      * The current base URI.
      */
-    protected URL cssBaseURI;
+    protected ParsedURL cssBaseURI;
 
     /**
      * The alternate stylesheet title.
@@ -365,7 +363,7 @@ public abstract class CSSEngine {
      * @param ctx The CSS context.
      */
     protected CSSEngine(Document doc,
-                        URL uri,
+                        ParsedURL uri,
                         ExtendedParser p,
                         ValueManager[] vm,
                         ShorthandManager[] sm,
@@ -701,7 +699,7 @@ public abstract class CSSEngine {
     /**
      * Returns the current base-url.
      */
-    public URL getCSSBaseURI() {
+    public ParsedURL getCSSBaseURI() {
         if (cssBaseURI == null) {
             cssBaseURI = element.getCSSBase();
         }
@@ -720,14 +718,14 @@ public abstract class CSSEngine {
 
         // Apply the user-agent style-sheet to the result.
         if (userAgentStyleSheet != null) {
-            List rules = new ArrayList();
+            ArrayList rules = new ArrayList();
             addMatchingRules(rules, userAgentStyleSheet, elt, pseudo);
             addRules(elt, pseudo, result, rules, StyleMap.USER_AGENT_ORIGIN);
         }
 
         // Apply the user properties style-sheet to the result.
         if (userStyleSheet != null) {
-            List rules = new ArrayList();
+            ArrayList rules = new ArrayList();
             addMatchingRules(rules, userStyleSheet, elt, pseudo);
             addRules(elt, pseudo, result, rules, StyleMap.USER_ORIGIN);
         }
@@ -763,26 +761,18 @@ public abstract class CSSEngine {
                     Node attr = attrs.item(i);
                     String an = attr.getNodeName();
                     if (nonCSSPresentationalHints.contains(an)) {
-                      String attrValue = attr.getNodeValue();          // -- dvh
                         try {
                             LexicalUnit lu;
                             lu = parser.parsePropertyValue(attr.getNodeValue());
                             ph.property(an, lu, false);
                         } catch (Exception e) {
-
-                          System.err.println("\n***** CSSEngine: exception property.syntax.error:" + e );  // ---
-                          System.err.println("\nAttrValue:" + attrValue );
-                          System.err.println("\nException:" + e.getClass().getName() );
-                          e.printStackTrace( System.err );                           // ---
-                          System.err.println("\n***** CSSEngine: exception...." );   // ---
-
                             String m = e.getMessage();
                             if (m == null) m = "";
                             String u = ((documentURI == null)?"<unknown>":
                                         documentURI.toString());
                             String s = Messages.formatMessage
                                 ("property.syntax.error.at",
-                                 new Object[] { u, an, attr.getNodeValue(),m});
+                                 new Object[] { u, an, attr.getNodeValue(), m});
                             DOMException de = new DOMException(DOMException.SYNTAX_ERR, s);
                             if (userAgent == null) throw de;
                             userAgent.displayError(de);
@@ -796,7 +786,7 @@ public abstract class CSSEngine {
             List snodes = eng.getStyleSheetNodes();
             int slen = snodes.size();
             if (slen > 0) {
-                List rules = new ArrayList();
+                ArrayList rules = new ArrayList();
                 for (int i = 0; i < slen; i++) {
                     CSSStyleSheetNode ssn = (CSSStyleSheetNode)snodes.get(i);
                     StyleSheet ss = ssn.getCSSStyleSheet();
@@ -826,7 +816,7 @@ public abstract class CSSEngine {
                         styleDeclarationDocumentHandler.styleMap = null;
                     } catch (Exception e) {
                         String m = e.getMessage();
-                        if (m == null) m = "";
+                        if (m == null) m = e.getClass().getName();
                         String u = ((documentURI == null)?"<unknown>":
                                     documentURI.toString());
                         String s = Messages.formatMessage
@@ -992,7 +982,7 @@ public abstract class CSSEngine {
         /**
          * Called with a non-shorthand property name and it's value.
          */
-        public void setMainProperty(String name, Value v, boolean important);
+        void setMainProperty(String name, Value v, boolean important);
     }
 
     public void setMainProperties
@@ -1107,7 +1097,7 @@ public abstract class CSSEngine {
      * @param uri The style-sheet URI.
      * @param media The target media of the style-sheet.
      */
-    public StyleSheet parseStyleSheet(URL uri, String media)
+    public StyleSheet parseStyleSheet(ParsedURL uri, String media)
         throws DOMException {
         StyleSheet ss = new StyleSheet();
         try {
@@ -1134,7 +1124,8 @@ public abstract class CSSEngine {
      * @param uri The base URI.
      * @param media The target media of the style-sheet.
      */
-    public StyleSheet parseStyleSheet(InputSource is, URL uri, String media)
+    public StyleSheet parseStyleSheet(InputSource is, ParsedURL uri,
+                                      String media)
         throws DOMException {
         StyleSheet ss = new StyleSheet();
         try {
@@ -1159,7 +1150,8 @@ public abstract class CSSEngine {
      * @param ss The stylesheet to fill.
      * @param uri The base URI.
      */
-    public void parseStyleSheet(StyleSheet ss, URL uri) throws DOMException {
+    public void parseStyleSheet(StyleSheet ss, ParsedURL uri)
+            throws DOMException {
         if (uri == null) {
             String s = Messages.formatMessage
                 ("syntax.error.at",
@@ -1170,21 +1162,15 @@ public abstract class CSSEngine {
             return;
         }
 
-    try {
+        try {
             // Check that access to the uri is allowed
-             ParsedURL pDocURL = null;
-             if (documentURI != null) {
-                 pDocURL = new ParsedURL(documentURI);
-             }
-             ParsedURL pURL = new ParsedURL(uri);
-             cssContext.checkLoadExternalResource(pURL, pDocURL);
-
-             parseStyleSheet(ss, new InputSource(uri.toString()), uri);
-    } catch (SecurityException e) {
+            cssContext.checkLoadExternalResource(uri, documentURI);
+            parseStyleSheet(ss, new InputSource(uri.toString()), uri);
+        } catch (SecurityException e) {
             throw e;
         } catch (Exception e) {
             String m = e.getMessage();
-            if (m == null) m = "";
+            if (m == null) m = e.getClass().getName();
             String s = Messages.formatMessage
                 ("syntax.error.at", new Object[] { uri.toString(), m });
             DOMException de = new DOMException(DOMException.SYNTAX_ERR, s);
@@ -1199,8 +1185,8 @@ public abstract class CSSEngine {
      * @param uri The style-sheet URI.
      * @param media The target media of the style-sheet.
      */
-    public StyleSheet parseStyleSheet(String rules, URL uri, String media)
-        throws DOMException {
+    public StyleSheet parseStyleSheet(String rules, ParsedURL uri, String media)
+            throws DOMException {
         StyleSheet ss = new StyleSheet();
         try {
             ss.setMedia(parser.parseMedia(media));
@@ -1228,7 +1214,7 @@ public abstract class CSSEngine {
      */
     public void parseStyleSheet(StyleSheet ss,
                                 String rules,
-                                URL uri) throws DOMException {
+                                ParsedURL uri) throws DOMException {
         try {
             parseStyleSheet(ss, new InputSource(new StringReader(rules)), uri);
         } catch (Exception e) {
@@ -1249,7 +1235,7 @@ public abstract class CSSEngine {
      * @param ss The stylesheet to fill.
      * @param uri The base URI.
      */
-    protected void parseStyleSheet(StyleSheet ss, InputSource is, URL uri)
+    protected void parseStyleSheet(StyleSheet ss, InputSource is, ParsedURL uri)
         throws IOException {
         parser.setSelectorFactory(CSSSelectorFactory.INSTANCE);
         parser.setConditionFactory(cssConditionFactory);
@@ -1353,7 +1339,7 @@ public abstract class CSSEngine {
     protected void addRules(Element elt,
                             String pseudo,
                             StyleMap sm,
-                            List rules,
+                            ArrayList rules,
                             short origin) {
         sortRules(rules, elt, pseudo);
         int rlen = rules.size();
@@ -1390,35 +1376,36 @@ public abstract class CSSEngine {
      * Sorts the rules matching the element/pseudo-element of given style
      * sheet to the list.
      */
-    protected void sortRules(List rules, Element elt, String pseudo) {
+    protected void sortRules(ArrayList rules, Element elt, String pseudo) {
         int len = rules.size();
-        for (int i = 0; i < len - 1; i++) {
-            int idx = i;
-            int min = Integer.MAX_VALUE;
-            for (int j = i; j < len; j++) {
-                StyleRule r = (StyleRule)rules.get(j);
-                SelectorList sl = r.getSelectorList();
-                int spec = 0;
-                int slen = sl.getLength();
-                for (int k = 0; k < slen; k++) {
-                    ExtendedSelector s = (ExtendedSelector)sl.item(k);
-                    if (s.match(elt, pseudo)) {
-                        int sp = s.getSpecificity();
-                        if (sp > spec) {
-                            spec = sp;
-                        }
+        int[] specificities = new int[len];
+        for (int i = 0; i < len; i++) {
+            StyleRule r = (StyleRule) rules.get(i);
+            SelectorList sl = r.getSelectorList();
+            int spec = 0;
+            int slen = sl.getLength();
+            for (int k = 0; k < slen; k++) {
+                ExtendedSelector s = (ExtendedSelector) sl.item(k);
+                if (s.match(elt, pseudo)) {
+                    int sp = s.getSpecificity();
+                    if (sp > spec) {
+                        spec = sp;
                     }
                 }
-                if (spec < min) {
-                    min = spec;
-                    idx = j;
-                }
             }
-            if (i != idx) {
-                Object tmp = rules.get(i);
-                rules.set(i, rules.get(idx));
-                rules.set(idx, tmp);
+            specificities[i] = spec;
+        }
+        for (int i = 1; i < len; i++) {
+            Object rule = rules.get(i);
+            int spec = specificities[i];
+            int j = i - 1;
+            while (j >= 0 && specificities[j] > spec) {
+                rules.set(j + 1, rules.get(j));
+                specificities[j + 1] = specificities[j];
+                j--;
             }
+            rules.set(j + 1, rule);
+            specificities[j + 1] = spec;
         }
     }
 
@@ -1554,14 +1541,14 @@ public abstract class CSSEngine {
             ImportRule ir = new ImportRule();
             ir.setMediaList(media);
             ir.setParent(styleSheet);
-            try {
-                URL base = getCSSBaseURI();
-                URL url;
-                if (base == null) url = new URL(uri);
-                else              url = new URL(base, uri);
-                ir.setURI(url);
-            } catch (MalformedURLException e) {
+            ParsedURL base = getCSSBaseURI();
+            ParsedURL url;
+            if (base == null) {
+                url = new ParsedURL(uri);
+            } else {
+                url = new ParsedURL(base, uri);
             }
+            ir.setURI(url);
             styleSheet.append(ir);
         }
 
@@ -1629,10 +1616,8 @@ public abstract class CSSEngine {
             Value fontFamily = sm.getValue(pidx);
             if (fontFamily == null) return;
 
-            URL base = getCSSBaseURI();
-            ParsedURL purl = null;
-            if (base != null) purl = new ParsedURL(base);
-            fontFaces.add(new FontFaceRule(sm, purl));
+            ParsedURL base = getCSSBaseURI();
+            fontFaces.add(new FontFaceRule(sm, base));
         }
 
         /**
@@ -1815,7 +1800,7 @@ public abstract class CSSEngine {
 
     // CSS events /////////////////////////////////////////////////////////
 
-    protected final static CSSEngineListener[] LISTENER_ARRAY =
+    protected static final CSSEngineListener[] LISTENER_ARRAY =
         new CSSEngineListener[0];
 
     /**
@@ -1902,7 +1887,7 @@ public abstract class CSSEngine {
                 for (int i = getNumberOfProperties() - 1; i >= 0; --i) {
                     if (style.isComputed(i) && !updated[i]) {
                         short origin = style.getOrigin(i);
-                        if (origin >= StyleMap.INLINE_AUTHOR_ORIGIN) {
+                        if (origin >= StyleMap.INLINE_AUTHOR_ORIGIN) {     // ToDo Jlint says: always same result ??
                             removed = true;
                             updated[i] = true;
                         }
@@ -2404,8 +2389,10 @@ public abstract class CSSEngine {
 
     /**
      * Handles a subtree modification in the document.
+     * todo the incoming Node is actually ignored (not used) here,
+     *     but it seems caller-sites assume that it is used - is this done right??
      */
-    protected void handleSubtreeModified(Node n) {
+    protected void handleSubtreeModified(Node ignored) {
         if (styleSheetRemoved) {
             // Invalidate all the CSSStylableElements in the document.
             styleSheetRemoved = false;
@@ -2416,7 +2403,7 @@ public abstract class CSSEngine {
             // Invalidate the CSSStylableElement siblings, to
             // correctly match the adjacent selectors and
             // first-child pseudo-class.
-            n = removedStylableElementSibling;
+            Node n = removedStylableElementSibling;
             while (n != null) {
                 invalidateProperties(n, null, null, true);
                 n = getCSSNextSibling(n);
@@ -2532,8 +2519,9 @@ public abstract class CSSEngine {
                 if (idx == declaration.getIndex(i)) {
                     declaration.remove(i);
                     StyleMap style = elt.getComputedStyleMap(null);
-                    if (style.getOrigin(idx) == StyleMap.OVERRIDE_ORIGIN
-                            && style.isComputed(idx)) {
+                    if (style != null
+                            && style.getOrigin(idx) == StyleMap.OVERRIDE_ORIGIN
+                            /* && style.isComputed(idx) */) {
                         invalidateProperties
                             (elt, new int[] { idx }, null, true);
                     }

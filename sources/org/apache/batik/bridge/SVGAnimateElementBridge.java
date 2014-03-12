@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,19 +19,20 @@
 package org.apache.batik.bridge;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.batik.anim.AbstractAnimation;
 import org.apache.batik.anim.AnimationEngine;
-import org.apache.batik.anim.AnimationTarget;
-import org.apache.batik.anim.SMILConstants;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.anim.SimpleAnimation;
 import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.util.SMILConstants;
 
 /**
  * Bridge class for the 'animate' animation element.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGAnimateElementBridge.java 501922 2007-01-31 17:47:47Z dvholten $
  */
 public class SVGAnimateElementBridge extends SVGAnimationElementBridge {
 
@@ -72,6 +74,16 @@ public class SVGAnimateElementBridge extends SVGAnimationElementBridge {
      * Returns the parsed 'calcMode' attribute from the animation element.
      */
     protected int parseCalcMode() {
+        // If the attribute being animated has only non-additive values, take
+        // the animation as having calcMode="discrete".
+        if (animationType == AnimationEngine.ANIM_TYPE_CSS
+                && !targetElement.isPropertyAdditive(attributeLocalName)
+            || animationType == AnimationEngine.ANIM_TYPE_XML
+                && !targetElement.isAttributeAdditive(attributeNamespaceURI,
+                                                      attributeLocalName)) {
+            return SimpleAnimation.CALC_MODE_DISCRETE;
+        }
+
         String calcModeString = element.getAttributeNS(null,
                                                        SVG_CALC_MODE_ATTRIBUTE);
         if (calcModeString.length() == 0) {
@@ -106,7 +118,7 @@ public class SVGAnimateElementBridge extends SVGAnimationElementBridge {
             (ctx, element, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
              new Object[] { SVG_ADDITIVE_ATTRIBUTE, additiveString });
     }
-    
+
     /**
      * Returns the parsed 'accumulate' attribute from the animation element.
      */
@@ -207,9 +219,9 @@ outer:  while (i < len) {
                 float keyTime =
                     Float.parseFloat(keyTimesString.substring(start, end));
                 keyTimes.add(new Float(keyTime));
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, element, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, element, nfEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object[] { SVG_KEY_TIMES_ATTRIBUTE, keyTimesString });
             }
         }
@@ -231,8 +243,8 @@ outer:  while (i < len) {
         if (len == 0) {
             return null;
         }
-        ArrayList keySplines = new ArrayList(7);
-        int i = 0, start = 0, end;
+        List keySplines = new ArrayList(7);
+        int count = 0, i = 0, start = 0, end;
         char c;
 outer:  while (i < len) {
             while (keySplinesString.charAt(i) == ' ') {
@@ -244,22 +256,48 @@ outer:  while (i < len) {
             start = i++;
             if (i != len) {
                 c = keySplinesString.charAt(i);
-                while (c != ' ' && c != ';') {
+                while (c != ' ' && c != ',' && c != ';') {
                     i++;
                     if (i == len) {
                         break;
                     }
                     c = keySplinesString.charAt(i);
                 }
+                end = i++;
+                if (c == ' ') {
+                    do {
+                        if (i == len) {
+                            break;
+                        }
+                        c = keySplinesString.charAt(i++);
+                    } while (c == ' ');
+                    if (c != ';' && c != ',') {
+                        i--;
+                    }
+                }
+                if (c == ';') {
+                    if (count == 3) {
+                        count = 0;
+                    } else {
+                        throw new BridgeException
+                            (ctx, element,
+                             ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                             new Object[] { SVG_KEY_SPLINES_ATTRIBUTE,
+                                            keySplinesString });
+                    }
+                } else {
+                    count++;
+                }
+            } else {
+                end = i++;
             }
-            end = i++;
             try {
                 float keySplineValue =
                     Float.parseFloat(keySplinesString.substring(start, end));
                 keySplines.add(new Float(keySplineValue));
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, element, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, element, nfEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object[] { SVG_KEY_SPLINES_ATTRIBUTE, keySplinesString });
             }
         }
@@ -281,7 +319,7 @@ outer:  while (i < len) {
     /**
      * Returns whether the animation element being handled by this bridge can
      * animate attributes of the specified type.
-     * @param type one of the TYPE_ constants defined in {@link SVGTypes}.
+     * @param type one of the TYPE_ constants defined in {@link org.apache.batik.util.SVGTypes}.
      */
     protected boolean canAnimateType(int type) {
         return true;

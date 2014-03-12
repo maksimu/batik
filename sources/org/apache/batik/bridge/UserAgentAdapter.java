@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,8 +30,9 @@ import java.util.Set;
 import org.apache.batik.gvt.event.EventDispatcher;
 import org.apache.batik.gvt.text.Mark;
 import org.apache.batik.util.ParsedURL;
-import org.apache.batik.util.SVGConstants;
+import org.apache.batik.util.SVGFeatureStrings;
 import org.apache.batik.util.XMLResourceDescriptor;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGAElement;
 import org.w3c.dom.svg.SVGDocument;
@@ -40,7 +42,7 @@ import org.w3c.dom.svg.SVGDocument;
  * the creation of UserAgent instances.
  *
  * @author <a href="mailto:thomas.deweese@kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: UserAgentAdapter.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class UserAgentAdapter implements UserAgent {
     protected Set FEATURES   = new HashSet();
@@ -63,9 +65,7 @@ public class UserAgentAdapter implements UserAgent {
      * by this user agent.
      */
     public void addStdFeatures() {
-        FEATURES.add(SVGConstants.SVG_ORG_W3C_SVG_FEATURE);
-        FEATURES.add(SVGConstants.SVG_ORG_W3C_SVG_LANG_FEATURE);
-        FEATURES.add(SVGConstants.SVG_ORG_W3C_SVG_STATIC_FEATURE);
+        SVGFeatureStrings.addSupportedFeatureStrings(FEATURES);
     }
 
     /**
@@ -205,7 +205,7 @@ public class UserAgentAdapter implements UserAgent {
     }
 
     /**
-     * Returns <tt>false</tt>. The XML parser is not in validation mode.
+     * Returns <code>false</code>. The XML parser is not in validation mode.
      */
     public boolean isXMLParserValidating() {
         return false;
@@ -448,5 +448,14 @@ public class UserAgentAdapter implements UserAgent {
                                              String message) {
         throw new BridgeException(ctx, e, ErrorConstants.ERR_URI_IMAGE_BROKEN,
                                   new Object[] {url, message });
+    }
+
+    /**
+     * This method should load a new document described by the supplied URL.
+     *
+     * @param url The url to be loaded as a string.
+     */
+    public void loadDocument(String url) {
+        // Do nothing.
     }
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,16 +38,17 @@ import java.text.CharacterIterator;
 import org.apache.batik.gvt.text.ArabicTextHandler;
 import org.apache.batik.gvt.text.GVTAttributedCharacterIterator;
 import org.apache.batik.gvt.text.TextPaintInfo;
+import org.apache.batik.util.Platform;
 
 /**
  * This is a wrapper class for a java.awt.font.GlyphVector instance.
  *
  * @author <a href="mailto:bella.robinson@cmis.csiro.au">Bella Robinson</a>
- * @version $Id$
+ * @version $Id: AWTGVTGlyphVector.java 731265 2009-01-04 14:59:12Z dvholten $
  */
 public class AWTGVTGlyphVector implements GVTGlyphVector {
 
-    public static final AttributedCharacterIterator.Attribute PAINT_INFO 
+    public static final AttributedCharacterIterator.Attribute PAINT_INFO
         = GVTAttributedCharacterIterator.TextAttribute.PAINT_INFO;
 
     private GlyphVector awtGlyphVector;
@@ -71,7 +73,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
     private Rectangle2D visualBounds;
     private Rectangle2D logicalBounds;
     private Rectangle2D bounds2D;
-    private float scaleFactor;
+    private double scaleFactor;
     private float ascent;
     private float descent;
     private TextPaintInfo cacheTPI;
@@ -91,7 +93,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
      */
     public AWTGVTGlyphVector(GlyphVector glyphVector,
                              AWTGVTFont font,
-                             float scaleFactor,
+                             double scaleFactor,
                              CharacterIterator ci) {
 
         this.awtGlyphVector = glyphVector;
@@ -162,7 +164,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
     }
 
     /**
-     * Returns a tight bounds on the GylphVector including stroking.
+     * Returns a tight bounds on the GlyphVector including stroking.
      */
     public Rectangle2D getBounds2D(AttributedCharacterIterator aci) {
         aci.first();
@@ -173,29 +175,30 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
 
         if (tpi == null)
             return null;
-        if (!tpi.visible) 
+        if (!tpi.visible)
             return null;
-            
+
         cacheTPI = new TextPaintInfo(tpi);
         Shape outline = null;
         if (tpi.fillPaint != null) {
             outline = getOutline();
             bounds2D = outline.getBounds2D();
         }
-        
-        // check if we need to include the 
+
+        // check if we need to include the
         // outline of this glyph
         Stroke stroke = tpi.strokeStroke;
         Paint  paint  = tpi.strokePaint;
         if ((stroke != null) && (paint != null)) {
             if (outline == null)
                 outline = getOutline();
-            Rectangle2D strokeBounds 
+            Rectangle2D strokeBounds
                 = stroke.createStrokedShape(outline).getBounds2D();
             if (bounds2D == null)
                 bounds2D = strokeBounds;
-            else 
-                bounds2D = bounds2D.createUnion(strokeBounds);
+            else
+                // bounds2D = bounds2D.createUnion(strokeBounds);
+                bounds2D.add(strokeBounds);
         }
         if (bounds2D == null)
             return null;
@@ -242,8 +245,8 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
         Shape[] tempLogicalBounds = new Shape[getNumGlyphs()];
         boolean[] rotated  = new boolean[getNumGlyphs()];
 
-        double maxWidth = -1;
-        double maxHeight = -1;
+        double maxWidth = -1.0;
+        double maxHeight = -1.0;
         for (int i = 0; i < getNumGlyphs(); i++) {
 
             if (!glyphVisible[i]) {
@@ -255,11 +258,11 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
             AffineTransform glyphTransform = getGlyphTransform(i);
             GVTGlyphMetrics glyphMetrics   = getGlyphMetrics(i);
 
-            float glyphX      = 0;
-            float glyphY      = -ascent/scaleFactor;
-            float glyphWidth  = (glyphMetrics.getHorizontalAdvance()/
+            float glyphX      = 0.0f;
+            float glyphY      = (float)(-ascent/scaleFactor);
+            float glyphWidth  = (float)(glyphMetrics.getHorizontalAdvance()/
                                  scaleFactor);
-            float glyphHeight = (glyphMetrics.getVerticalAdvance()/
+            float glyphHeight = (float)(glyphMetrics.getVerticalAdvance()/
                                  scaleFactor);
             Rectangle2D glyphBounds = new Rectangle2D.Double(glyphX,
                                                              glyphY,
@@ -396,9 +399,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
             }
         }
 
-        for (int i = 0; i < getNumGlyphs(); i++) {
-            glyphLogicalBounds[i] = tempLogicalBounds[i];
-        }
+        System.arraycopy( tempLogicalBounds, 0, glyphLogicalBounds, 0, getNumGlyphs() );
     }
 
     /**
@@ -406,7 +407,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
      * GVTGlyphVector.
      */
     public GVTGlyphMetrics getGlyphMetrics(int glyphIndex) {
-        if (glyphMetrics[glyphIndex] != null) 
+        if (glyphMetrics[glyphIndex] != null)
             return glyphMetrics[glyphIndex];
 
         // -- start glyph cache code --
@@ -428,7 +429,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
         float adv = (float)(defaultGlyphPositions[glyphIndex+1].getX()-
                             defaultGlyphPositions[glyphIndex]  .getX());
         glyphMetrics[glyphIndex] =  new GVTGlyphMetrics
-            (adv*scaleFactor, (ascent+descent),
+            ((float)(adv*scaleFactor), (ascent+descent),
              bounds, GlyphMetrics.STANDARD);
 
         return glyphMetrics[glyphIndex];
@@ -502,10 +503,11 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
     static {
         String s = System.getProperty("java.specification.version");
         if ("1.4".compareTo(s) <= 0) {
+            // TODO Java 5
             outlinesPositioned = true;
             drawGlyphVectorWorks = true;
             glyphVectorTransformWorks = true;
-        } else if ("Mac OS X".equals(System.getProperty("os.name"))) {
+        } else if (Platform.isOSX) {
             outlinesPositioned = true;
             drawGlyphVectorWorks = false;
             glyphVectorTransformWorks = false;
@@ -611,9 +613,9 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
      * of this GlyphVector.
      */
     public Shape getOutline() {
-        if (outline != null) 
+        if (outline != null)
             return outline;
-        
+
         outline = new GeneralPath();
         for (int i = 0; i < getNumGlyphs(); i++) {
             if (glyphVisible[i]) {
@@ -766,7 +768,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
      * Tells the glyph vector whether or not to draw the specified glyph.
      */
     public void setGlyphVisible(int glyphIndex, boolean visible) {
-        if (visible == glyphVisible[glyphIndex]) 
+        if (visible == glyphVisible[glyphIndex])
             return;
         glyphVisible[glyphIndex] = visible;
         outline       = null;
@@ -839,7 +841,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
             // Can't stroke with drawGlyphVector.
             useHinting = false;
 
-        if (useHinting && 
+        if (useHinting &&
             (fillPaint != null) && !(fillPaint instanceof Color))
             // The coordinate system is different for drawGlyphVector.
             // So complex paints aren't positioned properly.
@@ -867,7 +869,7 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
             if (((type & typeGTrans) != 0) || ((type & typeGRot)  != 0))
                 useHinting = false;
         }
-            
+
         if (useHinting) {
             for (int i=0; i<numGlyphs; i++) {
                 if (!glyphVisible[i]) {
@@ -923,8 +925,8 @@ public class AWTGVTGlyphVector implements GVTGlyphVector {
             }
             graphics2D.scale(sf, sf);
             graphics2D.setPaint(fillPaint);
-            graphics2D.drawGlyphVector(awtGlyphVector, 0, 0);
-            graphics2D.scale(1/sf, 1/sf);
+            graphics2D.drawGlyphVector(awtGlyphVector, 0.0f, 0.0f);
+            graphics2D.scale(1.0/sf, 1.0/sf);
 
             for (int i=0; i< numGlyphs; i++) {
                 Point2D         pos = defaultGlyphPositions[i];

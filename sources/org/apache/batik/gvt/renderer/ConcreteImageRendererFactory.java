@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,12 +18,13 @@
  */
 package org.apache.batik.gvt.renderer;
 
+import org.apache.batik.util.Platform;
 
 /**
  * This class provides a factory for renderers.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: ConcreteImageRendererFactory.java 713578 2008-11-13 00:28:21Z cam $
  */
 public class ConcreteImageRendererFactory implements ImageRendererFactory {
 
@@ -34,27 +36,20 @@ public class ConcreteImageRendererFactory implements ImageRendererFactory {
     }
 
     /**
-     * Creates a new static image renderer
+     * Creates a new static image renderer.
      */
-    public ImageRenderer createStaticImageRenderer(){
-        if (onMacOSX)
+    public ImageRenderer createStaticImageRenderer() {
+        if (Platform.isOSX)
             return new MacRenderer();
         return new StaticRenderer();
     }
 
     /**
-     * Creates a new dynamic image renderer
+     * Creates a new dynamic image renderer.
      */
-    public ImageRenderer createDynamicImageRenderer(){
-        if (onMacOSX)
+    public ImageRenderer createDynamicImageRenderer() {
+        if (Platform.isOSX)
             return new MacRenderer();
         return new DynamicRenderer();
-    }
-
-
-    static final boolean onMacOSX;
-    static {
-        // This should be OK for applets.
-        onMacOSX = ("Mac OS X".equals(System.getProperty("os.name")));
     }
 }

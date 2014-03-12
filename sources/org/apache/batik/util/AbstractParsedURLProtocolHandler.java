@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +23,7 @@ package org.apache.batik.util;
  * Just handles the 'what protocol part'.
  *
  * @author <a href="mailto:thomas.deweese@kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: AbstractParsedURLProtocolHandler.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class AbstractParsedURLProtocolHandler 
  implements ParsedURLProtocolHandler {
@@ -30,7 +31,7 @@ public abstract class AbstractParsedURLProtocolHandler
     protected String protocol;
 
     /**
-     * Constrcut a ProtocolHandler for <tt>protocol</tt>
+     * Constrcut a ProtocolHandler for <code>protocol</code>
      */
     public AbstractParsedURLProtocolHandler(String protocol) {
         this.protocol = protocol;

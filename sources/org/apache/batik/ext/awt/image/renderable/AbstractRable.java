@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -44,7 +45,7 @@ import org.apache.batik.ext.awt.image.rendered.RenderedImageCachableRed;
  * implementation.
  *
  * @author <a href="mailto:Thomas.DeWeeese@Kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: AbstractRable.java 489226 2006-12-21 00:05:36Z cam $
  */
 public abstract class AbstractRable implements Filter {
 
@@ -287,7 +288,7 @@ public abstract class AbstractRable implements Filter {
         return srect;
     }
 
-    public Shape getDirtyRegion(int srcIndex, 
+    public Shape getDirtyRegion(int srcIndex,
                                 Rectangle2D inputRgn) {
         if ((srcIndex < 0) || (srcIndex > srcs.size()))
             throw new IndexOutOfBoundsException

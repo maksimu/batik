@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,10 +24,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
 
 /**
- * Renders the shape of a <tt>ShapeNode</tt>.
+ * Renders the shape of a <code>ShapeNode</code>.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: ShapePainter.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface ShapePainter {
 
@@ -48,7 +49,7 @@ public interface ShapePainter {
     Rectangle2D getPaintedBounds2D();
 
     /**
-     * Returns true if <tt>pt</tt> is in the painted area.
+     * Returns true if <code>pt</code> is in the painted area.
      */
     boolean inPaintedArea(Point2D pt);
 
@@ -65,7 +66,7 @@ public interface ShapePainter {
     Rectangle2D getSensitiveBounds2D();
 
     /**
-     * Returns true if <tt>pt</tt> is in the sensitive area.
+     * Returns true if <code>pt</code> is in the sensitive area.
      */
     boolean inSensitiveArea(Point2D pt);
 

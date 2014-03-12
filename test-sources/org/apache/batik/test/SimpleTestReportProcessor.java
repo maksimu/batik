@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,11 +23,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * A simple implementation of the <tt>TestReportProcessor</tt> interface
- * that prints out the <tt>TestReport</tt> to the standard output.
+ * A simple implementation of the <code>TestReportProcessor</code> interface
+ * that prints out the <code>TestReport</code> to the standard output.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SimpleTestReportProcessor.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SimpleTestReportProcessor implements TestReportProcessor {
     /**
@@ -50,7 +51,7 @@ public class SimpleTestReportProcessor implements TestReportProcessor {
     private PrintWriter printWriter;
 
     /**
-     * Sets the <tt>PrintWriter</tt> this processor should use
+     * Sets the <code>PrintWriter</code> this processor should use
      */
     public void setPrintWriter(PrintWriter printWriter){
         this.printWriter = printWriter;

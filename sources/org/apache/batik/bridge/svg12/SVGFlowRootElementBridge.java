@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003,2005-2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,6 +40,7 @@ import org.w3c.dom.Node;
 import org.apache.batik.bridge.Bridge;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.CSSUtilities;
+import org.apache.batik.bridge.CursorManager;
 import org.apache.batik.bridge.GVTBuilder;
 import org.apache.batik.bridge.SVGTextElementBridge;
 import org.apache.batik.bridge.SVGUtilities;
@@ -61,6 +63,7 @@ import org.apache.batik.dom.util.XMLSupport;
 import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.gvt.CompositeGraphicsNode;
 import org.apache.batik.gvt.GraphicsNode;
+import org.apache.batik.gvt.TextNode;
 import org.apache.batik.gvt.flow.BlockInfo;
 import org.apache.batik.gvt.flow.FlowTextNode;
 import org.apache.batik.gvt.flow.RegionInfo;
@@ -79,54 +82,58 @@ import org.w3c.dom.events.EventListener;
  * Bridge class for the &lt;flowRoot> element.
  *
  * @author <a href="mailto:deweese@apache.org">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: SVGFlowRootElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
 
-    public static final 
+    public static final
         AttributedCharacterIterator.Attribute FLOW_PARAGRAPH =
         GVTAttributedCharacterIterator.TextAttribute.FLOW_PARAGRAPH;
 
-    public static final 
+    public static final
         AttributedCharacterIterator.Attribute FLOW_EMPTY_PARAGRAPH =
         GVTAttributedCharacterIterator.TextAttribute.FLOW_EMPTY_PARAGRAPH;
 
-    public static final 
+    public static final
         AttributedCharacterIterator.Attribute FLOW_LINE_BREAK =
         GVTAttributedCharacterIterator.TextAttribute.FLOW_LINE_BREAK;
-    
-    public static final 
+
+    public static final
         AttributedCharacterIterator.Attribute FLOW_REGIONS =
         GVTAttributedCharacterIterator.TextAttribute.FLOW_REGIONS;
 
-    public static final 
+    public static final
         AttributedCharacterIterator.Attribute LINE_HEIGHT =
         GVTAttributedCharacterIterator.TextAttribute.LINE_HEIGHT;
 
-    public final static 
-        GVTAttributedCharacterIterator.TextAttribute TEXTPATH = 
+    public static final
+    GVTAttributedCharacterIterator.TextAttribute TEXTPATH =
         GVTAttributedCharacterIterator.TextAttribute.TEXTPATH;
 
-    public final static 
-        GVTAttributedCharacterIterator.TextAttribute ANCHOR_TYPE = 
+    public static final
+    GVTAttributedCharacterIterator.TextAttribute ANCHOR_TYPE =
         GVTAttributedCharacterIterator.TextAttribute.ANCHOR_TYPE;
 
-    public final static 
-        GVTAttributedCharacterIterator.TextAttribute LETTER_SPACING = 
+    public static final
+    GVTAttributedCharacterIterator.TextAttribute LETTER_SPACING =
         GVTAttributedCharacterIterator.TextAttribute.LETTER_SPACING;
 
-    public final static 
-        GVTAttributedCharacterIterator.TextAttribute WORD_SPACING = 
+    public static final
+    GVTAttributedCharacterIterator.TextAttribute WORD_SPACING =
         GVTAttributedCharacterIterator.TextAttribute.WORD_SPACING;
 
-    public final static 
-        GVTAttributedCharacterIterator.TextAttribute KERNING = 
+    public static final
+    GVTAttributedCharacterIterator.TextAttribute KERNING =
         GVTAttributedCharacterIterator.TextAttribute.KERNING;
 
     /**
      * Map of flowRegion elements to their graphics nodes.
      */
     protected Map flowRegionNodes;
+
+    protected TextNode textNode;
+
+    protected TextNode getTextNode() { return textNode; }
 
     /**
      * Listener for flowRegion changes.
@@ -167,7 +174,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
     }
 
     /**
-     * Creates a <tt>GraphicsNode</tt> according to the specified parameters.
+     * Creates a <code>GraphicsNode</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param e the element that describes the graphics node to build
@@ -211,10 +218,19 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         if (ctx.getTextPainter() != null) {
             tn.setTextPainter(ctx.getTextPainter());
         }
-
+        textNode = tn;
         cgn.add(tn);
 
         associateSVGContext(ctx, e, cgn);
+
+        // traverse the children to add SVGContext
+        Node child = getFirstChild(e);
+        while (child != null) {
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                addContextToChild(ctx,(Element)child);
+            }
+            child = getNextSibling(child);
+        }
 
         return cgn;
     }
@@ -259,7 +275,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
                 nodeName.equals(SVG12Constants.SVG_FLOW_REGION_BREAK_TAG) ||
                 nodeName.equals(SVG12Constants.SVG_FLOW_SPAN_TAG));
     }
-    
+
     /**
      * Builds using the specified BridgeContext and element, the
      * specified graphics node.
@@ -315,10 +331,10 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         super.buildGraphicsNode(ctx, e, tn);
 
         // Drop references once static build is completed.
-        flowRegionNodes = null;  
+        flowRegionNodes = null;
     }
 
-    protected void computeLaidoutText(BridgeContext ctx, 
+    protected void computeLaidoutText(BridgeContext ctx,
                                        Element e,
                                        GraphicsNode node) {
         super.computeLaidoutText(ctx, getFlowDivElement(e), node);
@@ -348,7 +364,45 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
             }
         }
 
-        super.addContextToChild(ctx, e);
+        // traverse the children to add SVGContext
+        Node child = getFirstChild(e);
+        while (child != null) {
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                addContextToChild(ctx,(Element)child);
+            }
+            child = getNextSibling(child);
+        }
+    }
+
+    /**
+     * From the <code>SVGContext</code> from the element children of the node.
+     *
+     * @param ctx the <code>BridgeContext</code> for the document
+     * @param e the <code>Element</code> whose subtree's elements will have
+     *   threir <code>SVGContext</code>s removed
+     *
+     * @see org.apache.batik.dom.svg.SVGContext
+     * @see org.apache.batik.bridge.BridgeUpdateHandler
+     */
+    protected void removeContextFromChild(BridgeContext ctx, Element e) {
+        if (SVG_NAMESPACE_URI.equals(e.getNamespaceURI())) {
+            String ln = e.getLocalName();
+            if (ln.equals(SVG12Constants.SVG_FLOW_DIV_TAG)
+                    || ln.equals(SVG12Constants.SVG_FLOW_LINE_TAG)
+                    || ln.equals(SVG12Constants.SVG_FLOW_PARA_TAG)
+                    || ln.equals(SVG12Constants.SVG_FLOW_SPAN_TAG)) {
+                ((AbstractTextChildBridgeUpdateHandler)
+                    ((SVGOMElement) e).getSVGContext()).dispose();
+            }
+        }
+
+        Node child = getFirstChild(e);
+        while (child != null) {
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                removeContextFromChild(ctx, (Element)child);
+            }
+            child = getNextSibling(child);
+        }
     }
 
     /**
@@ -374,24 +428,26 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
     protected void dumpACIWord(AttributedString as) {
         if (as == null) return;
 
-        String chars = "";
-        String brkStr = "";
+        StringBuffer chars = new StringBuffer();
+        StringBuffer brkStr = new StringBuffer();
         AttributedCharacterIterator aci = as.getIterator();
         AttributedCharacterIterator.Attribute WORD_LIMIT =
             TextLineBreaks.WORD_LIMIT;
 
-        for (char ch = aci.current(); 
+        for (char ch = aci.current();
              ch!=AttributedCharacterIterator.DONE;
              ch = aci.next()) {
-            chars  += ch + "  ";
-            int w = ((Integer)aci.getAttribute(WORD_LIMIT)).intValue();
-            if (w >=10)
-                brkStr += ""+w+" ";
-            else 
-                brkStr += ""+w+"  ";
+
+                chars.append( ch ).append( ' ' ).append( ' ' );
+                int w = ((Integer)aci.getAttribute(WORD_LIMIT)).intValue();
+                brkStr.append( w ).append( ' ' );
+                if (w < 10) {
+                    // for small values append another ' '
+                    brkStr.append( ' ' );
+                }
         }
-        System.out.println(chars);
-        System.out.println(brkStr);
+        System.out.println( chars.toString() );
+        System.out.println( brkStr.toString() );
     }
 
     protected Element getFlowDivElement(Element elem) {
@@ -402,7 +458,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         if (nodeName.equals(SVG12Constants.SVG_FLOW_DIV_TAG)) return elem;
 
         if (!nodeName.equals(SVG12Constants.SVG_FLOW_ROOT_TAG)) return null;
-        
+
         for (Node n = getFirstChild(elem);
              n != null; n = getNextSibling(n)) {
             if (n.getNodeType()     != Node.ELEMENT_NODE) continue;
@@ -412,7 +468,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
 
             Element e = (Element)n;
             String ln = e.getLocalName();
-            if (ln.equals(SVG12Constants.SVG_FLOW_DIV_TAG)) 
+            if (ln.equals(SVG12Constants.SVG_FLOW_DIV_TAG))
                 return e;
         }
         return null;
@@ -429,7 +485,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         (BridgeContext ctx, Element div) {
         TextPaintInfo divTPI = new TextPaintInfo();
         // Set some basic props so we can get bounds info for complex paints.
-        divTPI.visible   = true;        
+        divTPI.visible   = true;
         divTPI.fillPaint = Color.black;
         elemTPI.put(div, divTPI);
 
@@ -438,19 +494,25 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         List paraElems = new ArrayList();
         List lnLocs    = new ArrayList();
         for (Node n = getFirstChild(div);
-             n != null; n = getNextSibling(n)) {
-            if (n.getNodeType()     != Node.ELEMENT_NODE) continue;
-            if (!getNamespaceURI().equals(n.getNamespaceURI())) continue;
+             n != null;
+             n = getNextSibling(n)) {
+
+            if (n.getNodeType() != Node.ELEMENT_NODE
+                    || !getNamespaceURI().equals(n.getNamespaceURI())) {
+                continue;
+            }
             Element e = (Element)n;
 
             String ln = e.getLocalName();
             if (ln.equals(SVG12Constants.SVG_FLOW_PARA_TAG)) {
-                fillAttributedStringBuffer(ctx, e, true, null, asb, lnLocs);
+                fillAttributedStringBuffer
+                    (ctx, e, true, null, null, asb, lnLocs);
 
                 paraElems.add(e);
                 paraEnds.add(new Integer(asb.length()));
             } else if (ln.equals(SVG12Constants.SVG_FLOW_REGION_BREAK_TAG)) {
-                fillAttributedStringBuffer(ctx, e, true, null, asb, lnLocs);
+                fillAttributedStringBuffer
+                    (ctx, e, true, null, null, asb, lnLocs);
 
                 paraElems.add(e);
                 paraEnds.add(new Integer(asb.length()));
@@ -462,7 +524,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         // Layer in the PARAGRAPH/LINE_BREAK Attributes so we can
         // break up text chunks.
         AttributedString ret = asb.toAttributedString();
-        if (ret == null) 
+        if (ret == null)
             return null;
 
         // Note: The Working Group (in conjunction with XHTML working
@@ -474,7 +536,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
             if (nextLN == prevLN) continue;
 
             // System.out.println("Attr: [" + prevLN + "," + nextLN + "]");
-            ret.addAttribute(FLOW_LINE_BREAK, 
+            ret.addAttribute(FLOW_LINE_BREAK,
                              new Object(),
                              prevLN, nextLN);
             prevLN  = nextLN;
@@ -493,7 +555,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
                 continue;
             }
             // System.out.println("Para: [" + start + ", " + end + "]");
-            ret.addAttribute(FLOW_PARAGRAPH, makeBlockInfo(ctx, elem), 
+            ret.addAttribute(FLOW_PARAGRAPH, makeBlockInfo(ctx, elem),
                              start, end);
             if (emptyPara != null) {
                 ret.addAttribute(FLOW_EMPTY_PARAGRAPH, emptyPara, start, end);
@@ -513,9 +575,9 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         List ret = new LinkedList();
         for (Node n = getFirstChild(element);
              n != null; n = getNextSibling(n)) {
-            
+
             if (n.getNodeType()     != Node.ELEMENT_NODE) continue;
-            if (!SVG12Constants.SVG_NAMESPACE_URI.equals(n.getNamespaceURI())) 
+            if (!SVG12Constants.SVG_NAMESPACE_URI.equals(n.getNamespaceURI()))
                 continue;
 
             Element e = (Element)n;
@@ -524,13 +586,13 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
 
             // our default alignment is to the top of the flow rect.
             float verticalAlignment = 0.0f;
-            
+
             gatherRegionInfo(ctx, e, verticalAlignment, ret);
         }
 
         return ret;
     }
-    
+
     protected void gatherRegionInfo(BridgeContext ctx, Element rgn,
                                     float verticalAlign, List regions) {
 
@@ -542,7 +604,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
             }
 
             GraphicsNode gn = isStatic ? (GraphicsNode) flowRegionNodes.get(n)
-                                       : ctx.getGraphicsNode((Element) n);
+                                       : ctx.getGraphicsNode(n);
             Shape s = gn.getOutline();
             if (s == null) {
                 continue;
@@ -565,6 +627,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
                                               Element element,
                                               boolean top,
                                               Integer bidiLevel,
+                                              Map initialAttributes,
                                               AttributedStringBuffer asb,
                                               List lnLocs) {
         // 'requiredFeatures', 'requiredExtensions', 'systemLanguage' &
@@ -580,21 +643,28 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         Element nodeElement = element;
         int elementStartChar = asb.length();
 
-        if (top)
+        if (top) {
             endLimit = startLen = asb.length();
-
-        if (preserve)
+        }
+        if (preserve) {
             endLimit = startLen;
-        
-        Map map = getAttributeMap(ctx, element, null, bidiLevel);
+        }
+
+        Map map = initialAttributes == null
+                ? new HashMap()
+                : new HashMap(initialAttributes);
+        initialAttributes =
+            getAttributeMap(ctx, element, null, bidiLevel, map);
         Object o = map.get(TextAttribute.BIDI_EMBEDDING);
         Integer subBidiLevel = bidiLevel;
-        if (o != null)
-            subBidiLevel = (Integer)o;
+        if (o != null) {
+            subBidiLevel = (Integer) o;
+        }
 
         int lineBreak = -1;
-        if (lnLocs.size() != 0)
+        if (lnLocs.size() != 0) {
             lineBreak = ((Integer)lnLocs.get(lnLocs.size()-1)).intValue();
+        }
 
         for (Node n = getFirstChild(element);
              n != null;
@@ -604,15 +674,16 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
                 prevEndsWithSpace = false;
             } else {
                 int len = asb.length();
-                if (len == startLen) 
+                if (len == startLen) {
                     prevEndsWithSpace = true;
-                else {
+                } else {
                     prevEndsWithSpace = (asb.getLastChar() == ' ');
                     int idx = lnLocs.size()-1;
                     if (!prevEndsWithSpace && (idx >= 0)) {
                         Integer i = (Integer)lnLocs.get(idx);
-                        if (i.intValue() == len)
+                        if (i.intValue() == len) {
                             prevEndsWithSpace = true;
+                        }
                     }
                 }
             }
@@ -622,61 +693,75 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
                 // System.out.println("Element: " + n);
                 if (!SVG_NAMESPACE_URI.equals(n.getNamespaceURI()))
                     break;
-                
+
                 nodeElement = (Element)n;
 
                 String ln = n.getLocalName();
 
                 if (ln.equals(SVG12Constants.SVG_FLOW_LINE_TAG)) {
-                    fillAttributedStringBuffer(ctx, nodeElement, 
-                                               false, subBidiLevel, 
+                    int before = asb.length();
+                    fillAttributedStringBuffer(ctx, nodeElement, false,
+                                               subBidiLevel, initialAttributes,
                                                asb, lnLocs);
-                    // System.out.println("Line: " + asb.length() + 
+                    // System.out.println("Line: " + asb.length() +
                     //                    " - '" +  asb + "'");
                     lineBreak = asb.length();
                     lnLocs.add(new Integer(lineBreak));
+                    if (before != lineBreak) {
+                        initialAttributes = null;
+                    }
                 } else if (ln.equals(SVG12Constants.SVG_FLOW_SPAN_TAG) ||
                            ln.equals(SVG12Constants.SVG_ALT_GLYPH_TAG)) {
-                    fillAttributedStringBuffer(ctx, nodeElement,
-                                               false, subBidiLevel, 
+                    int before = asb.length();
+                    fillAttributedStringBuffer(ctx, nodeElement, false,
+                                               subBidiLevel, initialAttributes,
                                                asb, lnLocs);
+                    if (asb.length() != before) {
+                        initialAttributes = null;
+                    }
                 } else if (ln.equals(SVG_A_TAG)) {
                     if (ctx.isInteractive()) {
                         NodeEventTarget target = (NodeEventTarget)nodeElement;
                         UserAgent ua = ctx.getUserAgent();
+                        SVGAElementBridge.CursorHolder ch;
+                        ch = new SVGAElementBridge.CursorHolder
+                            (CursorManager.DEFAULT_CURSOR);
                         target.addEventListenerNS
                             (XMLConstants.XML_EVENTS_NAMESPACE_URI,
-                             SVG_EVENT_CLICK, 
-                             new SVGAElementBridge.AnchorListener(ua),
+                             SVG_EVENT_CLICK,
+                             new SVGAElementBridge.AnchorListener(ua, ch),
                              false, null);
-                    
+
                         target.addEventListenerNS
                             (XMLConstants.XML_EVENTS_NAMESPACE_URI,
                              SVG_EVENT_MOUSEOVER,
-                             new SVGAElementBridge.CursorMouseOverListener(ua),
+                             new SVGAElementBridge.CursorMouseOverListener(ua,ch),
                              false, null);
-                    
+
                         target.addEventListenerNS
                             (XMLConstants.XML_EVENTS_NAMESPACE_URI,
                              SVG_EVENT_MOUSEOUT,
-                             new SVGAElementBridge.CursorMouseOutListener(ua),
+                             new SVGAElementBridge.CursorMouseOutListener(ua,ch),
                              false, null);
                     }
-                    fillAttributedStringBuffer(ctx,
-                                               nodeElement,
-                                               false, subBidiLevel,
+                    int before = asb.length();
+                    fillAttributedStringBuffer(ctx, nodeElement, false,
+                                               subBidiLevel, initialAttributes,
                                                asb, lnLocs);
+                    if (asb.length() != before) {
+                        initialAttributes = null;
+                    }
                 } else if (ln.equals(SVG_TREF_TAG)) {
                     String uriStr = XLinkSupport.getXLinkHref((Element)n);
                     Element ref = ctx.getReferencedElement((Element)n, uriStr);
                     s = TextUtilities.getElementContent(ref);
                     s = normalizeString(s, preserve, prevEndsWithSpace);
-                    if (s != null) {
+                    if (s.length() != 0) {
                         int trefStart = asb.length();
-                        Map m = getAttributeMap(ctx, nodeElement, null, 
-                                                bidiLevel);
+                        Map m = new HashMap();
+                        getAttributeMap(ctx, nodeElement, null, bidiLevel, m);
                         asb.append(s, m);
-                        int trefEnd = asb.length()-1;
+                        int trefEnd = asb.length() - 1;
                         TextPaintInfo tpi;
                         tpi = (TextPaintInfo)elemTPI.get(nodeElement);
                         tpi.startChar = trefStart;
@@ -684,14 +769,18 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
                     }
                 }
                 break;
-                
+
             case Node.TEXT_NODE:
             case Node.CDATA_SECTION_NODE:
                 s = n.getNodeValue();
                 s = normalizeString(s, preserve, prevEndsWithSpace);
-                asb.append(s, map);
-                if (preserve)
-                    endLimit = asb.length();
+                if (s.length() != 0) {
+                    asb.append(s, map);
+                    if (preserve) {
+                        endLimit = asb.length();
+                    }
+                    initialAttributes = null;
+                }
             }
         }
 
@@ -737,20 +826,19 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         tpi.endChar   = elementEndChar;
     }
 
-    /**
-     * Returns the map to pass to the current characters.
-     */
     protected Map getAttributeMap(BridgeContext ctx,
                                   Element element,
                                   TextPath textPath,
-                                  Integer bidiLevel) {
-        Map result = super.getAttributeMap(ctx, element, textPath, bidiLevel);
+                                  Integer bidiLevel,
+                                  Map result) {
+        Map inheritingMap =
+            super.getAttributeMap(ctx, element, textPath, bidiLevel, result);
 
         float fontSize   = TextUtilities.convertFontSize(element).floatValue();
         float lineHeight = getLineHeight(ctx, element, fontSize);
         result.put(LINE_HEIGHT, new Float(lineHeight));
-        
-        return result;
+
+        return inheritingMap;
     }
 
     protected void checkMap(Map attrs) {
@@ -815,9 +903,9 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
 
         v = CSSUtilities.getComputedStyle(element, textAlignIndex);
         if (v == ValueConstants.INHERIT_VALUE) {
-            v = CSSUtilities.getComputedStyle(element, 
+            v = CSSUtilities.getComputedStyle(element,
                                               SVGCSSEngine.DIRECTION_INDEX);
-            if (v == ValueConstants.LTR_VALUE) 
+            if (v == ValueConstants.LTR_VALUE)
                 v = SVG12ValueConstants.START_VALUE;
             else
                 v = SVG12ValueConstants.END_VALUE;
@@ -841,11 +929,11 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         String ln = element.getLocalName();
         boolean rgnBr;
         rgnBr = ln.equals(SVG12Constants.SVG_FLOW_REGION_BREAK_TAG);
-        return new BlockInfo(top, right, bottom, left, indent, textAlign, 
+        return new BlockInfo(top, right, bottom, left, indent, textAlign,
                              lineHeight, fontList, fontAttrs, rgnBr);
     }
 
-    protected float getLineHeight(BridgeContext ctx, Element element, 
+    protected float getLineHeight(BridgeContext ctx, Element element,
                                   float fontSize) {
         if (lineHeightIndex == -1) initCSSPropertyIndexes(element);
 
@@ -890,7 +978,7 @@ public class SVGFlowRootElementBridge extends SVG12TextElementBridge {
         public void handleEvent(Event evt) {
             // the flowRegion geometry may have changed, so relayout text
             laidoutText = null;
-            computeLaidoutText(ctx, e, node);
+            computeLaidoutText(ctx, e, getTextNode());
         }
     }
 }

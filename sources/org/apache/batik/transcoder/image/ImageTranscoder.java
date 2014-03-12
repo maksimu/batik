@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -42,34 +43,34 @@ import org.w3c.dom.Document;
 /**
  * This class enables to transcode an input to an image of any format.
  *
- * <p>Two transcoding hints (<tt>KEY_WIDTH</tt> and
- * <tt>KEY_HEIGHT</tt>) can be used to respectively specify the image
+ * <p>Two transcoding hints (<code>KEY_WIDTH</code> and
+ * <code>KEY_HEIGHT</code>) can be used to respectively specify the image
  * width and the image height. If only one of these keys is specified,
  * the transcoder preserves the aspect ratio of the original image.
  *
- * <p>The <tt>KEY_BACKGROUND_COLOR</tt> defines the background color
+ * <p>The <code>KEY_BACKGROUND_COLOR</code> defines the background color
  * to use for opaque image formats, or the background color that may
  * be used for image formats that support alpha channel.
  *
- * <p>The <tt>KEY_AOI</tt> represents the area of interest to paint
+ * <p>The <code>KEY_AOI</code> represents the area of interest to paint
  * in device space.
  *
  * <p>Three additional transcoding hints that act on the SVG
  * processor can be specified:
  *
- * <p><tt>KEY_LANGUAGE</tt> to set the default language to use (may be
+ * <p><code>KEY_LANGUAGE</code> to set the default language to use (may be
  * used by a &lt;switch> SVG element for example),
- * <tt>KEY_USER_STYLESHEET_URI</tt> to fix the URI of a user
- * stylesheet, and <tt>KEY_MM_PER_PIXEL</tt> to specify the number of
+ * <code>KEY_USER_STYLESHEET_URI</code> to fix the URI of a user
+ * stylesheet, and <code>KEY_MM_PER_PIXEL</code> to specify the number of
  * millimeters in each pixel .
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$ 
+ * @version $Id: ImageTranscoder.java 1372327 2012-08-13 09:00:43Z helder $
  */
 public abstract class ImageTranscoder extends SVGAbstractTranscoder {
 
     /**
-     * Constructs a new <tt>ImageTranscoder</tt>.
+     * Constructs a new <code>ImageTranscoder</code>.
      */
     protected ImageTranscoder() {
     }
@@ -96,9 +97,7 @@ public abstract class ImageTranscoder extends SVGAbstractTranscoder {
 
         // paint the SVG document using the bridge package
         // create the appropriate renderer
-        ImageRendererFactory rendFactory = new ConcreteImageRendererFactory();
-        // ImageRenderer renderer = rendFactory.createDynamicImageRenderer();
-        ImageRenderer renderer = rendFactory.createStaticImageRenderer();
+        ImageRenderer renderer = createRenderer();
         renderer.updateOffScreen(w, h);
         // curTxf.translate(0.5, 0.5);
         renderer.setTransform(curTxf);
@@ -135,8 +134,18 @@ public abstract class ImageTranscoder extends SVGAbstractTranscoder {
     }
 
     /**
-     * Converts an image so that viewers which do not support the alpha channel will
-     * see a white background (and not a black one).
+     * Method so subclasses can modify the Renderer used to render document.
+     */
+    protected ImageRenderer createRenderer() {
+        ImageRendererFactory rendFactory = new ConcreteImageRendererFactory();
+        // ImageRenderer renderer = rendFactory.createDynamicImageRenderer();
+        return rendFactory.createStaticImageRenderer();
+    }
+
+    /**
+     * Converts an image so that viewers which do not support the
+     * alpha channel will see a white background (and not a black
+     * one).
      * @param img the image to convert
      * @param sppsm
      */
@@ -151,7 +160,7 @@ public abstract class ImageTranscoder extends SVGAbstractTranscoder {
         DataBufferInt biDB=(DataBufferInt)img.getRaster().getDataBuffer();
         int scanStride = sppsm.getScanlineStride();
         int dbOffset = biDB.getOffset();
-        int pixels[] = biDB.getBankData()[0];
+        int[] pixels = biDB.getBankData()[0];
         int p = dbOffset;
         int adjust = scanStride - w;
         int a=0, r=0, g=0, b=0, pel=0;
@@ -197,25 +206,30 @@ public abstract class ImageTranscoder extends SVGAbstractTranscoder {
 
     /**
      * The image background paint key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_BACKGROUND_COLOR</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Paint</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">null</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Specify the background color to use.
-     * The color is required by opaque image formats and is used by
-     * image formats that support alpha channel.</TD></TR>
-     * </TABLE>
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_BACKGROUND_COLOR</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Paint</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">null</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Specify the background color to use.
+     *       The color is required by opaque image formats and is used by
+     *       image formats that support alpha channel.</td>
+     *   </tr>
+     * </table>
      */
     public static final TranscodingHints.Key KEY_BACKGROUND_COLOR
         = new PaintKey();
@@ -223,38 +237,41 @@ public abstract class ImageTranscoder extends SVGAbstractTranscoder {
     /**
      * The forceTransparentWhite key.
      *
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_FORCE_TRANSPARENT_WHITE</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Boolean</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">false</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-
-     * <TD VALIGN="TOP">It controls whether the encoder should force
-     * the image's fully transparent pixels to be fully transparent
-     * white instead of fully transparent black.  This is usefull when
-     * the encoded file is displayed in a browser which does not
-     * support transparency correctly and lets the image display with
-     * a white background instead of a black background. <br />
-     *
-     * However, note that the modified image will display differently
-     * over a white background in a viewer that supports
-     * transparency.<br/>
-     *
-     * Not all Transcoders use this key (in particular some formats
-     * can't preserve the alpha channel at all in which case this
-     * is not used.
-     * </TD></TR> 
-     * </TABLE> 
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_FORCE_TRANSPARENT_WHITE</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Boolean</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">false</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">It controls whether the encoder should force
+     *       the image's fully transparent pixels to be fully transparent
+     *       white instead of fully transparent black.  This is useful when
+     *       the encoded file is displayed in a browser which does not
+     *       support transparency correctly and lets the image display with
+     *       a white background instead of a black background.
+     *       <br />
+     *       However, note that the modified image will display differently
+     *       over a white background in a viewer that supports
+     *       transparency.
+     *       <br/>
+     *       Not all Transcoders use this key (in particular some formats
+     *       can't preserve the alpha channel at all in which case this
+     *       is not used).</td>
+     *   </tr>
+     * </table>
      */
     public static final TranscodingHints.Key KEY_FORCE_TRANSPARENT_WHITE
         = new BooleanKey();

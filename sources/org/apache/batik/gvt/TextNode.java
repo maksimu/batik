@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,7 +40,7 @@ import org.apache.batik.gvt.text.TextSpanLayout;
  * A graphics node that represents text.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: TextNode.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class TextNode extends AbstractGraphicsNode implements Selectable {
 
@@ -59,7 +60,7 @@ public class TextNode extends AbstractGraphicsNode implements Selectable {
     protected AttributedCharacterIterator aci;
 
     /**
-     * The text of this <tt>TextNode</tt>.
+     * The text of this <code>TextNode</code>.
      */
     protected String text;
 
@@ -100,7 +101,7 @@ public class TextNode extends AbstractGraphicsNode implements Selectable {
     private Shape outline;
 
     /**
-     * Constructs a new empty <tt>TextNode</tt>.
+     * Constructs a new empty <code>TextNode</code>.
      */
     public TextNode() {
     }
@@ -144,7 +145,7 @@ public class TextNode extends AbstractGraphicsNode implements Selectable {
     }
 
     /**
-     * Returns the text of this <tt>TextNode</tt> as a string.
+     * Returns the text of this <code>TextNode</code> as a string.
      */
     public String getText() {
 
@@ -224,7 +225,7 @@ public class TextNode extends AbstractGraphicsNode implements Selectable {
     //
 
     /**
-     * Invalidates this <tt>TextNode</tt>. This node and all its ancestors have
+     * Invalidates this <code>TextNode</code>. This node and all its ancestors have
      * been informed that all its cached values related to its bounds must be
      * recomputed.
      */
@@ -459,7 +460,7 @@ public class TextNode extends AbstractGraphicsNode implements Selectable {
     }
 
     /**
-     * Defines where the text of a <tt>TextNode</tt> can be anchored
+     * Defines where the text of a <code>TextNode</code> can be anchored
      * relative to its location.
      */
     public static final class Anchor implements java.io.Serializable {

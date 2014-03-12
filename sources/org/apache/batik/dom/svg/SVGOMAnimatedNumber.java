@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableNumberValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.svg.SVGAnimatedNumber;
@@ -25,7 +30,7 @@ import org.w3c.dom.svg.SVGAnimatedNumber;
  * This class implements the {@link SVGAnimatedNumber} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedNumber.java 490655 2006-12-28 05:19:44Z cam $
  */
 public class SVGOMAnimatedNumber
         extends AbstractSVGAnimatedValue
@@ -35,6 +40,11 @@ public class SVGOMAnimatedNumber
      * The default value.
      */
     protected float defaultValue;
+
+    /**
+     * Whether the parsed number can be a percentage.
+     */
+    protected boolean allowPercentage;
 
     /**
      * Whether the base value is valid.
@@ -67,8 +77,25 @@ public class SVGOMAnimatedNumber
                                String ns,
                                String ln,
                                float  val) {
+        this(elt, ns, ln, val, false);
+    }
+
+    /**
+     * Creates a new SVGOMAnimatedNumber possibly parsing it as a percentage.
+     * @param elt The associated element.
+     * @param ns The attribute's namespace URI.
+     * @param ln The attribute's local name.
+     * @param val The default value, if the attribute is not specified.
+     * @param allowPercentage Allows number specified as a percentage.
+     */
+    public SVGOMAnimatedNumber(AbstractElement elt,
+                               String  ns,
+                               String  ln,
+                               float   val,
+                               boolean allowPercentage) {
         super(elt, ns, ln);
         defaultValue = val;
+        this.allowPercentage = allowPercentage;
     }
 
     /**
@@ -89,7 +116,13 @@ public class SVGOMAnimatedNumber
         if (attr == null) {
             baseVal = defaultValue;
         } else {
-            baseVal = Float.parseFloat(attr.getValue());
+            String v = attr.getValue();
+            int len = v.length();
+            if (allowPercentage && len > 1 && v.charAt(len - 1) == '%') {
+                baseVal = .01f * Float.parseFloat(v.substring(0, len - 1));
+            } else {
+                baseVal = Float.parseFloat(v);
+            }
         }
         valid = true;
     }
@@ -123,19 +156,22 @@ public class SVGOMAnimatedNumber
     }
 
     /**
-     * Sets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void setAnimatedValue(float animVal) {
-        hasAnimVal = true;
-        this.animVal = animVal;
-        fireAnimatedAttributeListeners();
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        return new AnimatableNumberValue(target, getBaseVal());
     }
 
     /**
-     * Removes the animated value.
+     * Updates the animated value with the given {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            this.animVal = ((AnimatableNumberValue) val).getValue();
+        }
         fireAnimatedAttributeListeners();
     }
 

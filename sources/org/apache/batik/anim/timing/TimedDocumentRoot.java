@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,7 +29,7 @@ import org.apache.batik.util.DoublyIndexedSet;
  * for a document.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: TimedDocumentRoot.java 580685 2007-09-30 09:07:29Z cam $
  */
 public abstract class TimedDocumentRoot extends TimeContainer {
 
@@ -36,11 +37,6 @@ public abstract class TimedDocumentRoot extends TimeContainer {
      * The wallclock time that the document began.
      */
     protected Calendar documentBeginTime;
-
-    /**
-     * The wallclock time that the document was paused.
-     */
-    protected Calendar pauseTime;
 
     /**
      * Allows the use of accessKey() timing specifiers with a single
@@ -65,6 +61,16 @@ public abstract class TimedDocumentRoot extends TimeContainer {
      * timed elements in this document.
      */
     protected LinkedList listeners = new LinkedList();
+
+    /**
+     * Whether the document is currently being sampled.
+     */
+    protected boolean isSampling;
+
+    /**
+     * Whether the document is currently being sampled for a hyperlink.
+     */
+    protected boolean isHyperlinking;
 
     /**
      * Creates a new TimedDocumentRoot.
@@ -99,17 +105,44 @@ public abstract class TimedDocumentRoot extends TimeContainer {
     }
 
     /**
+     * Returns the last sampled document time.
+     */
+    public float getCurrentTime() {
+        return lastSampleTime;
+    }
+
+    /**
+     * Returns whether the document is currently being sampled.
+     */
+    public boolean isSampling() {
+        return isSampling;
+    }
+
+    /**
+     * Returns whether the document is currently being sampled for a hyperlink.
+     */
+    public boolean isHyperlinking() {
+        return isHyperlinking;
+    }
+
+    /**
      * Samples the entire timegraph at the given time.
      */
-    public void seekTo(float time) {
-        Trace.enter(this, "seekTo", new Object[] { new Float(time) } ); try {
+    public float seekTo(float time, boolean hyperlinking) {
+        // Trace.enter(this, "seekTo", new Object[] { new Float(time) } ); try {
+        isSampling = true;
+        lastSampleTime = time;
+        isHyperlinking = hyperlinking;
         propagationFlags.clear();
         // No time containers in SVG, so we don't have to worry
         // about a partial ordering of timed elements to sample.
+        float mint = Float.POSITIVE_INFINITY;
         TimedElement[] es = getChildren();
         for (int i = 0; i < es.length; i++) {
-            // System.err.print("[" + ((Test.AnimateElement) es[i]).id + "] ");
-            es[i].sampleAt(time);
+            float t = es[i].sampleAt(time, hyperlinking);
+            if (t < mint) {
+                mint = t;
+            }
         }
         boolean needsUpdates;
         do {
@@ -118,11 +151,19 @@ public abstract class TimedDocumentRoot extends TimeContainer {
                 if (es[i].shouldUpdateCurrentInterval) {
                     needsUpdates = true;
                     // System.err.print("{" + ((Test.AnimateElement) es[i]).id + "} ");
-                    es[i].sampleAt(time);
+                    float t = es[i].sampleAt(time, hyperlinking);
+                    if (t < mint) {
+                        mint = t;
+                    }
                 }
             }
         } while (needsUpdates);
-        } finally { Trace.exit(); }
+        isSampling = false;
+        if (hyperlinking) {
+            root.currentIntervalWillUpdate();
+        }
+        return mint;
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -145,11 +186,19 @@ public abstract class TimedDocumentRoot extends TimeContainer {
     }
 
     /**
+     * Converts an epoch time to document time.
+     */
+    public float convertEpochTime(long t) {
+        long begin = documentBeginTime.getTime().getTime();
+        return (t - begin) / 1000f;
+    }
+
+    /**
      * Converts a wallclock time to document time.
      */
     public float convertWallclockTime(Calendar time) {
-        long begin = documentBeginTime.getTimeInMillis();
-        long t = time.getTimeInMillis();
+        long begin = documentBeginTime.getTime().getTime();
+        long t = time.getTime().getTime();
         return (t - begin) / 1000f;
     }
 
@@ -208,6 +257,15 @@ public abstract class TimedDocumentRoot extends TimeContainer {
         }
         propagationFlags.add(it, ts);
         return true;
+    }
+
+    /**
+     * Invoked by timed elements in this document to indicate that the current
+     * interval will be re-evaluated at the next sample.  This should be
+     * overridden in a concrete class so that ticks can be scheduled immediately
+     * if they are currently paused due to no animations being active.
+     */
+    protected void currentIntervalWillUpdate() {
     }
 
     /**

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,6 +21,7 @@ package org.apache.batik.bridge;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import org.apache.batik.dom.svg.AbstractSVGAnimatedLength;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
 import org.apache.batik.dom.svg.SVGOMCircleElement;
@@ -32,7 +34,7 @@ import org.w3c.dom.Element;
  * Bridge class for the &lt;circle> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGCircleElementBridge.java 527382 2007-04-11 04:31:58Z cam $
  */
 public class SVGCircleElementBridge extends SVGShapeElementBridge {
 
@@ -69,13 +71,19 @@ public class SVGCircleElementBridge extends SVGShapeElementBridge {
             SVGOMCircleElement ce = (SVGOMCircleElement) e;
 
             // 'cx' attribute - default is 0
-            float cx = ce.getCx().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _cx =
+                (AbstractSVGAnimatedLength) ce.getCx();
+            float cx = _cx.getCheckedValue();
 
             // 'cy' attribute - default is 0
-            float cy = ce.getCy().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _cy =
+                (AbstractSVGAnimatedLength) ce.getCy();
+            float cy = _cy.getCheckedValue();
 
             // 'r' attribute - required
-            float r = ce.getR().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _r =
+                (AbstractSVGAnimatedLength) ce.getR();
+            float r = _r.getCheckedValue();
 
             float x = cx - r;
             float y = cy - r;

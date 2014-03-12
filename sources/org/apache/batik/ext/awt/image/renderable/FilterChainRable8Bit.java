@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,11 +38,11 @@ import org.apache.batik.ext.awt.image.SVGComposite;
  *  <li>A pad operation that makes the input image a big as the
  *      filter region.</li>
  *  <li>If there is a filterResolution specified along at least
- *      one of the axis, a <tt>AffineRable</tt>
+ *      one of the axis, a <code>AffineRable</code>
  * </ul>
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: FilterChainRable8Bit.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class FilterChainRable8Bit extends AbstractRable
     implements FilterChainRable, PaintRable {
@@ -201,7 +202,7 @@ public class FilterChainRable8Bit extends AbstractRable
      * parameters.
      */
     public Filter getSource() {
-        return (Filter)crop;
+        return crop;
     }
     
     /**

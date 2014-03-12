@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,10 +22,10 @@ import java.awt.Image;
 import java.beans.SimpleBeanInfo;
 
 /**
- * A <tt>BeanInfo</tt> for the <tt>JSVGCanvas</tt>.
+ * A <code>BeanInfo</code> for the <code>JSVGCanvas</code>.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: JSVGCanvasBeanInfo.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class JSVGCanvasBeanInfo extends SimpleBeanInfo {
 
@@ -41,7 +42,7 @@ public class JSVGCanvasBeanInfo extends SimpleBeanInfo {
     protected Image iconMono32x32;
 
     /**
-     * Constructs a new <tt>BeanInfo</tt> for a <tt>JSVGCanvas</tt>.
+     * Constructs a new <code>BeanInfo</code> for a <code>JSVGCanvas</code>.
      */
     public JSVGCanvasBeanInfo() {
         iconColor16x16 = loadImage("resources/batikColor16x16.gif");

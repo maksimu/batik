@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,7 +18,7 @@
  */
 package org.apache.batik.anim.values;
 
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 import org.w3c.dom.svg.SVGLength;
 
@@ -25,14 +26,14 @@ import org.w3c.dom.svg.SVGLength;
  * An SVG length value in the animation system.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatableLengthValue.java 478160 2006-11-22 13:35:06Z dvholten $
  */
 public class AnimatableLengthValue extends AnimatableValue {
 
     /**
      * Length units.
      */
-    protected final static String[] UNITS = {
+    protected static final String[] UNITS = {
         "", "%", "em", "ex", "px", "cm", "mm", "in", "pt", "pc"
     };
 
@@ -52,14 +53,14 @@ public class AnimatableLengthValue extends AnimatableValue {
      * {@link AnimationTarget}.PERCENTAGE_* constants.
      */
     protected short percentageInterpretation;
-    
+
     /**
      * Creates a new AnimatableLengthValue with no length.
      */
     protected AnimatableLengthValue(AnimationTarget target) {
         super(target);
     }
-    
+
     /**
      * Creates a new AnimatableLengthValue.
      */
@@ -132,7 +133,7 @@ public class AnimatableLengthValue extends AnimatableValue {
             }
             res.lengthValue += multiplier * accValue;
         }
-        
+
         if (oldPercentageInterpretation != res.percentageInterpretation
                 || oldLengthType != res.lengthType
                 || oldLengthValue != res.lengthValue) {
@@ -208,10 +209,6 @@ public class AnimatableLengthValue extends AnimatableValue {
      * want a dependency on the CSS package.
      */
     public String getCssText() {
-        String s = String.valueOf(lengthValue);
-        if (s.endsWith(".0")) {
-            s = s.substring(0, s.length() - 2);
-        }
-        return s + UNITS[lengthType - 1];
+        return formatNumber(lengthValue) + UNITS[lengthType - 1];
     }
 }

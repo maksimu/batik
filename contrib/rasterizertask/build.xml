@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
 <!--
 
-   Copyright 2001-2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,7 +38,7 @@
     <property name="build" value="${root}/build" />
     <!-- build: Directory for build results. -->
     <property name="build.classes" value="${build}/classes" />
-	<!-- build.classes: Directory for compiled classes. -->
+    <!-- build.classes: Directory for compiled classes. -->
     <property name="doc" value="${root}/doc" />
     <!-- doc: Directory for documentation. -->
     <property name="doc.api" value="${doc}/javadoc" />
@@ -50,16 +49,16 @@
     <!-- == Targets ====================================================== -->
     <target name="help"
         description="Displays usage information.">
-        <echo>SVG Rasterizer Task build file.</echo>
-        <echo>Available targets are:</echo>
-        <echo>  compile --> Compiles the source code.</echo>
-        <echo>  jar     --> Builds the JAR distribution.</echo>
-        <echo>  javadoc --> Generates Javadoc documentation.</echo>
-        <echo>  clean   --> Deletes generated directories.</echo>
+        <echo message="SVG Rasterizer Task build file."/>
+        <echo message="Available targets are:"/>
+        <echo message="  compile --> Compiles the source code."/>
+        <echo message="  jar     --> Builds the JAR distribution."/>
+        <echo message="  javadoc --> Generates Javadoc documentation."/>
+        <echo message="  clean   --> Deletes generated directories."/>
     </target>
 
     <target name="prepare">
-		<echo>Using ${ant.version}.</echo>
+        <echo message="Using ${ant.version}."/>
         <tstamp/>
     </target>
 
@@ -73,10 +72,10 @@
     <target name="jar" depends="prepare, compile"
         description="Creates a JAR package.">
 
-		<mkdir dir="${build}/lib" />
+        <mkdir dir="${build}/lib" />
         <jar jarfile="${build}/lib/RasterizerTask.jar"
             basedir="${build.classes}"
-            excludes="**/CVS"
+            excludes="**/.svn/"
             includes="**/*.class">
         </jar>
     </target>

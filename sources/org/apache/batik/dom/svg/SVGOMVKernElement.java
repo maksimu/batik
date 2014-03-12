@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,7 +19,6 @@
 package org.apache.batik.dom.svg;
 
 import org.apache.batik.dom.AbstractDocument;
-import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGVKernElement;
@@ -27,11 +27,31 @@ import org.w3c.dom.svg.SVGVKernElement;
  * This class implements {@link SVGVKernElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMVKernElement.java 489964 2006-12-24 01:30:23Z cam $
  */
 public class SVGOMVKernElement
     extends    SVGOMElement
     implements SVGVKernElement {
+
+//     /**
+//      * Table mapping XML attribute names to TraitInformation objects.
+//      */
+//     protected static DoublyIndexedTable xmlTraitInformation;
+//     static {
+//         DoublyIndexedTable t =
+//             new DoublyIndexedTable(SVGOMElement.xmlTraitInformation);
+//         t.put(null, SVG_U1_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_G1_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_U2_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_G2_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_K_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_NUMBER));
+//         xmlTraitInformation = t;
+//     }
 
     /**
      * Creates a new SVGOMVKernElement object.
@@ -62,22 +82,10 @@ public class SVGOMVKernElement
         return new SVGOMVKernElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_U1_ATTRIBUTE)
-                    || ln.equals(SVG_G1_ATTRIBUTE)
-                    || ln.equals(SVG_U2_ATTRIBUTE)
-                    || ln.equals(SVG_G2_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            } else if (ln.equals(SVG_K_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
+//     /**
+//      * Returns the table of TraitInformation objects for this element.
+//      */
+//     protected DoublyIndexedTable getTraitInformationTable() {
+//         return xmlTraitInformation;
+//     }
 }

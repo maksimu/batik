@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import org.w3c.dom.events.EventTarget;
  * A class to handle eventbase SMIL timing specifiers.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: EventbaseTimingSpecifier.java 580338 2007-09-28 13:13:46Z cam $
  */
 public class EventbaseTimingSpecifier
         extends EventLikeTimingSpecifier
@@ -76,7 +77,7 @@ public class EventbaseTimingSpecifier
         this.eventNamespaceURI = root.getEventNamespaceURI(eventName);
         this.eventType = root.getEventType(eventName);
         if (eventbaseID == null) {
-            this.eventTarget = root.getParentEventTarget(owner);
+            this.eventTarget = owner.getAnimationEventTarget();
         } else {
             this.eventTarget = owner.getEventTargetById(eventbaseID);
         }
@@ -120,10 +121,8 @@ public class EventbaseTimingSpecifier
      * Invoked to resolve an event-like timing specifier into an instance time.
      */
     public void resolve(Event e) {
-        long time = e.getTimeStamp() -
-            owner.getRoot().getDocumentBeginTime().getTimeInMillis();
-        InstanceTime instance =
-            new InstanceTime(this, time / 1000f, null, true);
+        float time = owner.getRoot().convertEpochTime(e.getTimeStamp());
+        InstanceTime instance = new InstanceTime(this, time + offset, true);
         owner.addInstanceTime(instance, isBegin);
     }
 }

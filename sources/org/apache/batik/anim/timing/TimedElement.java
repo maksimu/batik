@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,23 +18,14 @@
  */
 package org.apache.batik.anim.timing;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.batik.anim.AnimationException;
-import org.apache.batik.anim.SMILConstants;
 import org.apache.batik.i18n.LocalizableSupport;
 import org.apache.batik.parser.ClockHandler;
 import org.apache.batik.parser.ClockParser;
 import org.apache.batik.parser.ParseException;
+import org.apache.batik.util.SMILConstants;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.events.Event;
@@ -46,7 +38,7 @@ import org.w3c.dom.events.EventTarget;
  * creating new DOM classes that inherit from these elements.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: TimedElement.java 656363 2008-05-14 19:05:10Z dvholten $
  */
 public abstract class TimedElement implements SMILConstants {
 
@@ -84,7 +76,7 @@ public abstract class TimedElement implements SMILConstants {
     protected TimingSpecifier[] endTimes;
 
     /**
-     * Duration of this element, if {@link #durMedia}{@code = false}.
+     * Duration of this element, if {@link #durMedia} <code>= false</code>.
      * If unspecified, it will be {@link #UNRESOLVED}.
      */
     protected float simpleDur;
@@ -130,7 +122,8 @@ public abstract class TimedElement implements SMILConstants {
     protected int restartMode;
 
     /**
-     * The minimum active duration of this element.
+     * The minimum active duration of this element.  If {@link #minMedia}
+     * <code>= true</code>, it will be <code>0f</code>.
      */
     protected float min;
 
@@ -140,7 +133,8 @@ public abstract class TimedElement implements SMILConstants {
     protected boolean minMedia;
 
     /**
-     * The maximum active duration of this element.
+     * The maximum active duration of this element.  If {@link #maxMedia}
+     * <code>= true</code>, it will be {@link #INDEFINITE}.
      */
     protected float max;
 
@@ -165,14 +159,19 @@ public abstract class TimedElement implements SMILConstants {
     protected float lastSampleTime;
 
     /**
+     * The computed repeat duration of the element.
+     */
+    protected float repeatDuration;
+
+    /**
      * List of begin InstanceTimes.
      */
-    protected Vector beginInstanceTimes = new Vector();
+    protected List beginInstanceTimes = new ArrayList();
 
     /**
      * List of end InstanceTimes.
      */
-    protected Vector endInstanceTimes = new Vector();
+    protected List endInstanceTimes = new ArrayList();
 
     /**
      * The current Interval.
@@ -188,7 +187,12 @@ public abstract class TimedElement implements SMILConstants {
     /**
      * List of previous intervals.
      */
-    protected LinkedList previousIntervals = new LinkedList();
+    // protected LinkedList previousIntervals = new LinkedList();
+
+    /**
+     * The previous interval.
+     */
+    protected Interval previousInterval;
 
     /**
      * List of TimingSpecifiers on other elements that depend on this
@@ -217,7 +221,18 @@ public abstract class TimedElement implements SMILConstants {
      * Map of {@link Event} objects to {@link HashSet}s of {@link
      * TimingSpecifier}s that caught them.
      */
-    protected HashMap handledEvents = new HashMap();
+    protected Map handledEvents = new HashMap();
+
+    /**
+     * Whether this timed element is currently being sampled.
+     */
+    protected boolean isSampling;
+
+    /**
+     * Whether an instance time update message has already been propagated to
+     * this timed element.
+     */
+    protected boolean hasPropagated;
 
     /**
      * Creates a new TimedElement.
@@ -261,16 +276,26 @@ public abstract class TimedElement implements SMILConstants {
      * firing, a DOM method being called or a new Instance being
      * created by a syncbase element.
      */
-    protected void addInstanceTime(InstanceTime time, boolean isBegin) {
-        Trace.enter(this, "addInstanceTime", new Object[] { time, new Boolean(isBegin) } ); try {
-        Vector instanceTimes = isBegin ? beginInstanceTimes : endInstanceTimes;
+    protected float addInstanceTime(InstanceTime time, boolean isBegin) {
+        // Trace.enter(this, "addInstanceTime", new Object[] { time, new Boolean(isBegin) } ); try {
+        hasPropagated = true;
+        List instanceTimes = isBegin ? beginInstanceTimes : endInstanceTimes;
         int index = Collections.binarySearch(instanceTimes, time);
         if (index < 0) {
             index = -(index + 1);
         }
-        instanceTimes.insertElementAt(time, index);
+        instanceTimes.add(index, time);
         shouldUpdateCurrentInterval = true;
-        } finally { Trace.exit(); }
+        float ret;
+        if (root.isSampling() && !isSampling) {
+            ret = sampleAt(root.getCurrentTime(), root.isHyperlinking());
+        } else {
+            ret = Float.POSITIVE_INFINITY;
+        }
+        hasPropagated = false;
+        root.currentIntervalWillUpdate();
+        return ret;
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -278,34 +303,43 @@ public abstract class TimedElement implements SMILConstants {
      * should be removed.  This will be in response to the pruning of an
      * Interval.
      */
-    protected void removeInstanceTime(InstanceTime time, boolean isBegin) {
-        Trace.enter(this, "removeInstanceTime", new Object[] { time, new Boolean(isBegin) } ); try {
-        Vector instanceTimes = isBegin ? beginInstanceTimes : endInstanceTimes;
+    protected float removeInstanceTime(InstanceTime time, boolean isBegin) {
+        // Trace.enter(this, "removeInstanceTime", new Object[] { time, new Boolean(isBegin) } ); try {
+        hasPropagated = true;
+        List instanceTimes = isBegin ? beginInstanceTimes : endInstanceTimes;
         int index = Collections.binarySearch(instanceTimes, time);
-        for (int i = index; index >= 0; index--) {
+        for (int i = index; i >= 0; i--) {
             InstanceTime it = (InstanceTime) instanceTimes.get(i);
             if (it == time) {
                 instanceTimes.remove(i);
-                return;
+                break;
             }
             if (it.compareTo(time) != 0) {
                 break;
             }
         }
         int len = instanceTimes.size();
-        for (int i = index + 1; index < len; i++) {
+        for (int i = index + 1; i < len; i++) {
             InstanceTime it = (InstanceTime) instanceTimes.get(i);
             if (it == time) {
                 instanceTimes.remove(i);
-                return;
+                break;
             }
             if (it.compareTo(time) != 0) {
                 break;
             }
         }
-        // The instance time wasn't found, shouldn't get here.
         shouldUpdateCurrentInterval = true;
-        } finally { Trace.exit(); }
+        float ret;
+        if (root.isSampling() && !isSampling) {
+            ret = sampleAt(root.getCurrentTime(), root.isHyperlinking());
+        } else {
+            ret = Float.POSITIVE_INFINITY;
+        }
+        hasPropagated = false;
+        root.currentIntervalWillUpdate();
+        return ret;
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -313,23 +347,32 @@ public abstract class TimedElement implements SMILConstants {
      * has been updated.  This will be in response to a dependent
      * syncbase change.
      */
-    protected void instanceTimeChanged(InstanceTime time, boolean isBegin) {
-        Trace.enter(this, "instanceTimeChanged", new Object[] { time, new Boolean(isBegin) } ); try {
+    protected float instanceTimeChanged(InstanceTime time, boolean isBegin) {
+        // Trace.enter(this, "instanceTimeChanged", new Object[] { time, new Boolean(isBegin) } ); try {
+        hasPropagated = true;
         shouldUpdateCurrentInterval = true;
-        } finally { Trace.exit(); }
+        float ret;
+        if (root.isSampling() && !isSampling) {
+            ret = sampleAt(root.getCurrentTime(), root.isHyperlinking());
+        } else {
+            ret = Float.POSITIVE_INFINITY;
+        }
+        hasPropagated = false;
+        return ret;
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Adds a dependent TimingSpecifier for this element.
      */
     protected void addDependent(TimingSpecifier dependent, boolean forBegin) {
-        Trace.enter(this, "addDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
+        // Trace.enter(this, "addDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
         if (forBegin) {
             beginDependents.add(dependent);
         } else {
             endDependents.add(dependent);
         }
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -337,13 +380,13 @@ public abstract class TimedElement implements SMILConstants {
      */
     protected void removeDependent(TimingSpecifier dependent,
                                    boolean forBegin) {
-        Trace.enter(this, "removeDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
+        // Trace.enter(this, "removeDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
         if (forBegin) {
             beginDependents.remove(dependent);
         } else {
             endDependents.remove(dependent);
         }
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -379,29 +422,32 @@ public abstract class TimedElement implements SMILConstants {
         float PAD;
         if (!isUnresolved(end) && d == INDEFINITE) {
             PAD = minusTime(end, B);
+            repeatDuration = minTime(max, maxTime(min, PAD));
+            return repeatDuration;
+        }
+
+        float IAD;
+        if (d == 0) {
+            IAD = 0;
         } else {
-            float IAD;
-            if (d == 0) {
-                IAD = 0;
+            if (isUnresolved(repeatDur) && isUnresolved(repeatCount)) {
+                IAD = d;
             } else {
-                if (isUnresolved(repeatDur) && isUnresolved(repeatCount)) {
-                    IAD = d;
-                } else {
-                    float p1 = isUnresolved(repeatCount)
-                                    ? INDEFINITE
-                                    : multiplyTime(d, repeatCount);
-                    float p2 = isUnresolved(repeatDur)
-                                    ? INDEFINITE
-                                    : repeatDur;
-                    IAD = minTime(minTime(p1, p2), INDEFINITE);
-                }
-            }
-            if (isUnresolved(end) || end == INDEFINITE) {
-                PAD = IAD;
-            } else {
-                PAD = minTime(IAD, minusTime(end, B));
+                float p1 = isUnresolved(repeatCount)
+                                ? INDEFINITE
+                                : multiplyTime(d, repeatCount);
+                float p2 = isUnresolved(repeatDur)
+                                ? INDEFINITE
+                                : repeatDur;
+                IAD = minTime(minTime(p1, p2), INDEFINITE);
             }
         }
+        if (isUnresolved(end) || end == INDEFINITE) {
+            PAD = IAD;
+        } else {
+            PAD = minTime(IAD, minusTime(end, B));
+        }
+        repeatDuration = IAD;
         return minTime(max, maxTime(min, PAD));
     }
 
@@ -419,7 +465,7 @@ public abstract class TimedElement implements SMILConstants {
     }
 
     /**
-     * Subtracts one simple time from another.
+     * Multiplies one simple time by n.
      */
     protected float multiplyTime(float t, float n) {
         if (isUnresolved(t) || t == INDEFINITE) {
@@ -477,65 +523,85 @@ public abstract class TimedElement implements SMILConstants {
 
     /**
      * Returns the implicit duration of the element.  Currently, nested time
-     * containers are not supported by SVG so this just returns 0 by default.
-     * This should be overriden in derived classes that play media, since
-     * they will have an implicit duration.
+     * containers are not supported by SVG so this just returns
+     * {@link #UNRESOLVED} by default.  This should be overriden in derived
+     * classes that play media, since they will have an implicit duration.
      */
     protected float getImplicitDur() {
-        return 0.0f;
+        return UNRESOLVED;
     }
 
     /**
      * Notifies dependents of a new interval.
      */
-    protected void notifyNewInterval(Interval interval) {
-        Trace.enter(this, "notifyNewInterval", new Object[] { interval } ); try {
+    protected float notifyNewInterval(Interval interval) {
+        // Trace.enter(this, "notifyNewInterval", new Object[] { interval } ); try {
+        float dependentMinTime = Float.POSITIVE_INFINITY;
         Iterator i = beginDependents.iterator();
         while (i.hasNext()) {
             TimingSpecifier ts = (TimingSpecifier) i.next();
-            Trace.print(ts.owner + "'s " + (ts.isBegin ? "begin" : "end" ) + ": " + ts);
-            if (root.shouldPropagate(interval, ts, true)) {
-                ts.newInterval(interval);
-            } else {
-                Trace.print("(but not propagating)");
+            // Trace.print(ts.owner + "'s " + (ts.isBegin ? "begin" : "end" ) + ": " + ts);
+            float t = ts.newInterval(interval);
+            if (t < dependentMinTime) {
+                dependentMinTime = t;
             }
         }
         i = endDependents.iterator();
         while (i.hasNext()) {
             TimingSpecifier ts = (TimingSpecifier) i.next();
-            Trace.print(ts.owner + "'s " + (ts.isBegin ? "begin" : "end" ) + ": " + ts);
-            if (root.shouldPropagate(interval, ts, false)) {
-                ts.newInterval(interval);
-            } else {
-                Trace.print("(but not propagating)");
+            // Trace.print(ts.owner + "'s " + (ts.isBegin ? "begin" : "end" ) + ": " + ts);
+            float t = ts.newInterval(interval);
+            if (t < dependentMinTime) {
+                dependentMinTime = t;
             }
         }
-        } finally { Trace.exit(); }
+        return dependentMinTime;
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Notifies dependents of a removed interval.
      */
-    protected void notifyRemoveInterval(Interval interval) {
-        Trace.enter(this, "notifyRemoveInterval", new Object[] { interval } ); try {
+    protected float notifyRemoveInterval(Interval interval) {
+        // Trace.enter(this, "notifyRemoveInterval", new Object[] { interval } ); try {
+        float dependentMinTime = Float.POSITIVE_INFINITY;
         Iterator i = beginDependents.iterator();
         while (i.hasNext()) {
             TimingSpecifier ts = (TimingSpecifier) i.next();
-            ts.removeInterval(interval);
+            float t = ts.removeInterval(interval);
+            if (t < dependentMinTime) {
+                dependentMinTime = t;
+            }
         }
         i = endDependents.iterator();
         while (i.hasNext()) {
             TimingSpecifier ts = (TimingSpecifier) i.next();
-            ts.removeInterval(interval);
+            float t = ts.removeInterval(interval);
+            if (t < dependentMinTime) {
+                dependentMinTime = t;
+            }
         }
-        } finally { Trace.exit(); }
+        return dependentMinTime;
+        // } finally { Trace.exit(); }
     }
 
     /**
-     * Calculates the local simple time.
+     * Calculates the local simple time.  Currently the hyperlinking parameter
+     * is ignored, so DOM timing events are fired during hyperlinking seeks.
+     * If we were following SMIL 2.1 rather than SMIL Animation, then these
+     * events would have to be suppressed.
+     *
+     * @return the number of seconds until this element becomes active again
+     *         if it currently is not, {@link Float#POSITIVE_INFINITY} if this
+     *         element will become active at some undetermined point in the
+     *         future (because of unresolved begin times, for example) or
+     *         will never become active again, or <code>0f</code> if the
+     *         element is currently active.
      */
-    protected void sampleAt(float parentSimpleTime) {
-        Trace.enter(this, "sampleAt", new Object[] { new Float(parentSimpleTime) } ); try {
+    protected float sampleAt(float parentSimpleTime, boolean hyperlinking) {
+        // Trace.enter(this, "sampleAt", new Object[] { new Float(parentSimpleTime) } ); try {
+        isSampling = true;
+
         float time = parentSimpleTime; // No time containers in SVG.
 
         // First, process any events that occurred since the last sampling,
@@ -544,7 +610,7 @@ public abstract class TimedElement implements SMILConstants {
         while (i.hasNext()) {
             Map.Entry e = (Map.Entry) i.next();
             Event evt = (Event) e.getKey();
-            HashSet ts = (HashSet) e.getValue();
+            Set ts = (Set) e.getValue();
             Iterator j = ts.iterator();
             boolean hasBegin = false, hasEnd = false;
             while (j.hasNext() && !(hasBegin && hasEnd)) {
@@ -556,14 +622,17 @@ public abstract class TimedElement implements SMILConstants {
                     hasEnd = true;
                 }
             }
-            boolean useBegin;
+            boolean useBegin, useEnd;
             if (hasBegin && hasEnd) {
                 useBegin = !isActive || restartMode == RESTART_ALWAYS;
+                useEnd = !useBegin;
             } else if (hasBegin && (!isActive ||
                         restartMode == RESTART_ALWAYS)) {
                 useBegin = true;
+                useEnd = false;
             } else if (hasEnd && isActive) {
                 useBegin = false;
+                useEnd = true;
             } else {
                 continue;
             }
@@ -571,9 +640,10 @@ public abstract class TimedElement implements SMILConstants {
             while (j.hasNext()) {
                 EventLikeTimingSpecifier t =
                     (EventLikeTimingSpecifier) j.next();
-                if (t.isBegin() == useBegin) {
+                boolean isBegin = t.isBegin();
+                if (isBegin && useBegin || !isBegin && useEnd) {
                     t.resolve(evt);
-                    break;
+                    shouldUpdateCurrentInterval = true;
                 }
             }
         }
@@ -587,134 +657,180 @@ public abstract class TimedElement implements SMILConstants {
                     toActive(begin);
                 }
                 isActive = true;
+                isFrozen = false;
                 lastRepeatTime = begin;
-                fireTimeEvent(SMIL_BEGIN_EVENT_NAME, currentInterval.getBegin(), 0);
+                fireTimeEvent
+                    (SMIL_BEGIN_EVENT_NAME, currentInterval.getBegin(), 0);
             }
         }
-        boolean wasActive = isActive;
         // For each sample, we might need to update the current interval's
         // begin and end times, or end the current interval and compute
         // a new one.
-        boolean hasEnded = currentInterval != null && time >= currentInterval.getEnd();
+        boolean hasEnded = currentInterval != null
+            && time >= currentInterval.getEnd();
         // Fire any repeat events that should have been fired since the
         // last sample.
         if (currentInterval != null) {
-            float d = getSimpleDur();
-            while (time - lastRepeatTime >= d
-                    && lastRepeatTime + d < currentInterval.getEnd()) {
-                lastRepeatTime += d;
-                currentRepeatIteration++;
-                fireTimeEvent(root.getRepeatEventName(), lastRepeatTime,
-                              currentRepeatIteration);
+            float begin = currentInterval.getBegin();
+            if (time >= begin) {
+                float d = getSimpleDur();
+                while (time - lastRepeatTime >= d
+                        && lastRepeatTime + d < begin + repeatDuration) {
+                    lastRepeatTime += d;
+                    currentRepeatIteration++;
+                    fireTimeEvent(root.getRepeatEventName(), lastRepeatTime,
+                                  currentRepeatIteration);
+                }
             }
         }
-        Trace.print("begin loop");
+
+        // Trace.print("begin loop");
+        float dependentMinTime = Float.POSITIVE_INFINITY;
+        if (hyperlinking) {
+            shouldUpdateCurrentInterval = true;
+        }
         while (shouldUpdateCurrentInterval || hasEnded) {
             if (hasEnded) {
-                previousIntervals.add(currentInterval);
+                // previousIntervals.add(currentInterval);
+                previousInterval = currentInterval;
                 isActive = false;
-                isFrozen = false;
+                isFrozen = fillMode == FILL_FREEZE;
+                toInactive(false, isFrozen);
                 fireTimeEvent(SMIL_END_EVENT_NAME, currentInterval.getEnd(), 0);
             }
             boolean first =
-                currentInterval == null && previousIntervals.isEmpty();
+                // currentInterval == null && previousIntervals.isEmpty();
+                currentInterval == null && previousInterval == null;
+            if (currentInterval != null && hyperlinking) {
+                // Hyperlinking, so remove the current interval and force a new
+                // one to be computed.
+                isActive = false;
+                isFrozen = false;
+                toInactive(false, false);
+                currentInterval = null;
+                // fireTimeEvent(SMIL_END_EVENT_NAME, currentInterval.getEnd(), 0);
+            }
             if (currentInterval == null || hasEnded) {
-                if (first || restartMode != RESTART_NEVER) {
+                if (first || hyperlinking || restartMode != RESTART_NEVER) {
                     float beginAfter;
-                    if (first) {
+                    boolean incl = true;
+                    if (first || hyperlinking) {
                         beginAfter = Float.NEGATIVE_INFINITY;
                     } else {
-                        beginAfter = ((Interval) previousIntervals.getLast()).getEnd();
+                        // beginAfter = ((Interval) previousIntervals.getLast()).getEnd();
+                        beginAfter = previousInterval.getEnd();
+                        incl = beginAfter != previousInterval.getBegin();
                     }
-                    currentInterval = computeInterval(first, false, beginAfter);
-                    if (currentInterval != null) {
-                        Trace.print("creating new interval " + currentInterval + ", propagating to:");
-                        notifyNewInterval(currentInterval);
-                        float beginEventTime = currentInterval.getBegin();
-                        if (time >= beginEventTime) {
-                            lastRepeatTime = beginEventTime;
-                            if (beginEventTime < 0) {
-                                beginEventTime = 0;
-                            }
-                            isActive = true;
-                            isFrozen = false;
-                            fireTimeEvent(SMIL_BEGIN_EVENT_NAME, beginEventTime, 0);
-                            float d = getSimpleDur();
-                            while (time - lastRepeatTime >= d) {
-                                lastRepeatTime += d;
-                                currentRepeatIteration++;
-                                fireTimeEvent(root.getRepeatEventName(), lastRepeatTime,
-                                              currentRepeatIteration);
-                            }
+                    Interval interval =
+                        computeInterval(first, false, beginAfter, incl);
+                    if (interval == null) {
+                        currentInterval = null;
+                    } else {
+                        float dmt = selectNewInterval(time, interval);
+                        if (dmt < dependentMinTime) {
+                            dependentMinTime = dmt;
                         }
                     }
+                } else {
+                    currentInterval = null;
                 }
             } else {
                 float currentBegin = currentInterval.getBegin();
                 if (currentBegin > time) {
                     // Interval hasn't started yet.
                     float beginAfter;
-                    if (previousIntervals.isEmpty()) {
+                    boolean incl = true;
+                    // if (previousIntervals.isEmpty()) {
+                    if (previousInterval == null) {
                         beginAfter = Float.NEGATIVE_INFINITY;
                     } else {
-                        beginAfter = ((Interval) previousIntervals.getLast()).getEnd();
+                        // beginAfter = ((Interval) previousIntervals.getLast()).getEnd();
+                        beginAfter = previousInterval.getEnd();
+                        incl = beginAfter != previousInterval.getBegin();
                     }
-                    Interval interval = computeInterval(false, false, beginAfter);
+                    Interval interval =
+                        computeInterval(false, false, beginAfter, incl);
+                    float dmt = notifyRemoveInterval(currentInterval);
+                    if (dmt < dependentMinTime) {
+                        dependentMinTime = dmt;
+                    }
                     if (interval == null) {
-                        notifyRemoveInterval(currentInterval);
                         currentInterval = null;
                     } else {
-                        float newBegin = interval.getBegin();
-                        float newEnd = interval.getEnd();
-                        if (currentBegin != newBegin) {
-                            currentInterval.setBegin(newBegin);
-                        }
-                        if (currentInterval.getEnd() != newEnd) {
-                            currentInterval.setEnd(newEnd);
+                        dmt = selectNewInterval(time, interval);
+                        if (dmt < dependentMinTime) {
+                            dependentMinTime = dmt;
                         }
                     }
                 } else {
                     // Interval has already started.
-                    Interval interval = computeInterval(false, true, currentBegin);
+                    Interval interval =
+                        computeInterval(false, true, currentBegin, true);
                     float newEnd = interval.getEnd();
                     if (currentInterval.getEnd() != newEnd) {
-                        currentInterval.setEnd(newEnd);
+                        float dmt =
+                            currentInterval.setEnd
+                                (newEnd, interval.getEndInstanceTime());
+                        if (dmt < dependentMinTime) {
+                            dependentMinTime = dmt;
+                        }
                     }
                 }
             }
             shouldUpdateCurrentInterval = false;
+            hyperlinking = false;
             hasEnded = currentInterval != null && time >= currentInterval.getEnd();
         }
-        Trace.print("end loop");
-
-        if (!wasActive && isActive) {
-            isFrozen = false;
-            toActive(currentInterval.getBegin());
-        } else if (wasActive && !isActive) {
-            isFrozen = fillMode == FILL_FREEZE;
-            toInactive(isFrozen);
-        }
+        // Trace.print("end loop");
 
         float d = getSimpleDur();
-        if (isActive) {
-            // System.err.println("element sampling at simple time " + (time - lastRepeatTime));
-            sampledAt(time - lastRepeatTime, d, currentRepeatIteration);
-        } else if (isFrozen) {
-            Interval previousInterval = (Interval) previousIntervals.getLast();
-            float end = previousInterval.getEnd();
-            if ((end - lastRepeatTime) % d == 0) {
-                sampledLastValue(currentRepeatIteration);
-                // System.err.println("element sampling last value");
+        if (isActive && !isFrozen) {
+            if (time - currentInterval.getBegin() >= repeatDuration) {
+                // Trace.print("element between repeat and active duration");
+                isFrozen = fillMode == FILL_FREEZE;
+                toInactive(true, isFrozen);
             } else {
-                sampledAt(end, d, currentRepeatIteration);
-                // System.err.println("element sampling at simple time " + end);
+                // Trace.print("element active, sampling at simple time " + (time - lastRepeatTime));
+                sampledAt(time - lastRepeatTime, d, currentRepeatIteration);
             }
-        } else {
-            // System.err.println("element not sampling");
+        }
+        if (isFrozen) {
+            float t;
+            boolean atLast;
+            if (isActive) {
+                t = currentInterval.getBegin() + repeatDuration - lastRepeatTime;
+                atLast = lastRepeatTime + d == currentInterval.getBegin() + repeatDuration;    // cam, given that d can
+            } else {                                                                           // be infinite, nan or value
+                // Interval previousInterval = (Interval) previousIntervals.getLast();         // does this always make sense?
+                t = previousInterval.getEnd() - lastRepeatTime;                                // at least i would use >=
+                atLast = lastRepeatTime + d == previousInterval.getEnd();                      // <- same here
+            }
+            if (atLast) {
+                // Trace.print("element frozen" + (isActive ? " (but still active)" : "") + ", sampling last value");
+                sampledLastValue(currentRepeatIteration);
+            } else {
+                // Trace.print("element frozen" + (isActive ? " (but still active)" : "") + ", sampling at simple time " + (t % d));
+                sampledAt(t % d, d, currentRepeatIteration);
+            }
+        } else if (!isActive) {
+            // Trace.print("element not sampling");
         }
 
+        isSampling = false;
+
         lastSampleTime = time;
-        } finally { Trace.exit(); }
+        if (currentInterval != null) {
+            float t = currentInterval.getBegin() - time;
+            if (t <= 0) {
+                t = isConstantAnimation() || isFrozen ? currentInterval.getEnd() - time : 0;
+            }
+            if (dependentMinTime < t) {
+                return dependentMinTime;
+            }
+            return t;
+        }
+        return dependentMinTime;
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -731,18 +847,58 @@ public abstract class TimedElement implements SMILConstants {
     }
 
     /**
+     * Sets the current interval to the one specified.  This will notify
+     * dependents and fire the 'begin' and any necessary 'repeat' events.
+     * @param time the current sampling time
+     * @param interval the Interval object to select to be current
+     * @return the minimum time the animation engine can safely wait, as
+     *         determined by dependents of the interval
+     */
+    protected float selectNewInterval(float time, Interval interval) {
+        // Trace.enter(this, "selectNewInterval", new Object[] { interval }); try {
+        currentInterval = interval;
+        float dmt = notifyNewInterval(currentInterval);
+        float beginEventTime = currentInterval.getBegin();
+        if (time >= beginEventTime) {
+            lastRepeatTime = beginEventTime;
+            if (beginEventTime < 0) {
+                beginEventTime = 0;
+            }
+            toActive(beginEventTime);
+            isActive = true;
+            isFrozen = false;
+            fireTimeEvent(SMIL_BEGIN_EVENT_NAME, beginEventTime, 0);
+            float d = getSimpleDur();
+            float end = currentInterval.getEnd();
+            while (time - lastRepeatTime >= d
+                    && lastRepeatTime + d < end) {
+                lastRepeatTime += d;
+                currentRepeatIteration++;
+                fireTimeEvent(root.getRepeatEventName(), lastRepeatTime,
+                              currentRepeatIteration);
+            }
+        }
+        return dmt;
+        // } finally { Trace.exit(); }
+    }
+
+    /**
      * Computes an interval from the begin and end instance time lists.
      * @param first indicates whether this is the first interval to compute
      * @param fixedBegin if true, specifies that the value given for
-     *                   {@code beginAfter} is taken to be the actual begin
+     *                   <code>beginAfter</code> is taken to be the actual begin
      *                   time for the interval; only the end value is computed.
      * @param beginAfter the earliest possible begin time for the computed
      *                   interval.
+     * @param incl if true (and <code>!fixedBegin</code>), specifies that the
+     *             new interval's begin time must be greater than
+     *             <code>beginAfter</code>; otherwise, the begin time must be
+     *             greater than or equal to <code>beginAfter</code>.
      */
     protected Interval computeInterval(boolean first, boolean fixedBegin,
-                                       float beginAfter) {
-        Trace.enter(this, "computeInterval", new Object[] { new Boolean(first), new Boolean(fixedBegin), new Float(beginAfter)} ); try {
-        Trace.print("computing interval from begins=" + beginInstanceTimes + ", ends=" + endInstanceTimes);
+                                       float beginAfter, boolean incl) {
+        // Trace.enter(this, "computeInterval", new Object[] { new Boolean(first), new Boolean(fixedBegin), new Float(beginAfter)} ); try {
+        // Trace.print("computing interval from begins=" + beginInstanceTimes + ", ends=" + endInstanceTimes);
         Iterator beginIterator = beginInstanceTimes.iterator();
         Iterator endIterator = endInstanceTimes.iterator();
         float parentSimpleDur = parent.getSimpleDur();
@@ -766,14 +922,25 @@ public abstract class TimedElement implements SMILConstants {
                 for (;;) {
                     if (!beginIterator.hasNext()) {
                         // ran out of begin values
+                        // Trace.print("returning null interval");
                         return null;
                     }
                     beginInstanceTime = (InstanceTime) beginIterator.next();
                     tempBegin = beginInstanceTime.getTime();
-                    if (tempBegin >= beginAfter) {
+                    if (incl && tempBegin >= beginAfter
+                            || !incl && tempBegin > beginAfter) {
                         if (beginIterator.hasNext()) {
                             nextBeginInstanceTime =
                                 (InstanceTime) beginIterator.next();
+                            if (beginInstanceTime.getTime()
+                                    == nextBeginInstanceTime.getTime()) {
+                                // XXX Not sure if this is exactly correct to
+                                //     skip past these identical times, but it
+                                //     avoids an infinite loop of 0s intervals
+                                //     being created.
+                                nextBeginInstanceTime = null;
+                                continue;
+                            }
                         }
                         break;
                     }
@@ -781,13 +948,14 @@ public abstract class TimedElement implements SMILConstants {
             }
             if (tempBegin >= parentSimpleDur) {
                 // the begin value is after the parent has ended
+                // Trace.print("returning null interval");
                 return null;
             }
             float tempEnd;
             if (endTimes.length == 0) {
                 // no 'end' attribute specified
                 tempEnd = tempBegin + getActiveDur(tempBegin, INDEFINITE);
-                Trace.print("no end specified, so tempEnd = " + tempEnd);
+                // Trace.print("no end specified, so tempEnd = " + tempEnd);
             } else {
                 if (endInstanceTimes.isEmpty()) {
                     tempEnd = UNRESOLVED;
@@ -795,13 +963,16 @@ public abstract class TimedElement implements SMILConstants {
                     tempEnd = endInstanceTime.getTime();
                     if (first && !firstEnd && tempEnd == tempBegin
                             || !first && currentInterval != null
-                                && tempEnd == currentInterval.getEnd()) {
+                                && tempEnd == currentInterval.getEnd()
+                                && (incl && beginAfter >= tempEnd
+                                        || !incl && beginAfter > tempEnd)) {
                         for (;;) {
                             if (!endIterator.hasNext()) {
                                 if (endHasEventConditions()) {
                                     tempEnd = UNRESOLVED;
                                     break;
                                 }
+                                // Trace.print("returning null interval");
                                 return null;
                             }
                             endInstanceTime = (InstanceTime) endIterator.next();
@@ -821,6 +992,7 @@ public abstract class TimedElement implements SMILConstants {
                                 tempEnd = UNRESOLVED;
                                 break;
                             }
+                            // Trace.print("returning null interval");
                             return null;
                         }
                         endInstanceTime = (InstanceTime) endIterator.next();
@@ -828,39 +1000,39 @@ public abstract class TimedElement implements SMILConstants {
                     }
                 }
                 float ad = getActiveDur(tempBegin, tempEnd);
-                if (tempBegin + ad < tempEnd || isUnresolved(tempEnd)) {
-                    tempEnd = tempBegin + ad;
-                }
+                tempEnd = tempBegin + ad;
             }
             if (!first || tempEnd > 0 || tempBegin == 0 && tempEnd == 0
                     || isUnresolved(tempEnd)) {
-                Trace.print("considering restart semantics");
+                // Trace.print("considering restart semantics");
                 if (restartMode == RESTART_ALWAYS
                         && nextBeginInstanceTime != null) {
                     float nextBegin = nextBeginInstanceTime.getTime();
-                    Trace.print("nextBegin == " + nextBegin);
+                    // Trace.print("nextBegin == " + nextBegin);
                     if (nextBegin < tempEnd || isUnresolved(tempEnd)) {
                         tempEnd = nextBegin;
                         endInstanceTime = nextBeginInstanceTime;
                     }
                 }
-                return new Interval(tempBegin, tempEnd,
-                                    beginInstanceTime, endInstanceTime);
+                Interval i = new Interval(tempBegin, tempEnd,
+                                          beginInstanceTime, endInstanceTime);
+                // Trace.print("returning interval: " + i);
+                return i;
             }
             if (fixedBegin) {
+                // Trace.print("returning null interval");
                 return null;
             }
             beginAfter = tempEnd;
         }
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Resets this element.
      */
     protected void reset(boolean clearCurrentBegin) {
-        // System.err.println("reset");
-        Iterator i = beginInstanceTimes.iterator(); 
+        Iterator i = beginInstanceTimes.iterator();
         while (i.hasNext()) {
             InstanceTime it = (InstanceTime) i.next();
             if (it.getClearOnReset() &&
@@ -902,6 +1074,10 @@ public abstract class TimedElement implements SMILConstants {
             parseEnd(end);
             parseMin(min);
             parseMax(max);
+            if (this.min > this.max) {
+                this.min = 0f;
+                this.max = INDEFINITE;
+            }
             parseRepeatCount(repeatCount);
             parseRepeatDur(repeatDur);
             parseFill(fill);
@@ -914,12 +1090,18 @@ public abstract class TimedElement implements SMILConstants {
      * Parses a new 'begin' attribute.
      */
     protected void parseBegin(String begin) {
-        if (begin.length() == 0) {
-            begin = SMIL_BEGIN_DEFAULT_VALUE;
+        try {
+            if (begin.length() == 0) {
+                begin = SMIL_BEGIN_DEFAULT_VALUE;
+            }
+            beginTimes = TimingSpecifierListProducer.parseTimingSpecifierList
+                (TimedElement.this, true, begin,
+                 root.useSVG11AccessKeys, root.useSVG12AccessKeys);
+        } catch (ParseException ex) {
+            throw createException
+                ("attribute.malformed",
+                 new Object[] { null, SMIL_BEGIN_ATTRIBUTE });
         }
-        beginTimes = TimingSpecifierListProducer.parseTimingSpecifierList
-            (TimedElement.this, true, begin,
-             root.useSVG11AccessKeys, root.useSVG12AccessKeys);
     }
 
     /**
@@ -935,7 +1117,7 @@ public abstract class TimedElement implements SMILConstants {
                 simpleDur = INDEFINITE;
             } else {
                 try {
-                    simpleDur = parseClockValue(dur);
+                    simpleDur = parseClockValue(dur, false);
                 } catch (ParseException e) {
                     throw createException
                         ("attribute.malformed",
@@ -949,16 +1131,18 @@ public abstract class TimedElement implements SMILConstants {
     }
 
     /**
-     * Parses a clock value and returns it as a float.
+     * Parses a clock value or offset and returns it as a float.
      */
-    protected float parseClockValue(String s) throws ParseException {
-        ClockParser p = new ClockParser();
+    protected float parseClockValue(String s, boolean parseOffset)
+            throws ParseException {
+        ClockParser p = new ClockParser(parseOffset);
         class Handler implements ClockHandler {
             protected float v = 0;
             public void clockValue(float newClockValue) {
                 v = newClockValue;
             }
-        };
+        }
+
         Handler h = new Handler();
         p.setClockHandler(h);
         p.parse(s);
@@ -969,9 +1153,15 @@ public abstract class TimedElement implements SMILConstants {
      * Parses a new 'end' attribute.
      */
     protected void parseEnd(String end) {
-        endTimes = TimingSpecifierListProducer.parseTimingSpecifierList
-            (TimedElement.this, false, end,
-             root.useSVG11AccessKeys, root.useSVG12AccessKeys);
+        try {
+            endTimes = TimingSpecifierListProducer.parseTimingSpecifierList
+                (TimedElement.this, false, end,
+                 root.useSVG11AccessKeys, root.useSVG12AccessKeys);
+        } catch (ParseException ex) {
+            throw createException
+                ("attribute.malformed",
+                 new Object[] { null, SMIL_END_ATTRIBUTE });
+        }
     }
 
     /**
@@ -979,13 +1169,18 @@ public abstract class TimedElement implements SMILConstants {
      */
     protected void parseMin(String min) {
         if (min.equals(SMIL_MEDIA_VALUE)) {
+            this.min = 0;
             minMedia = true;
         } else {
             minMedia = false;
             if (min.length() == 0) {
                 this.min = 0;
             } else {
-                this.min = parseClockValue(min);
+                try {
+                    this.min = parseClockValue(min, false);
+                } catch (ParseException ex) {
+                	this.min = 0;
+                }
                 if (this.min < 0) {
                     this.min = 0;
                 }
@@ -998,13 +1193,18 @@ public abstract class TimedElement implements SMILConstants {
      */
     protected void parseMax(String max) {
         if (max.equals(SMIL_MEDIA_VALUE)) {
+            this.max = INDEFINITE;
             maxMedia = true;
         } else {
             maxMedia = false;
             if (max.length() == 0 || max.equals(SMIL_INDEFINITE_VALUE)) {
                 this.max = INDEFINITE;
             } else {
-                this.max = parseClockValue(max);
+                try {
+                    this.max = parseClockValue(max, false);
+                } catch (ParseException ex) {
+                	this.max = INDEFINITE;
+                }
                 if (this.max < 0) {
                     this.max = 0;
                 }
@@ -1044,7 +1244,7 @@ public abstract class TimedElement implements SMILConstants {
             } else if (repeatDur.equals(SMIL_INDEFINITE_VALUE)) {
                 this.repeatDur = INDEFINITE;
             } else {
-                this.repeatDur = parseClockValue(repeatDur);
+                this.repeatDur = parseClockValue(repeatDur, false);
             }
         } catch (ParseException ex) {
             throw createException
@@ -1105,7 +1305,7 @@ public abstract class TimedElement implements SMILConstants {
             beginTimes[i].deinitialize();
         }
         for (int i = 0; i < endTimes.length; i++) {
-            beginTimes[i].deinitialize();
+            endTimes[i].deinitialize();
         }
     }
 
@@ -1123,8 +1323,8 @@ public abstract class TimedElement implements SMILConstants {
      * semantics allow it).
      */
     public void beginElement(float offset) {
-        float t = root.convertWallclockTime(Calendar.getInstance());
-        InstanceTime it = new InstanceTime(null, t + offset, null, true);
+        float t = root.convertWallclockTime( Calendar.getInstance());
+        InstanceTime it = new InstanceTime(null, t + offset, true);
         addInstanceTime(it, true);
     }
 
@@ -1143,7 +1343,7 @@ public abstract class TimedElement implements SMILConstants {
      */
     public void endElement(float offset) {
         float t = root.convertWallclockTime(Calendar.getInstance());
-        InstanceTime it = new InstanceTime(null, t + offset, null, true);
+        InstanceTime it = new InstanceTime(null, t + offset, true);
         addInstanceTime(it, false);
     }
 
@@ -1183,6 +1383,41 @@ public abstract class TimedElement implements SMILConstants {
     }
 
     /**
+     * Returns the time that the document would seek to if this animation
+     * element were hyperlinked to, or <code>NaN</code> if there is no
+     * such begin time.
+     */
+    public float getHyperlinkBeginTime() {
+        if (isActive) {
+            return currentInterval.getBegin();
+        }
+        if (!beginInstanceTimes.isEmpty()) {
+            return ((InstanceTime) beginInstanceTimes.get(0)).getTime();
+        }
+        return Float.NaN;
+    }
+
+    /**
+     * Returns an array of the begin timing specifiers on this timed element.
+     * XXX Note that this is an experimental public API and is subject to
+     * change, when somebody gets around to thinking of a better model for
+     * exposing animation information from the document.
+     */
+    public TimingSpecifier[] getBeginTimingSpecifiers() {
+        return (TimingSpecifier[]) beginTimes.clone();
+    }
+
+    /**
+     * Returns an array of the end timing specifiers on this timed element.
+     * XXX Note that this is an experimental public API and is subject to
+     * change, when somebody gets around to thinking of a better model for
+     * exposing animation information from the document.
+     */
+    public TimingSpecifier[] getEndTimingSpecifiers() {
+        return (TimingSpecifier[]) endTimes.clone();
+    }
+
+    /**
      * Fires a TimeEvent of the given type on this element.
      * @param eventType the type of TimeEvent ("beginEvent", "endEvent"
      *                  or "repeatEvent").
@@ -1201,12 +1436,13 @@ public abstract class TimedElement implements SMILConstants {
      * will be processed at the beginning of the next tick.
      */
     void eventOccurred(TimingSpecifier t, Event e) {
-        HashSet ts = (HashSet) handledEvents.get(e);
+        Set ts = (HashSet) handledEvents.get(e);
         if (ts == null) {
             ts = new HashSet();
             handledEvents.put(e, ts);
         }
         ts.add(t);
+        root.currentIntervalWillUpdate();
     }
 
     /**
@@ -1227,9 +1463,12 @@ public abstract class TimedElement implements SMILConstants {
 
     /**
      * Invoked to indicate that this timed element became inactive.
+     * @param stillActive if true, indicates that the element is still actually
+     *                    active, but between the end of the computed repeat
+     *                    duration and the end of the interval
      * @param isFrozen whether the element is frozen or not
      */
-    protected abstract void toInactive(boolean isFrozen);
+    protected abstract void toInactive(boolean stillActive, boolean isFrozen);
 
     /**
      * Invoked to indicate that this timed element has had its fill removed.
@@ -1266,13 +1505,6 @@ public abstract class TimedElement implements SMILConstants {
     protected abstract EventTarget getEventTargetById(String id);
 
     /**
-     * Returns the event target that is the parent of the given
-     * timed element.  Used for eventbase timing specifiers where
-     * the element ID is omitted.
-     */
-    protected abstract EventTarget getParentEventTarget(TimedElement e);
-
-    /**
      * Returns the event target that should be listened to for
      * access key events.
      */
@@ -1285,10 +1517,22 @@ public abstract class TimedElement implements SMILConstants {
     public abstract Element getElement();
 
     /**
+     * Returns the target of this animation as an {@link EventTarget}.  Used
+     * for eventbase timing specifiers where the element ID is omitted.
+     */
+    protected abstract EventTarget getAnimationEventTarget();
+
+    /**
      * Returns whether this timed element comes before the given timed element
      * in document order.
      */
     public abstract boolean isBefore(TimedElement other);
+
+    /**
+     * Returns whether this timed element is for a constant animation (i.e., a
+     * 'set' animation.
+     */
+    protected abstract boolean isConstantAnimation();
 
     /**
      * Creates and returns a new {@link AnimationException}.
@@ -1304,7 +1548,7 @@ public abstract class TimedElement implements SMILConstants {
     /**
      * The error messages bundle class name.
      */
-    protected final static String RESOURCES =
+    protected static final String RESOURCES =
         "org.apache.batik.anim.resources.Messages";
 
     /**
@@ -1314,7 +1558,7 @@ public abstract class TimedElement implements SMILConstants {
         new LocalizableSupport(RESOURCES, TimedElement.class.getClassLoader());
 
     /**
-     * Implements {@link org.apache.batik.i18n.Localizable#setLocale(Locale)}.
+     * Implements {@link org.apache.batik.i18n.Localizable#setLocale(java.util.Locale)}.
      */
     public static void setLocale(Locale l) {
         localizableSupport.setLocale(l);
@@ -1340,7 +1584,7 @@ public abstract class TimedElement implements SMILConstants {
      * Returns a string representation of the given time value.
      */
     public static String toString(float time) {
-        if (time == Float.NaN) {
+        if (Float.isNaN(time)) {
             return "UNRESOLVED";
         } else if (time == Float.POSITIVE_INFINITY) {
             return "INDEFINITE";

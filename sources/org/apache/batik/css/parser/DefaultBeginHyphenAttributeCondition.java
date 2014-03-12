@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +23,7 @@ package org.apache.batik.css.parser;
  * {@link org.w3c.css.sac.AttributeCondition} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: DefaultBeginHyphenAttributeCondition.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class DefaultBeginHyphenAttributeCondition
     extends DefaultAttributeCondition {
@@ -34,7 +35,7 @@ public class DefaultBeginHyphenAttributeCondition
                                                 String namespaceURI,
                                                 boolean specified,
                                                 String value) {
-	super(localName, namespaceURI, specified, value);
+        super(localName, namespaceURI, specified, value);
     }
 
     /**
@@ -42,13 +43,13 @@ public class DefaultBeginHyphenAttributeCondition
      * org.w3c.css.sac.Condition#getConditionType()}.
      */    
     public short getConditionType() {
-	return SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION;
+        return SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION;
     }
     
     /**
      * Returns a text representation of this object.
      */
     public String toString() {
-	return "[" + getLocalName() + "|=\"" + getValue() + "\"]";
+        return "[" + getLocalName() + "|=\"" + getValue() + "\"]";
     }
 }

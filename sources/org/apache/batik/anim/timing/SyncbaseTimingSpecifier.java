@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,7 +25,7 @@ import java.util.HashMap;
  * A class to handle syncbase SMIL timing specifiers.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SyncbaseTimingSpecifier.java 580338 2007-09-28 13:13:46Z cam $
  */
 public class SyncbaseTimingSpecifier extends OffsetTimingSpecifier {
 
@@ -57,12 +58,12 @@ public class SyncbaseTimingSpecifier extends OffsetTimingSpecifier {
                                    float offset, String syncbaseID,
                                    boolean syncBegin) {
         super(owner, isBegin, offset);
-        Trace.enter(this, null, new Object[] { owner, new Boolean(isBegin), new Float(offset), syncbaseID, new Boolean(syncBegin) } ); try {
+        // Trace.enter(this, null, new Object[] { owner, new Boolean(isBegin), new Float(offset), syncbaseID, new Boolean(syncBegin) } ); try {
         this.syncbaseID = syncbaseID;
         this.syncBegin = syncBegin;
         this.syncbaseElement = owner.getTimedElementById(syncbaseID);
         syncbaseElement.addDependent(this, syncBegin);
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -91,36 +92,45 @@ public class SyncbaseTimingSpecifier extends OffsetTimingSpecifier {
     /**
      * Called by the timebase element when it creates a new Interval.
      */
-    void newInterval(Interval interval) {
-        Trace.enter(this, "newInterval", new Object[] { interval } ); try {
+    float newInterval(Interval interval) {
+        // Trace.enter(this, "newInterval", new Object[] { interval } ); try {
+        if (owner.hasPropagated) {
+            return Float.POSITIVE_INFINITY;
+        }
         InstanceTime instance =
             new InstanceTime(this, (syncBegin ? interval.getBegin()
                                               : interval.getEnd()) + offset,
-                             interval, true);
+                             true);
         instances.put(interval, instance);
         interval.addDependent(instance, syncBegin);
-        owner.addInstanceTime(instance, isBegin);
-        } finally { Trace.exit(); }
+        return owner.addInstanceTime(instance, isBegin);
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Called by the timebase element when it deletes an Interval.
      */
-    void removeInterval(Interval interval) {
-        Trace.enter(this, "removeInterval", new Object[] { interval } ); try {
+    float removeInterval(Interval interval) {
+        // Trace.enter(this, "removeInterval", new Object[] { interval } ); try {
+        if (owner.hasPropagated) {
+            return Float.POSITIVE_INFINITY;
+        }
         InstanceTime instance = (InstanceTime) instances.get(interval);
         interval.removeDependent(instance, syncBegin);
-        owner.removeInstanceTime(instance, isBegin);
-        } finally { Trace.exit(); }
+        return owner.removeInstanceTime(instance, isBegin);
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Called by an {@link InstanceTime} created by this TimingSpecifier
      * to indicate that its value has changed.
      */
-    void handleTimebaseUpdate(InstanceTime instanceTime, float newTime) {
-        Trace.enter(this, "handleTimebaseUpdate", new Object[] { instanceTime, new Float(newTime) } ); try {
-        owner.instanceTimeChanged(instanceTime, isBegin);
-        } finally { Trace.exit(); }
+    float handleTimebaseUpdate(InstanceTime instanceTime, float newTime) {
+        // Trace.enter(this, "handleTimebaseUpdate", new Object[] { instanceTime, new Float(newTime) } ); try {
+        if (owner.hasPropagated) {
+            return Float.POSITIVE_INFINITY;
+        }
+        return owner.instanceTimeChanged(instanceTime, isBegin);
+        // } finally { Trace.exit(); }
     }
 }

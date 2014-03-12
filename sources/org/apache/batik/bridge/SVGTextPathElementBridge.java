@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -32,7 +33,7 @@ import org.w3c.dom.Element;
  * Bridge class for the &lt;textPath> element.
  *
  * @author <a href="mailto:bella.robinson@cmis.csiro.au">Bella Robinson</a>
- * @version $Id$
+ * @version $Id: SVGTextPathElementBridge.java 1073181 2011-02-21 23:06:26Z cam $
  */
 public class SVGTextPathElementBridge extends AnimatableGenericSVGBridge
                                       implements ErrorConstants {
@@ -47,6 +48,10 @@ public class SVGTextPathElementBridge extends AnimatableGenericSVGBridge
      */
     public String getLocalName() {
         return SVG_TEXT_PATH_TAG;
+    }
+
+    public void handleElement(BridgeContext ctx, Element e) {
+        // We don't want to take over from the text content element.
     }
 
     /**
@@ -64,7 +69,7 @@ public class SVGTextPathElementBridge extends AnimatableGenericSVGBridge
         String uri = XLinkSupport.getXLinkHref(textPathElement);
         Element pathElement = ctx.getReferencedElement(textPathElement, uri);
 
-        if ((pathElement == null) || 
+        if ((pathElement == null) ||
             (!SVG_NAMESPACE_URI.equals(pathElement.getNamespaceURI())) ||
             (!pathElement.getLocalName().equals(SVG_PATH_TAG))) {
             // couldn't find the referenced element
@@ -83,9 +88,9 @@ public class SVGTextPathElementBridge extends AnimatableGenericSVGBridge
                 PathParser pathParser = new PathParser();
                 pathParser.setPathHandler(app);
                 pathParser.parse(s);
-            } catch (ParseException ex) {
+            } catch (ParseException pEx ) {
                throw new BridgeException
-                   (ctx, pathElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                   (ctx, pathElement, pEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                     new Object[] {SVG_D_ATTRIBUTE});
             } finally {
                 pathShape = app.getShape();
@@ -112,7 +117,7 @@ public class SVGTextPathElementBridge extends AnimatableGenericSVGBridge
         s = textPathElement.getAttributeNS(null, SVG_START_OFFSET_ATTRIBUTE);
         if (s.length() > 0) {
             float startOffset = 0;
-            int percentIndex = s.indexOf("%");
+            int percentIndex = s.indexOf('%');
             if (percentIndex != -1) {
                 // its a percentage of the length of the path
                 float pathLength = textPath.lengthOfPath();
@@ -121,9 +126,6 @@ public class SVGTextPathElementBridge extends AnimatableGenericSVGBridge
                 try {
                     startOffsetPercent = SVGUtilities.convertSVGNumber(percentString);
                 } catch (NumberFormatException e) {
-                    startOffsetPercent = -1;
-                }
-                if (startOffsetPercent < 0) {
                     throw new BridgeException
                         (ctx, textPathElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
                          new Object[] {SVG_START_OFFSET_ATTRIBUTE, s});

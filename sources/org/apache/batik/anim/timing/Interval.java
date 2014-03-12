@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,7 +25,7 @@ import java.util.LinkedList;
  * A class that represents an interval for a timed element.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: Interval.java 492528 2007-01-04 11:45:47Z cam $
  */
 public class Interval {
 
@@ -71,12 +72,12 @@ public class Interval {
      */
     public Interval(float begin, float end, InstanceTime beginInstanceTime,
                     InstanceTime endInstanceTime) {
-        Trace.enter(this, null, new Object[] { new Float(begin), new Float(end), beginInstanceTime, endInstanceTime } ); try {
+        // Trace.enter(this, null, new Object[] { new Float(begin), new Float(end), beginInstanceTime, endInstanceTime } ); try {
         this.begin = begin;
         this.end = end;
         this.beginInstanceTime = beginInstanceTime;
         this.endInstanceTime = endInstanceTime;
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
@@ -120,53 +121,64 @@ public class Interval {
      * Adds a dependent InstanceTime for this Interval.
      */
     void addDependent(InstanceTime dependent, boolean forBegin) {
-        Trace.enter(this, "addDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
+        // Trace.enter(this, "addDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
         if (forBegin) {
             beginDependents.add(dependent);
         } else {
             endDependents.add(dependent);
         }
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Removes a dependent InstanceTime for this Interval.
      */
     void removeDependent(InstanceTime dependent, boolean forBegin) {
-        Trace.enter(this, "removeDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
+        // Trace.enter(this, "removeDependent", new Object[] { dependent, new Boolean(forBegin) } ); try {
         if (forBegin) {
             beginDependents.remove(dependent);
         } else {
             endDependents.remove(dependent);
         }
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Updates the begin time for this interval.
      */
-    void setBegin(float begin) {
-        Trace.enter(this, "setBegin", new Object[] { new Float(begin) } ); try {
+    float setBegin(float begin) {
+        // Trace.enter(this, "setBegin", new Object[] { new Float(begin) } ); try {
+        float minTime = Float.POSITIVE_INFINITY;
         this.begin = begin;
         Iterator i = beginDependents.iterator();
         while (i.hasNext()) {
             InstanceTime it = (InstanceTime) i.next();
-            it.dependentUpdate(begin);
+            float t = it.dependentUpdate(begin);
+            if (t < minTime) {
+                minTime = t;
+            }
         }
-        } finally { Trace.exit(); }
+        return minTime;
+        // } finally { Trace.exit(); }
     }
 
     /**
      * Updates the end time for this interval.
      */
-    void setEnd(float end) {
-        Trace.enter(this, "setEnd", new Object[] { new Float(end) } ); try {
+    float setEnd(float end, InstanceTime endInstanceTime) {
+        // Trace.enter(this, "setEnd", new Object[] { new Float(end) } ); try {
+        float minTime = Float.POSITIVE_INFINITY;
         this.end = end;
+        this.endInstanceTime = endInstanceTime;
         Iterator i = endDependents.iterator();
         while (i.hasNext()) {
             InstanceTime it = (InstanceTime) i.next();
-            it.dependentUpdate(end);
+            float t = it.dependentUpdate(end);
+            if (t < minTime) {
+                minTime = t;
+            }
         }
-        } finally { Trace.exit(); }
+        return minTime;
+        // } finally { Trace.exit(); }
     }
 }

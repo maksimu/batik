@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003,2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,32 +19,37 @@
 package org.apache.batik.bridge;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-
 import java.net.URL;
 import java.net.URLConnection;
-
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.zip.GZIPOutputStream;
 import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
+import org.apache.batik.dom.AbstractElement;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.dom.events.NodeEventTarget;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.dom.svg.SVGOMDocument;
+import org.apache.batik.dom.svg.SVGOMScriptElement;
+import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.dom.util.SAXDocumentFactory;
 import org.apache.batik.dom.util.XLinkSupport;
+import org.apache.batik.bridge.Location;
 import org.apache.batik.script.Interpreter;
 import org.apache.batik.script.InterpreterException;
 import org.apache.batik.script.ScriptEventWrapper;
@@ -66,36 +72,23 @@ import org.w3c.dom.svg.SVGDocument;
  * This class contains the informations needed by the SVG scripting.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: ScriptingEnvironment.java 712954 2008-11-11 06:19:23Z cam $
  */
 public class ScriptingEnvironment extends BaseScriptingEnvironment {
 
-    /**
-     * Used in 'parseXML()'.
-     */
-    protected final static String FRAGMENT_PREFIX =
-        "<svg xmlns='" +
-        SVGConstants.SVG_NAMESPACE_URI +
-        "' xmlns:xlink='" +
-        XLinkSupport.XLINK_NAMESPACE_URI +
-        "'>";
-
-    protected final static String FRAGMENT_SUFFIX =
-        "</svg>";
-
-    public final static String [] SVG_EVENT_ATTRS = {
+    public static final String [] SVG_EVENT_ATTRS = {
         "onabort",     // SVG element
         "onerror",     // SVG element
         "onresize",    // SVG element
         "onscroll",    // SVG element
         "onunload",    // SVG element
         "onzoom",      // SVG element
-        
+
         "onbegin",     // SMIL
         "onend",       // SMIL
         "onrepeat",    // SMIL
 
-        "onfocusin",   // UI Events 
+        "onfocusin",   // UI Events
         "onfocusout",  // UI Events
         "onactivate",  // UI Events
         "onclick",     // UI Events
@@ -108,22 +101,22 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
 
         "onkeypress",  // UI Events
         "onkeydown",   // UI Events
-        "onkeyup"      // UI Events 
+        "onkeyup"      // UI Events
     };
 
-    public final static String [] SVG_DOM_EVENT = {
+    public static final String [] SVG_DOM_EVENT = {
         "SVGAbort",    // SVG element
         "SVGError",    // SVG element
         "SVGResize",   // SVG element
         "SVGScroll",   // SVG element
         "SVGUnload",   // SVG element
         "SVGZoom",     // SVG element
-        
+
         "beginEvent",  // SMIL
         "endEvent",    // SMIL
         "repeatEvent", // SMIL
 
-        "DOMFocusIn",  // UI Events 
+        "DOMFocusIn",  // UI Events
         "DOMFocusOut", // UI Events
         "DOMActivate", // UI Events
         "click",       // UI Events
@@ -134,7 +127,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
         "mousemove",   // UI Events
         "keypress",    // UI Events
         "keydown",     // UI Events
-        "keyup"        // UI Events 
+        "keyup"        // UI Events
     };
 
     /**
@@ -293,7 +286,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
     protected EventListener keyupListener =
         new ScriptingEventListener("onkeyup");
 
-    
+
     protected EventListener [] listeners = {
         svgAbortListener,
         svgErrorListener,
@@ -325,7 +318,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
     Map attrToDOMEvent = new HashMap(SVG_EVENT_ATTRS.length);
     Map attrToListener = new HashMap(SVG_EVENT_ATTRS.length);
     {
-        for (int i=0; i<SVG_EVENT_ATTRS.length; i++) {
+        for (int i = 0; i < SVG_EVENT_ATTRS.length; i++) {
             attrToDOMEvent.put(SVG_EVENT_ATTRS[i], SVG_DOM_EVENT[i]);
             attrToListener.put(SVG_EVENT_ATTRS[i], listeners[i]);
         }
@@ -339,7 +332,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
         super(ctx);
         updateManager = ctx.getUpdateManager();
         updateRunnableQueue = updateManager.getUpdateRunnableQueue();
-        
+
         // Add the scripting listeners.
         addScriptingListeners(document.getDocumentElement());
 
@@ -385,15 +378,15 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
     /**
      * Creates a new Window object.
      */
-    public org.apache.batik.script.Window createWindow(Interpreter interp,
-                                                       String lang) {
+    protected org.apache.batik.script.Window createWindow(Interpreter interp,
+                                                          String lang) {
         return new Window(interp, lang);
     }
 
     /**
      * Runs an event handler.
      */
-    public void runEventHandler(String script, Event evt, 
+    public void runEventHandler(String script, Event evt,
                                 String lang, String desc) {
         Interpreter interpreter = getInterpreter(lang);
         if (interpreter == null)
@@ -533,7 +526,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
             target.addEventListenerNS
                 (XMLConstants.XML_EVENTS_NAMESPACE_URI, "click",
                  clickListener, false, null);
-        } 
+        }
         if (elt.hasAttributeNS(null, "onmousedown")) {
             target.addEventListenerNS
                 (XMLConstants.XML_EVENTS_NAMESPACE_URI, "mousedown",
@@ -698,7 +691,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
                  listener, false);
         }
     }
-    
+
 
     /**
      * To interpret a script.
@@ -736,6 +729,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
             interpreter = interp;
             script = s;
         }
+
         public void run() {
             synchronized (this) {
                 if (error)
@@ -777,6 +771,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
         public EvaluateRunnableRunnable(Runnable r) {
             runnable = r;
         }
+
         public void run() {
             synchronized (this) {
                 if (error)
@@ -791,7 +786,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
                 } else {
                     e.printStackTrace(); // No UA so just output...
                 }
-                synchronized (this) { 
+                synchronized (this) {
                     error = true;
                 }
             }
@@ -804,6 +799,115 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
     protected class Window implements org.apache.batik.script.Window {
 
         /**
+         * A <code>TimerTask</code> to invoke a
+         * <code>setInterval()</code>-scheduled function that is specified
+         * by a String.
+         */
+        protected class IntervalScriptTimerTask extends TimerTask {
+
+            protected EvaluateIntervalRunnable eir;
+
+            public IntervalScriptTimerTask(String script) {
+                eir = new EvaluateIntervalRunnable(script, interpreter);
+            }
+
+            public void run() {
+                synchronized (eir) {
+                    if (eir.count > 1)
+                        return;
+                    eir.count++;
+                }
+                synchronized (updateRunnableQueue.getIteratorLock()) {
+                    if (updateRunnableQueue.getThread() == null) {
+                        cancel();
+                        return;
+                    }
+                    updateRunnableQueue.invokeLater(eir);
+                }
+                synchronized (eir) {
+                    if (eir.error)
+                        cancel();
+                }
+            }
+        }
+
+        /**
+         * A <code>TimerTask</code> to invoke a
+         * <code>setInterval()</code>-scheduled function that is specified
+         * by a <code>Runnable</code>.
+         */
+        protected class IntervalRunnableTimerTask extends TimerTask {
+
+            protected EvaluateRunnableRunnable eihr;
+
+            public IntervalRunnableTimerTask(Runnable r) {
+                eihr = new EvaluateRunnableRunnable(r);
+            }
+
+            public void run() {
+                synchronized (eihr) {
+                    if (eihr.count > 1)
+                        return;
+                    eihr.count++;
+                }
+                // XXX Should this have the same synchronization as in
+                //     IntervalScriptTimerTask.run() above?
+                updateRunnableQueue.invokeLater(eihr);
+                synchronized (eihr) {
+                    if (eihr.error)
+                        cancel();
+                }
+            }
+        }
+
+        /**
+         * A <code>TimerTask</code> to invoke a
+         * <code>setTimeout()</code>-scheduled function that is specified
+         * by a String.
+         */
+        protected class TimeoutScriptTimerTask extends TimerTask {
+
+            private String script;
+
+            public TimeoutScriptTimerTask(String script) {
+                this.script = script;
+            }
+
+            public void run() {
+                updateRunnableQueue.invokeLater
+                    (new EvaluateRunnable(script, interpreter));
+            }
+        }
+
+        /**
+         * A <code>TimerTask</code> to invoke a
+         * <code>setTimeout()</code>-scheduled function that is specified
+         * by a Runnable.
+         */
+        protected class TimeoutRunnableTimerTask extends TimerTask {
+
+            private Runnable r;
+
+            public TimeoutRunnableTimerTask(Runnable r) {
+                this.r = r;
+            }
+
+            public void run() {
+                updateRunnableQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            try {
+                                r.run();
+                            } catch (Exception e) {
+                                if (userAgent != null) {
+                                    userAgent.displayError(e);
+                                }
+                            }
+                        }
+                    });
+            }
+        }
+
+        /**
          * The associated interpreter.
          */
         protected Interpreter interpreter;
@@ -812,6 +916,11 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * The associated language.
          */
         protected String language;
+
+        /**
+         * The Location object
+         */
+        protected Location location;
 
         /**
          * Creates a new Window for the given language.
@@ -826,29 +935,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * org.apache.batik.script.Window#setInterval(String,long)}.
          */
         public Object setInterval(final String script, long interval) {
-            TimerTask tt = new TimerTask() {
-                    EvaluateIntervalRunnable eir =
-                        new EvaluateIntervalRunnable(script, interpreter);
-                    public void run() {
-                        synchronized (eir) {
-                            if (eir.count > 1)
-                                return;
-                            eir.count++;
-                        }
-                        synchronized (updateRunnableQueue.getIteratorLock()) {
-                            if (updateRunnableQueue.getThread() == null) {
-                                cancel();
-                                return;
-                            }
-                            updateRunnableQueue.invokeLater(eir);
-                        }
-                        synchronized (eir) {
-                            if (eir.error)
-                                cancel();
-                        }
-                    }
-                };
-
+            IntervalScriptTimerTask tt = new IntervalScriptTimerTask(script);
             timer.schedule(tt, interval, interval);
             return tt;
         }
@@ -858,23 +945,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * org.apache.batik.script.Window#setInterval(Runnable,long)}.
          */
         public Object setInterval(final Runnable r, long interval) {
-            TimerTask tt = new TimerTask() {
-                    EvaluateRunnableRunnable eihr =
-                        new EvaluateRunnableRunnable(r);
-                    public void run() {
-                        synchronized (eihr) {
-                            if (eihr.count > 1)
-                                return;
-                            eihr.count++;
-                        }
-                        updateRunnableQueue.invokeLater(eihr);
-                        synchronized (eihr) {
-                            if (eihr.error)
-                                cancel();
-                        }
-                    }
-                };
-            
+            IntervalRunnableTimerTask tt = new IntervalRunnableTimerTask(r);
             timer.schedule(tt, interval, interval);
             return tt;
         }
@@ -893,13 +964,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * org.apache.batik.script.Window#setTimeout(String,long)}.
          */
         public Object setTimeout(final String script, long timeout) {
-            TimerTask tt = new TimerTask() {
-                    public void run() {
-                        updateRunnableQueue.invokeLater
-                            (new EvaluateRunnable(script, interpreter));
-                    }
-                };
-
+            TimeoutScriptTimerTask tt = new TimeoutScriptTimerTask(script);
             timer.schedule(tt, timeout);
             return tt;
         }
@@ -909,22 +974,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * org.apache.batik.script.Window#setTimeout(Runnable,long)}.
          */
         public Object setTimeout(final Runnable r, long timeout) {
-            TimerTask tt = new TimerTask() {
-                    public void run() {
-                        updateRunnableQueue.invokeLater(new Runnable() {
-                                public void run() {
-                                    try {
-                                        r.run();
-                                    } catch (Exception e) {
-                                        if (userAgent != null) {
-                                            userAgent.displayError(e);
-                                        }
-                                    }
-                                }
-                            });
-                    }
-                };
-
+            TimeoutRunnableTimerTask tt = new TimeoutRunnableTimerTask(r);
             timer.schedule(tt, timeout);
             return tt;
         }
@@ -943,32 +993,23 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * org.apache.batik.script.Window#parseXML(String,Document)}.
          */
         public Node parseXML(String text, Document doc) {
-            // System.err.println("Text: " + text);
             // Try and parse it as an SVGDocument
             SAXSVGDocumentFactory df = new SAXSVGDocumentFactory
                 (XMLResourceDescriptor.getXMLParserClassName());
             URL urlObj = null;
-            if ((doc != null) && (doc instanceof SVGOMDocument)) 
-                urlObj = ((SVGOMDocument)doc).getURLObject();
+            if (doc instanceof SVGOMDocument) {
+                urlObj = ((SVGOMDocument) doc).getURLObject();
+            }
             if (urlObj == null) {
-                urlObj = ((SVGOMDocument)bridgeContext.getDocument()).
-                    getURLObject();
+                urlObj = ((SVGOMDocument) bridgeContext.getDocument())
+                        .getURLObject();
             }
-            String uri = (urlObj==null)?"":urlObj.toString();
-            try {
-                Document d = df.createDocument(uri, new StringReader(text));
-                if (doc == null)
-                    return d;
-
-                Node result = doc.createDocumentFragment();
-                result.appendChild(doc.importNode(d.getDocumentElement(),
-                                                  true));
-                return result;
-            } catch (Exception ex) {
-                /* nothing  */
+            String uri = (urlObj == null) ? "" : urlObj.toString();
+            Node res = DOMUtilities.parseXML(text, doc, uri, null, null, df);
+            if (res != null) {
+                return res;
             }
-            
-            if ((doc != null) && (doc instanceof SVGOMDocument)) {
+            if (doc instanceof SVGOMDocument) {
                 // Try and parse with an 'svg' element wrapper - for
                 // things like '<rect ../>' - ensure that rect ends up
                 // in SVG namespace - xlink namespace is declared etc...
@@ -976,60 +1017,42 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
                 // Only do this when generating a doc fragment, since
                 // a 'rect' element can not be root of SVG Document
                 // (only an svg element can be).
-                StringBuffer sb = new StringBuffer(FRAGMENT_PREFIX.length() +
-                                                   text.length() +
-                                                   FRAGMENT_SUFFIX.length());
-                sb.append(FRAGMENT_PREFIX);
-                sb.append(text);
-                sb.append(FRAGMENT_SUFFIX);
-                String newText = sb.toString();
-                try {
-                    Document d = df.createDocument
-                        (uri, new StringReader(newText));
-                    // No document given so make doc fragment from our
-                    // new Document.
-                    if (doc == null) doc = d;
-                    for (Node n = d.getDocumentElement().getFirstChild();
-                         n != null;
-                         n = n.getNextSibling()) {
-                        if (n.getNodeType() == Node.ELEMENT_NODE) {
-                            n = doc.importNode(n, true);
-                            Node result = doc.createDocumentFragment();
-                            result.appendChild(n);
-                            return result;
-                        }
-                    }
-                } catch (Exception exc) {
-                    /* nothing - try something else*/
+                Map prefixes = new HashMap();
+                prefixes.put(XMLConstants.XMLNS_PREFIX,
+                        XMLConstants.XMLNS_NAMESPACE_URI);
+                prefixes.put(XMLConstants.XMLNS_PREFIX + ':'
+                        + XMLConstants.XLINK_PREFIX,
+                        XLinkSupport.XLINK_NAMESPACE_URI);
+                res = DOMUtilities.parseXML(text, doc, uri, prefixes,
+                        SVGConstants.SVG_SVG_TAG, df);
+                if (res != null) {
+                    return res;
                 }
             }
-
             // Parse as a generic XML document.
             SAXDocumentFactory sdf;
             if (doc != null) {
-                sdf = new SAXDocumentFactory
-                    (doc.getImplementation(),
-                     XMLResourceDescriptor.getXMLParserClassName());
+                sdf = new SAXDocumentFactory(doc.getImplementation(),
+                        XMLResourceDescriptor.getXMLParserClassName());
             } else {
-                sdf = new SAXDocumentFactory
-                    (new GenericDOMImplementation(),
-                     XMLResourceDescriptor.getXMLParserClassName());
+                sdf = new SAXDocumentFactory(new GenericDOMImplementation(),
+                        XMLResourceDescriptor.getXMLParserClassName());
             }
-            try {
-                Document d = sdf.createDocument(uri, new StringReader(text));
-                if (doc == null) 
-                    return d;
+            return DOMUtilities.parseXML(text, doc, uri, null, null, sdf);
+        }
 
-                Node result = doc.createDocumentFragment();
-                result.appendChild(doc.importNode(d.getDocumentElement(), 
-                                                  true));
-                return result;
-            } catch (Exception ext) {
-                if (userAgent != null)
-                    userAgent.displayError(ext);
+        /**
+         * Serializes the given node.
+         */
+        public String printNode(Node n) {
+            try {
+                Writer writer = new StringWriter();
+                DOMUtilities.writeNode(n, writer);
+                writer.close();
+                return writer.toString();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
-            
-            return null;
         }
 
         /**
@@ -1040,9 +1063,9 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
             getURL(uri, h, null);
         }
 
-        final static String DEFLATE="deflate";
-        final static String GZIP   ="gzip";
-        final static String UTF_8  ="UTF-8";
+        static final String DEFLATE="deflate";
+        static final String GZIP   ="gzip";
+        static final String UTF_8  ="UTF-8";
         /**
          * Implements {@link
          * org.apache.batik.script.Window#getURL(String,org.apache.batik.script.Window.URLResponseHandler,String)}.
@@ -1053,8 +1076,8 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
             Thread t = new Thread() {
                     public void run() {
                         try {
-                            URL burl;
-                            burl = ((SVGOMDocument)document).getURLObject();
+                            ParsedURL burl;
+                            burl = ((SVGOMDocument)document).getParsedURL();
                             final ParsedURL purl = new ParsedURL(burl, uri);
                             String e = null;
                             if (enc != null) {
@@ -1121,37 +1144,40 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
         }
 
 
-        public void postURL(String uri, String content, 
+        public void postURL(String uri, String content,
                             org.apache.batik.script.Window.URLResponseHandler h) {
             postURL(uri, content, h, "text/plain", null);
         }
 
-        public void postURL(String uri, String content, 
-                            org.apache.batik.script.Window.URLResponseHandler h, 
+        public void postURL(String uri, String content,
+                            org.apache.batik.script.Window.URLResponseHandler h,
                      String mimeType) {
             postURL(uri, content, h, mimeType, null);
         }
 
-        public void postURL(final String uri, 
-                            final String content, 
-                            final org.apache.batik.script.Window.URLResponseHandler h, 
-                            final String mimeType, 
+        public void postURL(final String uri,
+                            final String content,
+                            final org.apache.batik.script.Window.URLResponseHandler h,
+                            final String mimeType,
                             final String fEnc) {
             Thread t = new Thread() {
                     public void run() {
                         try {
-                            URL burl;
-                            burl = ((SVGOMDocument)document).getURLObject();
+                            String base =
+                                ((SVGOMDocument)document).getDocumentURI();
                             URL url;
-                            if (burl != null)
-                                url = new URL(burl, uri);
-                            else url = new URL(uri);
+                            if (base == null) {
+                                url = new URL(uri);
+                            } else {
+                                url = new URL(new URL(base), uri);
+                            }
+                            // TODO: Change this to use ParsedURL for the POST?
                             final URLConnection conn = url.openConnection();
                             conn.setDoOutput(true);
                             conn.setDoInput(true);
                             conn.setUseCaches(false);
                             conn.setRequestProperty("Content-Type", mimeType);
-                            
+
                             OutputStream os = conn.getOutputStream();
                             String e=null, enc = fEnc;
                             if (enc != null) {
@@ -1176,13 +1202,13 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
                                 }
                                 if (enc.length() != 0) {
                                     e = EncodingUtilities.javaEncoding(enc);
-                                    if (e == null) e = UTF_8; 
+                                    if (e == null) e = UTF_8;
                                 } else {
                                     e = UTF_8;
                                 }
                             }
                             Writer w;
-                            if (e == null) 
+                            if (e == null)
                                 w = new OutputStreamWriter(os);
                             else
                                 w = new OutputStreamWriter(os, e);
@@ -1194,7 +1220,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
                             InputStream is = conn.getInputStream();
                             Reader r;
                             e = UTF_8;
-                            if (e == null) 
+                            if (e == null)
                                 r = new InputStreamReader(is);
                             else
                                 r = new InputStreamReader(is, e);
@@ -1296,14 +1322,52 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
         public Interpreter getInterpreter() {
             return interpreter;
         }
+
+        /**
+         * Returns a Window object representing the parent of this Window.
+         */
+        public org.w3c.dom.Window getParent() {
+            return null;
+        }
+
+        /**
+         * Returns a Location object representing this Window.
+         */
+        public org.w3c.dom.Location getLocation() {
+            if (location == null) {
+                location = new Location(bridgeContext);
+            }
+            return location;
+        }
     }
 
     /**
      * The listener class for 'DOMNodeInserted' event.
      */
     protected class DOMNodeInsertedListener implements EventListener {
+        protected LinkedList toExecute = new LinkedList();
+
         public void handleEvent(Event evt) {
-            addScriptingListeners((Node)evt.getTarget());
+            Node n = (Node) evt.getTarget();
+            addScriptingListeners(n);
+            gatherScriptElements(n);
+            while (!toExecute.isEmpty()) {
+                loadScript((AbstractElement) toExecute.removeFirst());
+            }
+        }
+
+        protected void gatherScriptElements(Node n) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                if (n instanceof SVGOMScriptElement) {
+                    toExecute.add(n);
+                } else {
+                    n = n.getFirstChild();
+                    while (n != null) {
+                        gatherScriptElements(n);
+                        n = n.getNextSibling();
+                    }
+                }
+            }
         }
     }
 
@@ -1334,7 +1398,7 @@ public class ScriptingEnvironment extends BaseScriptingEnvironment {
          * The script attribute.
          */
         protected String attribute;
-        
+
         /**
          * Creates a new ScriptingEventListener.
          */

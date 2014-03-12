@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,14 +40,14 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  * This class provides a factory for the 'font-family' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: FontFamilyManager.java 1084212 2011-03-22 15:20:38Z jeremias $
  */
 public class FontFamilyManager extends AbstractValueManager {
-    
+
     /**
      * The default value.
      */
-    protected final static ListValue DEFAULT_VALUE = new ListValue();
+    protected static final ListValue DEFAULT_VALUE = new ListValue();
     static {
         DEFAULT_VALUE.append
             (new StringValue(CSSPrimitiveValue.CSS_STRING,
@@ -62,17 +63,17 @@ public class FontFamilyManager extends AbstractValueManager {
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_CURSIVE_VALUE,
+        values.put(CSSConstants.CSS_CURSIVE_VALUE,
                    ValueConstants.CURSIVE_VALUE);
-	values.put(CSSConstants.CSS_FANTASY_VALUE,
+        values.put(CSSConstants.CSS_FANTASY_VALUE,
                    ValueConstants.FANTASY_VALUE);
-	values.put(CSSConstants.CSS_MONOSPACE_VALUE,
+        values.put(CSSConstants.CSS_MONOSPACE_VALUE,
                    ValueConstants.MONOSPACE_VALUE);
-	values.put(CSSConstants.CSS_SERIF_VALUE,
+        values.put(CSSConstants.CSS_SERIF_VALUE,
                    ValueConstants.SERIF_VALUE);
-	values.put(CSSConstants.CSS_SANS_SERIF_VALUE,
+        values.put(CSSConstants.CSS_SANS_SERIF_VALUE,
                    ValueConstants.SANS_SERIF_VALUE);
     }
 
@@ -80,7 +81,7 @@ public class FontFamilyManager extends AbstractValueManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return true;
+        return true;
     }
 
     /**
@@ -108,9 +109,9 @@ public class FontFamilyManager extends AbstractValueManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_FONT_FAMILY_PROPERTY;
+        return CSSConstants.CSS_FONT_FAMILY_PROPERTY;
     }
-    
+
     /**
      * Implements {@link ValueManager#getDefaultValue()}.
      */
@@ -146,14 +147,20 @@ public class FontFamilyManager extends AbstractValueManager {
             case LexicalUnit.SAC_IDENT:
                 StringBuffer sb = new StringBuffer(lu.getStringValue());
                 lu = lu.getNextLexicalUnit();
-                if (lu != null &&
-                    lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+                if (lu != null && isIdentOrNumber(lu)) {
                     do {
                         sb.append(' ');
-                        sb.append(lu.getStringValue());
+                        switch (lu.getLexicalUnitType()) {
+                        case LexicalUnit.SAC_IDENT:
+                            sb.append(lu.getStringValue());
+                            break;
+                        case LexicalUnit.SAC_INTEGER:
+                            //Some font names contain integer values but are not quoted!
+                            //Example: "Univers 45 Light"
+                            sb.append(Integer.toString(lu.getIntegerValue()));
+                        }
                         lu = lu.getNextLexicalUnit();
-                    } while (lu != null &&
-                             lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT);
+                    } while (lu != null && isIdentOrNumber(lu));
                     result.append(new StringValue(CSSPrimitiveValue.CSS_STRING,
                                                   sb.toString()));
                 } else {
@@ -166,17 +173,25 @@ public class FontFamilyManager extends AbstractValueManager {
                                         (CSSPrimitiveValue.CSS_STRING, id));
                 }
             }
-            if (lu == null) {
+            if (lu == null)
                 return result;
-            }
-            if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
+            if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA)
                 throw createInvalidLexicalUnitDOMException
                     (lu.getLexicalUnitType());
-            }
             lu = lu.getNextLexicalUnit();
-            if (lu == null) {
+            if (lu == null)
                 throw createMalformedLexicalUnitDOMException();
-            }
+        }
+    }
+
+    private boolean isIdentOrNumber(LexicalUnit lu) {
+        short type = lu.getLexicalUnitType();
+        switch (type) {
+        case LexicalUnit.SAC_IDENT:
+        case LexicalUnit.SAC_INTEGER:
+            return true;
+        default:
+            return false;
         }
     }
 

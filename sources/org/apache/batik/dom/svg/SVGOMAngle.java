@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,7 +29,7 @@ import org.w3c.dom.svg.SVGAngle;
  * Implementation of an {@link SVGAngle} not associated with any attribute.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGOMAngle.java 479349 2006-11-26 11:54:23Z cam $
  */
 public class SVGOMAngle implements SVGAngle {
 
@@ -45,20 +46,20 @@ public class SVGOMAngle implements SVGAngle {
     /**
      * The unit string representations.
      */
-    protected final static String[] UNITS = {
+    protected static final String[] UNITS = {
         "", "", "deg", "rad", "grad"
     };
 
     /**
-     * <b>DOM</b>: Implements {@link SVGLength#getUnitType()}.
+     * <b>DOM</b>: Implements {@link SVGAngle#getUnitType()}.
      */
     public short getUnitType() {
         revalidate();
         return unitType;
     }
-    
+
     /**
-     * <b>DOM</b>: Implements {@link SVGLength#getValue()}.
+     * <b>DOM</b>: Implements {@link SVGAngle#getValue()}.
      */
     public float getValue() {
         revalidate();
@@ -66,7 +67,7 @@ public class SVGOMAngle implements SVGAngle {
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGLength#setValue(float)}.
+     * <b>DOM</b>: Implements {@link SVGAngle#setValue(float)}.
      */
     public void setValue(float value) throws DOMException {
         revalidate();
@@ -76,7 +77,7 @@ public class SVGOMAngle implements SVGAngle {
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGLength#getValueInSpecifiedUnits()}.
+     * <b>DOM</b>: Implements {@link SVGAngle#getValueInSpecifiedUnits()}.
      */
     public float getValueInSpecifiedUnits() {
         revalidate();
@@ -85,7 +86,7 @@ public class SVGOMAngle implements SVGAngle {
 
     /**
      * <b>DOM</b>: Implements {@link
-     * SVGLength#setValueInSpecifiedUnits(float)}.
+     * SVGAngle#setValueInSpecifiedUnits(float)}.
      */
     public void setValueInSpecifiedUnits(float value) throws DOMException {
         revalidate();
@@ -94,7 +95,7 @@ public class SVGOMAngle implements SVGAngle {
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGLength#getValueAsString()}.
+     * <b>DOM</b>: Implements {@link SVGAngle#getValueAsString()}.
      */
     public String getValueAsString() {
         revalidate();
@@ -102,7 +103,7 @@ public class SVGOMAngle implements SVGAngle {
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGLength#setValueAsString(String)}.
+     * <b>DOM</b>: Implements {@link SVGAngle#setValueAsString(String)}.
      */
     public void setValueAsString(String value) throws DOMException {
         parse(value);
@@ -111,7 +112,7 @@ public class SVGOMAngle implements SVGAngle {
 
     /**
      * <b>DOM</b>: Implements {@link
-     * SVGLength#newValueSpecifiedUnits(short,float)}.
+     * SVGAngle#newValueSpecifiedUnits(short,float)}.
      */
     public void newValueSpecifiedUnits(short unit, float value) {
         unitType = unit;
@@ -121,7 +122,7 @@ public class SVGOMAngle implements SVGAngle {
 
     /**
      * <b>DOM</b>: Implements {@link
-     * SVGLength#convertToSpecifiedUnits(short)}.
+     * SVGAngle#convertToSpecifiedUnits(short)}.
      */
     public void convertToSpecifiedUnits(short unit) {
         value = toUnit(unitType, value, unit);

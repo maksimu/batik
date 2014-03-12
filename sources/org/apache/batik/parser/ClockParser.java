@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,7 +24,7 @@ import java.io.IOException;
  * A parser for clock values.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: ClockParser.java 492528 2007-01-04 11:45:47Z cam $
  */
 public class ClockParser extends TimingParser {
 
@@ -33,10 +34,16 @@ public class ClockParser extends TimingParser {
     protected ClockHandler clockHandler;
 
     /**
+     * Whether this parser should parse offsets rather than clock values.
+     */
+    protected boolean parseOffset;
+
+    /**
      * Creates a new ClockParser.
      */
-    public ClockParser() {
+    public ClockParser(boolean parseOffset) {
         super(false, false);
+        this.parseOffset = parseOffset;
     }
 
     /**
@@ -58,7 +65,7 @@ public class ClockParser extends TimingParser {
      */
     protected void doParse() throws ParseException, IOException {
         current = reader.read();
-        float clockValue = parseClockValue();
+        float clockValue = parseOffset ? parseOffset() : parseClockValue();
         if (current != -1) {
             reportError("end.of.stream.expected",
                         new Object[] { new Integer(current) });

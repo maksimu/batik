@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,6 +26,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +36,10 @@ import org.apache.batik.css.engine.SVGCSSEngine;
 import org.apache.batik.dom.AbstractNode;
 import org.apache.batik.dom.events.DOMMouseEvent;
 import org.apache.batik.dom.events.NodeEventTarget;
+import org.apache.batik.dom.svg.AbstractSVGAnimatedLength;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
+import org.apache.batik.dom.svg.SVGOMAnimatedPreserveAspectRatio;
 import org.apache.batik.dom.svg.SVGOMDocument;
 import org.apache.batik.dom.svg.SVGOMElement;
 import org.apache.batik.ext.awt.color.ICCColorSpaceExt;
@@ -49,8 +53,9 @@ import org.apache.batik.gvt.GraphicsNode;
 import org.apache.batik.gvt.ImageNode;
 import org.apache.batik.gvt.RasterImageNode;
 import org.apache.batik.gvt.ShapeNode;
-import org.apache.batik.util.ParsedURL;
+import org.apache.batik.util.HaltingThread;
 import org.apache.batik.util.MimeTypeConstants;
+import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.XMLConstants;
 
 import org.w3c.dom.Document;
@@ -59,7 +64,6 @@ import org.w3c.dom.events.DocumentEvent;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
-import org.w3c.dom.svg.SVGAnimatedPreserveAspectRatio;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGImageElement;
 import org.w3c.dom.svg.SVGSVGElement;
@@ -68,7 +72,7 @@ import org.w3c.dom.svg.SVGSVGElement;
  * Bridge class for the &lt;image> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGImageElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
 
@@ -135,13 +139,13 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
     }
 
     /**
-     * Create a Graphics node according to the 
+     * Create a Graphics node according to the
      * resource pointed by the href : RasterImageNode
      * for bitmaps, CompositeGraphicsNode for svg files.
      *
      * @param ctx : the bridge context to use
      * @param e the element that describes the graphics node to build
-     * 
+     *
      * @return the graphic node that represent the resource
      *  pointed by the reference
      */
@@ -173,7 +177,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
         return createImageGraphicsNode(ctx, e, purl);
     }
 
-    protected GraphicsNode createImageGraphicsNode(BridgeContext ctx, 
+    protected GraphicsNode createImageGraphicsNode(BridgeContext ctx,
                                                    Element e,
                                                    ParsedURL purl) {
         Rectangle2D bounds = getImageBounds(ctx, e);
@@ -193,8 +197,8 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
 
         try {
             userAgent.checkLoadExternalResource(purl, pDocURL);
-        } catch (SecurityException ex) {
-            throw new BridgeException(ctx, e, ERR_URI_UNSECURE,
+        } catch (SecurityException secEx ) {
+            throw new BridgeException(ctx, e, secEx, ERR_URI_UNSECURE,
                                       new Object[] {purl});
         }
 
@@ -217,7 +221,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
                 throw ex;
             } catch (Exception ex) {
                 /* Nothing to do */
-            } 
+            }
 
             /* Check the ImageTagRegistry Cache */
             Filter img = reg.checkCache(purl, colorspace);
@@ -236,8 +240,8 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
         ProtectedStream reference = null;
         try {
             reference = openStream(e, purl);
-        } catch (SecurityException ex) {
-            throw new BridgeException(ctx, e, ERR_URI_UNSECURE,
+        } catch (SecurityException secEx ) {
+            throw new BridgeException(ctx, e, secEx, ERR_URI_UNSECURE,
                                       new Object[] {purl});
         } catch (IOException ioe) {
             return createBrokenImageNode(ctx, e, purl.toString(),
@@ -251,9 +255,14 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
              * We tell the registry what the source purl is but we
              * tell it not to open that url.
              */
-            Filter img = reg.readURL(reference, purl, colorspace, 
+            Filter img = reg.readURL(reference, purl, colorspace,
                                      false, false);
             if (img != null) {
+                try {
+                    reference.tie();
+                } catch (IOException ioe) {
+                    // This would be from a close,  Let it slide...
+                }
                 // It's a bouncing baby Raster...
                 return createRasterImageNode(ctx, e, img, purl);
             }
@@ -263,6 +272,8 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
             // Reset the stream for next try.
             reference.retry();
         } catch (IOException ioe) {
+            reference.release();
+            reference = null;
             try {
                 // Couldn't reset stream so reopen it.
                 reference = openStream(e, purl);
@@ -278,21 +289,34 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
              * Next see if it's an XML document.
              */
             Document doc = loader.loadDocument(purl.toString(), reference);
+            reference.release();
             imgDocument = (SVGDocument)doc;
             return createSVGImageNode(ctx, e, imgDocument);
         } catch (BridgeException ex) {
+            reference.release();
             throw ex;
-        } catch (SecurityException ex) {
-            throw new BridgeException(ctx, e, ERR_URI_UNSECURE,
+        } catch (SecurityException secEx ) {
+            reference.release();
+            throw new BridgeException(ctx, e, secEx, ERR_URI_UNSECURE,
                                       new Object[] {purl});
+        } catch (InterruptedIOException iioe) {
+            reference.release();
+            if (HaltingThread.hasBeenHalted())
+                throw new InterruptedBridgeException();
+
+        } catch (InterruptedBridgeException ibe) {
+            reference.release();
+            throw ibe;
         } catch (Exception ex) {
-            /* Nothing to do */
+            /* Do nothing drop out... */
             // ex.printStackTrace();
-        } 
+        }
 
         try {
             reference.retry();
         } catch (IOException ioe) {
+            reference.release();
+            reference = null;
             try {
                 // Couldn't reset stream so reopen it.
                 reference = openStream(e, purl);
@@ -306,7 +330,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
             // Finally try to load the image as a raster image (JPG or
             // PNG) allowing the registry to open the url (so the
             // JDK readers can be checked).
-            Filter img = reg.readURL(reference, purl, colorspace, 
+            Filter img = reg.readURL(reference, purl, colorspace,
                                      true, true);
             if (img != null) {
                 // It's a bouncing baby Raster...
@@ -318,8 +342,8 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
         return null;
     }
 
-    static public class ProtectedStream extends BufferedInputStream {
-        final static int BUFFER_SIZE = 8192;
+    public static class ProtectedStream extends BufferedInputStream {
+        static final int BUFFER_SIZE = 8192;
         ProtectedStream(InputStream is) {
             super(is, BUFFER_SIZE);
             super.mark(BUFFER_SIZE); // Remember start
@@ -338,34 +362,59 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
             throw new IOException("Reset unsupported");
         }
 
-        public void retry() throws IOException {
+        public synchronized void retry() throws IOException {
             super.reset();
+            wasClosed = false;
+            isTied = false;
         }
 
-        public void close() throws IOException {
-            /* do nothing */
+        public synchronized void close() throws IOException {
+            wasClosed = true;
+            if (isTied) {
+                super.close();
+                // System.err.println("Closing stream - from close");
+            }
         }
 
+        /**
+         * Let stream know that it is perminately tied to one
+         * image decoder.  This means that it can allow that
+         * decoder to close the stream.
+         */
+        public synchronized void tie() throws IOException {
+            isTied = true;
+            if (wasClosed) {
+                super.close();
+                // System.err.println("Closing stream - from tie");
+            }
+        }
+
+        /**
+         * Close the stream.
+         */
         public void release() {
             try {
                 super.close();
+                // System.err.println("Closing stream - from release");
             } catch (IOException ioe) {
                 // Like Duh! what would you do close it again?
             }
         }
+        boolean wasClosed = false;
+        boolean isTied = false;
     }
 
-    protected ProtectedStream openStream(Element e, ParsedURL purl) 
+    protected ProtectedStream openStream(Element e, ParsedURL purl)
         throws IOException {
         List mimeTypes = new ArrayList
             (ImageTagRegistry.getRegistry().getRegisteredMimeTypes());
-        mimeTypes.add(MimeTypeConstants.MIME_TYPES_SVG);
+        mimeTypes.addAll(MimeTypeConstants.MIME_TYPES_SVG_LIST);
         InputStream reference = purl.openStream(mimeTypes.iterator());
         return new ProtectedStream(reference);
     }
 
     /**
-     * Creates an <tt>ImageNode</tt>.
+     * Creates an <code>ImageNode</code>.
      */
     protected GraphicsNode instantiateGraphicsNode() {
         return new ImageNode();
@@ -424,12 +473,13 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
                         || ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
                     SVGImageElement ie = (SVGImageElement) e;
                     ImageNode imageNode = (ImageNode) node;
-                    float val;
+                    AbstractSVGAnimatedLength _attr;
                     if (ln.charAt(0) == 'w') {
-                        val = ie.getWidth().getAnimVal().getValue();
+                        _attr = (AbstractSVGAnimatedLength) ie.getWidth();
                     } else {
-                        val = ie.getHeight().getAnimVal().getValue();
+                        _attr = (AbstractSVGAnimatedLength) ie.getHeight();
                     }
+                    float val = _attr.getCheckedValue();
                     if (val == 0 || imageNode.getImage() instanceof ShapeNode) {
                         rebuildImageNode();
                     } else {
@@ -458,7 +508,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
         float[] vb = null;
         if (imageNode instanceof RasterImageNode) {
             //Raster image
-            Rectangle2D imgBounds = 
+            Rectangle2D imgBounds =
                 ((RasterImageNode)imageNode).getImageBounds();
             // create the implicit viewBox for the raster
             // image. The viewBox for a raster image is the size
@@ -482,7 +532,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
             // the image node
             initializeViewport(ctx, e, imageNode, vb, bounds);
         }
-            
+
     }
 
     protected void rebuildImageNode() {
@@ -624,7 +674,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
         subCtx = ctx.createSubBridgeContext((SVGOMDocument)imgDocument);
 
         CompositeGraphicsNode result = new CompositeGraphicsNode();
-        // handles the 'preserveAspectRatio', 'overflow' and 'clip' and 
+        // handles the 'preserveAspectRatio', 'overflow' and 'clip' and
         // sets the appropriate AffineTransform to the image node
         Rectangle2D bounds = getImageBounds(ctx, e);
 
@@ -662,6 +712,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
 
         // create the implicit viewBox for the SVG image. The viewBox for a
         // SVG image is the viewBox of the outermost SVG element of the SVG file
+        // XXX Use animated value of 'viewBox' here?
         String viewBox =
             svgElement.getAttributeNS(null, SVG_VIEW_BOX_ATTRIBUTE);
         float[] vb = ViewBox.parseViewBoxAttribute(e, viewBox, ctx);
@@ -802,7 +853,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
         protected Element imgElement;
 
         /**
-         * Constructs a new <tt>ForwardEventListener</tt>
+         * Constructs a new <code>ForwardEventListener</code>
          */
         public ForwardEventListener(Element svgElement, Element imgElement) {
             this.svgElement = svgElement;
@@ -858,10 +909,12 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
 
         try {
             SVGImageElement ie = (SVGImageElement) e;
-            SVGAnimatedPreserveAspectRatio aPAR = ie.getPreserveAspectRatio();
+            SVGOMAnimatedPreserveAspectRatio _par =
+                (SVGOMAnimatedPreserveAspectRatio) ie.getPreserveAspectRatio();
+            _par.check();
 
             AffineTransform at = ViewBox.getPreserveAspectRatioTransform
-                (e, vb, w, h, aPAR, ctx);
+                (e, vb, w, h, _par, ctx);
             at.preConcatenate(AffineTransform.getTranslateInstance(x, y));
             node.setTransform(at);
 
@@ -945,16 +998,24 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
             SVGImageElement ie = (SVGImageElement) element;
 
             // 'x' attribute - default is 0
-            float x = ie.getX().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _x =
+                (AbstractSVGAnimatedLength) ie.getX();
+            float x = _x.getCheckedValue();
 
             // 'y' attribute - default is 0
-            float y = ie.getY().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _y =
+                (AbstractSVGAnimatedLength) ie.getY();
+            float y = _y.getCheckedValue();
 
             // 'width' attribute - required
-            float w = ie.getWidth().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _width =
+                (AbstractSVGAnimatedLength) ie.getWidth();
+            float w = _width.getCheckedValue();
 
             // 'height' attribute - required
-            float h = ie.getHeight().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _height =
+                (AbstractSVGAnimatedLength) ie.getHeight();
+            float h = _height.getCheckedValue();
 
             return new Rectangle2D.Float(x, y, w, h);
         } catch (LiveAttributeException ex) {
@@ -965,7 +1026,7 @@ public class SVGImageElementBridge extends AbstractGraphicsNodeBridge {
     GraphicsNode createBrokenImageNode
         (BridgeContext ctx, Element e, String uri, String message) {
         SVGDocument doc = ctx.getUserAgent().getBrokenLinkDocument
-            (e, uri, Messages.formatMessage(URI_IMAGE_ERROR, 
+            (e, uri, Messages.formatMessage(URI_IMAGE_ERROR,
                                            new Object[] { message } ));
         return createSVGImageNode(ctx, e, doc);
     }

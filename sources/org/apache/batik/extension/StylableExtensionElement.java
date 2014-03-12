@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -15,16 +16,13 @@
    limitations under the License.
 
 */
-
 package org.apache.batik.extension;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.apache.batik.css.engine.CSSStylableElement;
 import org.apache.batik.css.engine.StyleDeclarationProvider;
 import org.apache.batik.css.engine.StyleMap;
 import org.apache.batik.dom.AbstractDocument;
+import org.apache.batik.util.ParsedURL;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleDeclaration;
@@ -39,7 +37,7 @@ import org.w3c.dom.svg.SVGStylable;
  * attributes (ie: fill="red", ...).
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: StylableExtensionElement.java 579230 2007-09-25 12:52:48Z cam $
  */
 public abstract class StylableExtensionElement
     extends ExtensionElement
@@ -49,7 +47,7 @@ public abstract class StylableExtensionElement
     /**
      * The base URL.
      */
-    protected URL cssBase;
+    protected ParsedURL cssBase;
 
     /**
      * The computed style map.
@@ -103,24 +101,14 @@ public abstract class StylableExtensionElement
 
     /**
      * Returns the CSS base URL of this element.
-     * @throws IllegalArgumentException when {@link #getBaseURI } returns an invalid URL.
-     *         The information from the MalformedURLException
-     *         is passed to the IllegalArgumentException
-     *
      */
-    public URL getCSSBase() {
-        String bu = "";
+    public ParsedURL getCSSBase() {
         if (cssBase == null) {
-            try {
-                bu = getBaseURI();
-                if (bu == null) {
-                    return null;
-                }
-                cssBase = new URL(bu);
-            } catch (MalformedURLException e) {
-                String msg = "MalformedURLException:" + e.getMessage() + ':' + bu;
-                throw new IllegalArgumentException( msg );
+            String bu = getBaseURI();
+            if (bu == null) {
+                return null;
             }
+            cssBase = new ParsedURL(bu);
         }
         return cssBase;
     }

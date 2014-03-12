@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,15 +23,15 @@ package org.apache.batik.gvt.event;
  * events. The methods in this class are empty. This class exists as
  * convenience for creating listener objects.
  *
- * <p>Extend this class to create a <tt>GraphicsNodeMouseEvent</tt>
+ * <p>Extend this class to create a <code>GraphicsNodeMouseEvent</code>
  * listener and override the methods for the events of interest. (If
- * you implement the <tt>GraphicsNodeMouseListener</tt> interface, you
+ * you implement the <code>GraphicsNodeMouseListener</code> interface, you
  * have to define all of the methods in it. This abstract class
  * defines null methods for them all, so you can only have to define
  * methods for events you care about.)
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: GraphicsNodeMouseAdapter.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class GraphicsNodeMouseAdapter
         implements GraphicsNodeMouseListener {

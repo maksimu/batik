@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -53,7 +54,7 @@ import org.w3c.dom.events.EventTarget;
  * that mouse events under sXBL have appropriate bubble limits.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVG12BridgeEventSupport.java 768936 2009-04-27 11:41:53Z deweese $
  */
 public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
 
@@ -154,7 +155,7 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
 
             Element targetElement = (Element) fmgr.getCurrentEventTarget();
             if (targetElement == null) {
-                return;
+                targetElement = context.getDocument().getDocumentElement();
             }
             DocumentEvent d = (DocumentEvent) targetElement.getOwnerDocument();
             DOMKeyboardEvent keyEvt
@@ -189,7 +190,7 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
 
             Element targetElement = (Element) fmgr.getCurrentEventTarget();
             if (targetElement == null) {
-                return;
+                targetElement = context.getDocument().getDocumentElement();
             }
             DocumentEvent d = (DocumentEvent) targetElement.getOwnerDocument();
             DOMTextEvent textEvt = (DOMTextEvent) d.createEvent("TextEvent");
@@ -644,8 +645,7 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
         public void mouseEntered(GraphicsNodeMouseEvent evt) {
             Point clientXY = evt.getClientPoint();
             GraphicsNode node = evt.getGraphicsNode();
-            Element targetElement = getEventTarget
-                (node, new Point2D.Float(evt.getX(), evt.getY()));
+            Element targetElement = getEventTarget(node, evt.getPoint2D());
             Element relatedElement = getRelatedElement(evt);
             int n = 0;
             if (relatedElement != null && targetElement != null) {
@@ -665,7 +665,7 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
             Point clientXY = evt.getClientPoint();
             // Get the 'new' node for the DOM event.
             GraphicsNode node = evt.getRelatedNode();
-            Element targetElement = getEventTarget(node, clientXY);
+            Element targetElement = getEventTarget(node, evt.getPoint2D());
             if (lastTargetElement != null) {
                 int n = 0;
                 if (targetElement != null) {
@@ -687,7 +687,7 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
         public void mouseMoved(GraphicsNodeMouseEvent evt) {
             Point clientXY = evt.getClientPoint();
             GraphicsNode node = evt.getGraphicsNode();
-            Element targetElement = getEventTarget(node, clientXY);
+            Element targetElement = getEventTarget(node, evt.getPoint2D());
             Element holdLTE = lastTargetElement;
             if (holdLTE != targetElement) {
                 if (holdLTE != null) {
@@ -788,7 +788,6 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
             }
 
             if (targetElement != null) {
-                short button = getButton(evt);
                 Point screenXY = evt.getScreenPoint();
                 // create the coresponding DOM MouseEvent
                 DocumentEvent d
@@ -808,8 +807,8 @@ public abstract class SVG12BridgeEventSupport extends BridgeEventSupport {
                                           screenXY.y,
                                           clientXY.x,
                                           clientXY.y,
-                                          button, 
-                                          (EventTarget)relatedElement,
+                                          (short) (evt.getButton() - 1), 
+                                          (EventTarget) relatedElement,
                                           modifiers);
 
                 ((AbstractEvent) mouseEvt).setBubbleLimit(bubbleLimit);

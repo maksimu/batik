@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -33,13 +34,14 @@ import org.apache.batik.ext.awt.image.rendered.AbstractRed;
 import org.apache.batik.ext.awt.image.rendered.AbstractTiledRed;
 import org.apache.batik.ext.awt.image.rendered.CachableRed;
 import org.apache.batik.gvt.GraphicsNode;
+import org.apache.batik.util.Platform;
 
 /**
  * This implementation of RenderableImage will render its input
  * GraphicsNode on demand for tiles.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: GraphicsNodeRed8Bit.java 713578 2008-11-13 00:28:21Z cam $
  */
 public class GraphicsNodeRed8Bit extends AbstractRed {
 
@@ -145,14 +147,8 @@ public class GraphicsNodeRed8Bit extends AbstractRed {
         g.dispose();
     }
 
-    static final boolean onMacOSX;
-    static {
-        // This should be OK for applets.
-        onMacOSX = ("Mac OS X".equals(System.getProperty("os.name")));
-    }
-
     public ColorModel createColorModel() {
-        if (onMacOSX)
+        if (Platform.isOSX)
             return GraphicsUtil.sRGB_Pre;
         return GraphicsUtil.sRGB_Unpre;
     }

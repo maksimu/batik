@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,10 +25,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.XMLReader;
 
 /**
- * This class represents a generic input of a <tt>Transcoder</tt>.
+ * This class represents a generic input of a <code>Transcoder</code>.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: TranscoderInput.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class TranscoderInput {
 
@@ -57,13 +58,13 @@ public class TranscoderInput {
     protected String uri;
 
     /**
-     * Constructs a new empty <tt>TranscoderInput</tt>.
+     * Constructs a new empty <code>TranscoderInput</code>.
      */
     public TranscoderInput() {
     }
 
     /**
-     * Constructs a new <tt>TranscoderInput</tt> with the specified
+     * Constructs a new <code>TranscoderInput</code> with the specified
      * XML reader.
      * @param xmlReader the XML reader of this transcoder input
      */
@@ -72,7 +73,7 @@ public class TranscoderInput {
     }
 
     /**
-     * Constructs a new <tt>TranscoderInput</tt> with the specified
+     * Constructs a new <code>TranscoderInput</code> with the specified
      * byte stream input.
      * @param istream the byte stream of this transcoder input
      */
@@ -81,7 +82,7 @@ public class TranscoderInput {
     }
 
     /**
-     * Constructs a new <tt>TranscoderInput</tt> with the specified
+     * Constructs a new <code>TranscoderInput</code> with the specified
      * character stream.
      * @param reader the character stream of this transcoder input
      */
@@ -90,7 +91,7 @@ public class TranscoderInput {
     }
 
     /**
-     * Constructs a new <tt>TranscoderInput</tt> with the specified Document.
+     * Constructs a new <code>TranscoderInput</code> with the specified Document.
      * @param document the Document of this transcoder input
      */
     public TranscoderInput(Document document) {
@@ -98,7 +99,7 @@ public class TranscoderInput {
     }
 
     /**
-     * Constructs a new <tt>TranscoderInput</tt> with the specified uri.
+     * Constructs a new <code>TranscoderInput</code> with the specified uri.
      * @param uri the URI of this transcoder input
      */
     public TranscoderInput(String uri) {

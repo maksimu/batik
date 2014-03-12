@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,23 +23,23 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * The <tt>TranscodingHints</tt> class defines a way to pass
+ * The <code>TranscodingHints</code> class defines a way to pass
  * transcoding parameters or options to any transcoders.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: TranscodingHints.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class TranscodingHints extends HashMap {
 
     /**
-     * Constructs a new empty <tt>TranscodingHints</tt>.
+     * Constructs a new empty <code>TranscodingHints</code>.
      */
     public TranscodingHints() {
         this(null);
     }
 
     /**
-     * Constructs a new <tt>TranscodingHints</tt> with keys and values
+     * Constructs a new <code>TranscodingHints</code> with keys and values
      * initialized from the specified Map object (which may be null).
      *
      * @param init a map of key/value pairs to initialize the hints
@@ -52,13 +53,13 @@ public class TranscodingHints extends HashMap {
     }
 
     /**
-     * Returns <tt>true</tt> if this <tt>TranscodingHints</tt> contains a
+     * Returns <code>true</code> if this <code>TranscodingHints</code> contains a
      * mapping for the specified key, false otherwise.
      *
-     * @param key key whose present in this <tt>TranscodingHints</tt>
+     * @param key key whose present in this <code>TranscodingHints</code>
      * is to be tested.
      * @exception ClassCastException key is not of type
-     * <tt>TranscodingHints.Key</tt>
+     * <code>TranscodingHints.Key</code>
      */
     public boolean containsKey(Object key) {
         return super.containsKey(key);
@@ -69,22 +70,22 @@ public class TranscodingHints extends HashMap {
      *
      * @param key a trancoding hint key
      * @exception ClassCastException key is not of type
-     * <tt>TranscodingHints.Key</tt>
+     * <code>TranscodingHints.Key</code>
      */
     public Object get(Object key) {
         return super.get(key);
     }
 
     /**
-     * Maps the specified <tt>key</tt> to the specified <tt>value</tt>
-     * in this <tt>TranscodingHints</tt> object.
+     * Maps the specified <code>key</code> to the specified <code>value</code>
+     * in this <code>TranscodingHints</code> object.
      *
      * @param key the trancoding hint key.
      * @param value the trancoding hint value.
      * @exception IllegalArgumentException value is not
      * appropriate for the specified key.
      * @exception ClassCastException key is not of type
-     * <tt>TranscodingHints.Key</tt>
+     * <code>TranscodingHints.Key</code>
      */
     public Object put(Object key, Object value) {
         if (!((Key) key).isCompatibleValue(value)) {
@@ -97,11 +98,11 @@ public class TranscodingHints extends HashMap {
 
     /**
      * Removes the key and its corresponding value from this
-     * <tt>TranscodingHints</tt> object.
+     * <code>TranscodingHints</code> object.
      *
      * @param key the trancoding hints key that needs to be removed
      * @exception ClassCastException key is not of type
-     * <tt>TranscodingHints.Key</tt>
+     * <code>TranscodingHints.Key</code>
      */
     public Object remove(Object key) {
         return super.remove(key);
@@ -109,20 +110,20 @@ public class TranscodingHints extends HashMap {
 
     /**
      * Copies all of the keys and corresponding values from the
-     * specified <tt>TranscodingHints</tt> object to this
-     * <tt>TranscodingHints</tt> object.
+     * specified <code>TranscodingHints</code> object to this
+     * <code>TranscodingHints</code> object.
      */
     public void putAll(TranscodingHints hints) {
         super.putAll(hints);
     }
 
     /**
-     * Copies all of the mappings from the specified <tt>Map</tt>
-     * to this <tt>TranscodingHints</tt>.
+     * Copies all of the mappings from the specified <code>Map</code>
+     * to this <code>TranscodingHints</code>.
      *
-     * @param m mappings to be stored in this <tt>TranscodingHints</tt>.
+     * @param m mappings to be stored in this <code>TranscodingHints</code>.
      * @exception ClassCastException key is not of type
-     * <tt>TranscodingHints.Key</tt>
+     * <code>TranscodingHints.Key</code>
      */
     public void putAll(Map m) {
         if (m instanceof TranscodingHints) {
@@ -143,7 +144,7 @@ public class TranscodingHints extends HashMap {
     public abstract static class Key {
 
         /**
-         * Construcst a key.
+         * Constructs a key.
          */
         protected Key() { }
 

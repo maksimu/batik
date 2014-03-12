@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2005 The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,7 +29,7 @@ import org.w3c.dom.DOMException;
  * The class provides support for the SVGPath interface.
  *
  * @author <a href="mailto:deweese@apache.org">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: SVGPathSupport.java 478249 2006-11-22 17:29:37Z dvholten $
  */
 public class SVGPathSupport {
 
@@ -40,6 +41,14 @@ public class SVGPathSupport {
         return pathCtx.getTotalLength();
     }
 
+    /**
+     * To implement {@link
+     * org.w3c.dom.svg.SVGPathElement#getPathSegAtLength(float)}.
+     */
+    public static int getPathSegAtLength(SVGOMPathElement path, float x) {
+        SVGPathContext pathCtx = (SVGPathContext)path.getSVGContext();
+        return pathCtx.getPathSegAtLength(x);
+    }
 
     /**
      * To implement {@link org.w3c.dom.svg.SVGPathElement#getPointAtLength(float)}.
@@ -75,4 +84,4 @@ public class SVGPathSupport {
                 }
             };
     }
-};
+}

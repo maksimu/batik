@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -45,6 +46,7 @@ import org.apache.batik.dom.events.EventSupport;
 import org.apache.batik.dom.util.XMLSupport;
 import org.apache.batik.i18n.Localizable;
 import org.apache.batik.i18n.LocalizableSupport;
+import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLConstants;
 
@@ -74,7 +76,7 @@ import org.w3c.dom.svg.SVGSVGElement;
  * This class implements {@link SVGDocument}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMDocument.java 701643 2008-10-04 14:39:12Z cam $
  */
 public class SVGOMDocument
     extends    AbstractStylableDocument
@@ -82,11 +84,11 @@ public class SVGOMDocument
                SVGConstants,
                CSSNavigableDocument,
                IdContainer {
-    
+
     /**
      * The error messages bundle class name.
      */
-    protected final static String RESOURCES =
+    protected static final String RESOURCES =
         "org.apache.batik.dom.svg.resources.Messages";
 
     /**
@@ -101,9 +103,9 @@ public class SVGOMDocument
     protected String referrer = "";
 
     /**
-     * The url of the document.
+     * The URL of the document.
      */
-    protected URL url;
+    protected ParsedURL url;
 
     /**
      * Is this document immutable?
@@ -132,6 +134,11 @@ public class SVGOMDocument
      * List of {@link AnimatedAttributeListener}s attached to this document.
      */
     protected LinkedList animatedAttributeListeners = new LinkedList();
+
+    /**
+     * The SVG context.
+     */
+    protected transient SVGContext svgContext;
 
     /**
      * Creates a new uninitialized document.
@@ -234,9 +241,22 @@ public class SVGOMDocument
     }
 
     /**
-     * Returns the URI of the document.
+     * Returns the URI of the document.  If the document URI cannot be
+     * represented as a {@link URL} (for example if it uses a <code>data:</code>
+     * URI scheme), then <code>null</code> will be returned.
      */
     public URL getURLObject() {
+        try {
+            return new URL(documentURI);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the URI of the document.
+     */
+    public ParsedURL getParsedURL() {
         return url;
     }
 
@@ -244,6 +264,13 @@ public class SVGOMDocument
      * Sets the URI of the document.
      */
     public void setURLObject(URL url) {
+        setParsedURL(new ParsedURL(url));
+    }
+
+    /**
+     * Sets the URI of the document.
+     */
+    public void setParsedURL(ParsedURL url) {
         this.url = url;
         documentURI = url == null ? null : url.toString();
     }
@@ -253,11 +280,7 @@ public class SVGOMDocument
      */
     public void setDocumentURI(String uri) {
         documentURI = uri;
-        try {
-            url = uri == null ? null : new URL(uri);
-        } catch (MalformedURLException ex) {
-            url = null;
-        }
+        url = uri == null ? null : new ParsedURL(uri);
     }
 
     /**
@@ -364,12 +387,30 @@ public class SVGOMDocument
     }
 
     /**
-     * Returns true if the given Attr node represents an 'id' 
+     * Returns true if the given Attr node represents an 'id'
      * for this document.
      */
     public boolean isId(Attr node) {
-        if (node.getNamespaceURI() != null) return false;
-        return SVG_ID_ATTRIBUTE.equals(node.getNodeName());
+        if (node.getNamespaceURI() == null) {
+            return SVG_ID_ATTRIBUTE.equals(node.getNodeName());
+        }
+        return node.getNodeName().equals(XML_ID_QNAME);
+    }
+
+    /**
+     * Sets the SVG context to use to get SVG specific informations.
+     *
+     * @param ctx the SVG context
+     */
+    public void setSVGContext(SVGContext ctx) {
+        svgContext = ctx;
+    }
+
+    /**
+     * Returns the SVG context used to get SVG specific informations.
+     */
+    public SVGContext getSVGContext() {
+        return svgContext;
     }
 
     // CSSNavigableDocument ///////////////////////////////////////////
@@ -610,7 +651,7 @@ public class SVGOMDocument
          */
         public void handleEvent(Event evt) {
             evt = EventSupport.getUltimateOriginalEvent(evt);
-            listener.subtreeModified((Node) evt.getTarget());
+            listener.characterDataModified((Node) evt.getTarget());
         }
     }
 
@@ -654,8 +695,7 @@ public class SVGOMDocument
          * Called to notify an object of a change to the animated value of
          * an animatable XML attribute.
          * @param e the owner element of the changed animatable attribute
-         * @param ns the namespace URI of the animatable attribute that changed
-         * @param ln the local name of the animatable attribute that changed
+         * @param alav the AnimatedLiveAttributeValue that changed
          */
         public void animatedAttributeChanged(Element e,
                                              AnimatedLiveAttributeValue alav) {
@@ -753,11 +793,11 @@ public class SVGOMDocument
     /**
      * Reads the object from the given stream.
      */
-    private void readObject(ObjectInputStream s) 
+    private void readObject(ObjectInputStream s)
         throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        
+
         localizableSupport = new LocalizableSupport
             (RESOURCES, getClass().getClassLoader());
-    }        
+    }
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,18 +21,18 @@ package org.apache.batik.bridge;
 import org.w3c.dom.Element;
 
 /**
- * A tagging interface that bridges for elements child of <tt>GraphicsNodeBridge</tt>
+ * A tagging interface that bridges for elements child of <code>GraphicsNodeBridge</code>
  * should implement.
  *
  * @author <a href="mailto:vincent.hardy@apache.org">Vincent Hardy</a>
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: GenericBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface GenericBridge extends Bridge {
 
     /**
-     * Invoked to handle an <tt>Element</tt> for a given <tt>BridgeContext</tt>.
-     * For example, see the <tt>SVGTitleElementBridge</tt>.
+     * Invoked to handle an <code>Element</code> for a given <code>BridgeContext</code>.
+     * For example, see the <code>SVGTitleElementBridge</code>.
      *
      * @param ctx the bridge context to use
      * @param e the element being handled

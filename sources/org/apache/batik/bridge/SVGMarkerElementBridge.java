@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,7 +36,7 @@ import org.w3c.dom.Node;
  * Bridge class for the &lt;marker> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGMarkerElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGMarkerElementBridge extends AnimatableGenericSVGBridge
         implements MarkerBridge, ErrorConstants {
@@ -53,7 +54,7 @@ public class SVGMarkerElementBridge extends AnimatableGenericSVGBridge
     }
 
     /**
-     * Creates a <tt>Marker</tt> according to the specified parameters.
+     * Creates a <code>Marker</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param markerElement the element that represents the marker
@@ -129,9 +130,9 @@ public class SVGMarkerElementBridge extends AnimatableGenericSVGBridge
         } else {
             try {
                 orient = SVGUtilities.convertSVGNumber(s);
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, markerElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, markerElement, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object [] {SVG_ORIENT_ATTRIBUTE, s});
             }
         }
@@ -234,7 +235,7 @@ public class SVGMarkerElementBridge extends AnimatableGenericSVGBridge
         // in viewport space (this  is what the following transform
         // does) and used when placing the marker.
         //
-        float ref[] = {refX, refY};
+        float[] ref = {refX, refY};
         markerTxf.transform(ref, 0, ref, 0, 1);
         Marker marker = new Marker(markerContentNode,
                                    new Point2D.Float(ref[0], ref[1]),

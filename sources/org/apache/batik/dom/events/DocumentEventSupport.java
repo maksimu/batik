@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import org.w3c.dom.events.Event;
  * This class implements the behavior of DocumentEvent.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: DocumentEventSupport.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class DocumentEventSupport {
     
@@ -159,7 +160,7 @@ public class DocumentEventSupport {
      *   type of <code>Event</code> interface requested
      */
     public Event createEvent(String eventType)
-	    throws DOMException {
+            throws DOMException {
         EventFactory ef = (EventFactory)eventFactories.get(eventType.toLowerCase());
         if (ef == null) {
             throw new DOMException(DOMException.NOT_SUPPORTED_ERR,

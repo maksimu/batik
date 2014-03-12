@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,16 +28,16 @@ import java.security.Policy;
 import java.util.Enumeration;
 
 /**
- * This <tt>ClassLoader</tt> implementation only grants permission to
+ * This <code>ClassLoader</code> implementation only grants permission to
  * connect back to the server from where the document referencing the
  * jar file was loaded. 
  * 
- * A <tt>URLClassLoader</tt> extension is needed in case the user
+ * A <code>URLClassLoader</code> extension is needed in case the user
  * allows linked jar files to come from a different origin than
  * the document referencing them.
  *
  * @author <a mailto="vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: DocumentJarClassLoader.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class DocumentJarClassLoader extends URLClassLoader {
     /**
@@ -77,12 +78,12 @@ public class DocumentJarClassLoader extends URLClassLoader {
     {
         // First, get the permissions which may be granted 
         // through the policy file(s)
-	Policy p = Policy.getPolicy();
+        Policy p = Policy.getPolicy();
 
-	PermissionCollection pc = null;
-	if (p != null) {
-	    pc = p.getPermissions(codesource);
-	}
+        PermissionCollection pc = null;
+        if (p != null) {
+            pc = p.getPermissions(codesource);
+        }
 
         // Now, add permissions if the documentCodeSource is not null
         if (documentCodeSource != null){
@@ -99,6 +100,6 @@ public class DocumentJarClassLoader extends URLClassLoader {
             }
         }
 
-	return pc;
+        return pc;
     }
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -40,7 +41,7 @@ import org.apache.batik.gvt.event.SelectionListener;
  * A simple implementation of GraphicsNodeMouseListener for text selection.
  *
  * @author <a href="mailto:bill.haneman@ireland.sun.com">Bill Haneman</a>
- * @version $Id$
+ * @version $Id: ConcreteTextSelector.java 769733 2009-04-29 10:17:40Z deweese $
  */
 
 public class ConcreteTextSelector implements Selector {
@@ -152,18 +153,7 @@ public class ConcreteTextSelector implements Selector {
             clearSelection();
         } else if (mevt != null) {
 
-            Point2D p = new Point2D.Double(mevt.getX(), mevt.getY());
-            AffineTransform t = source.getGlobalTransform();
-            if (t == null) {
-                t = new AffineTransform();
-            }
-            else {
-                 try {
-                     t = t.createInverse();
-                 } catch (NoninvertibleTransformException ni) {
-                 }
-            }
-            p = t.transform(p, null);
+            Point2D p = mevt.getPoint2D();
 
             if ((source instanceof Selectable) && 
                 (isSelectStartGesture(evt))) {

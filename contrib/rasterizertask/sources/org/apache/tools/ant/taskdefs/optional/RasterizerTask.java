@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -61,7 +62,7 @@ import java.util.List;
  * @see org.apache.batik.apps.rasterizer.Main Main
  *
  * @author <a href="mailto:ruini@iki.fi">Henri Ruini</a>
- * @version $Id$
+ * @version $Id: RasterizerTask.java 720465 2008-11-25 11:18:59Z deweese $
  */
 public class RasterizerTask extends MatchingTask {
 
@@ -261,7 +262,7 @@ public class RasterizerTask extends MatchingTask {
         this.language = language;
     }
 
-	/**
+    /**
      * Sets classname of an XML parser.
      * The attribute is optional.
      *
@@ -346,7 +347,7 @@ public class RasterizerTask extends MatchingTask {
 
         String[] sources;        // Array of input files.
 
-		// Store default XML parser information and set user class.
+        // Store default XML parser information and set user class.
         String defaultParser = XMLResourceDescriptor.getXMLParserClassName();
         // Throws BuildException.
         XMLResourceDescriptor.setXMLParserClassName(getParserClassName(readerClassName));
@@ -540,7 +541,7 @@ public class RasterizerTask extends MatchingTask {
      *
      * @return Result image type as an object or <code>null</code> if the parameter doesn't have corresponding object.
      */
-	protected DestinationType getResultType(String type) {
+    protected DestinationType getResultType(String type) {
         if(type.equals(DestinationType.PNG_STR)) {
             return DestinationType.PNG;
         } else if(type.equals(DestinationType.JPEG_STR)) {
@@ -551,7 +552,7 @@ public class RasterizerTask extends MatchingTask {
             return DestinationType.PDF;
         }
         return null;
-	}
+    }
 
     /**
      * Checks if the quality value can be set. Only result image type
@@ -682,7 +683,7 @@ public class RasterizerTask extends MatchingTask {
      */
     private String getParserClassName(final String className) {
         String name = className;
-        if(className.equals(JAXP_PARSER)) {
+        if ((className == null) || className.equals(JAXP_PARSER)) {
             // Set first JAXP parser.
             // Throws BuildException.
             XMLReader reader = JAXPUtils.getXMLReader();
@@ -705,7 +706,7 @@ public class RasterizerTask extends MatchingTask {
      * <p>See the Ant documentation for more information.</p>
      *
      * @author <a href="mailto:ruini@iki.fi">Henri Ruini</a>
-     * @version $Id$
+     * @version $Id: RasterizerTask.java 720465 2008-11-25 11:18:59Z deweese $
      */
     public static class ValidImageTypes extends EnumeratedAttribute {
 
@@ -729,7 +730,7 @@ public class RasterizerTask extends MatchingTask {
      * <p>See the Ant documentation for more information.</p>
      *
      * @author <a href="mailto:ruini@iki.fi">Henri Ruini</a>
-     * @version $Id$
+     * @version $Id: RasterizerTask.java 720465 2008-11-25 11:18:59Z deweese $
      */
     public static class ValidMediaTypes extends EnumeratedAttribute {
 

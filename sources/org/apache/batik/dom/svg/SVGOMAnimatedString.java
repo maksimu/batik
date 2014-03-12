@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableStringValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.svg.SVGAnimatedString;
@@ -25,7 +30,7 @@ import org.w3c.dom.svg.SVGAnimatedString;
  * This class implements the {@link SVGAnimatedString} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedString.java 490655 2006-12-28 05:19:44Z cam $
  */
 public class SVGOMAnimatedString extends AbstractSVGAnimatedValue
                                  implements SVGAnimatedString {
@@ -72,19 +77,22 @@ public class SVGOMAnimatedString extends AbstractSVGAnimatedValue
     }
 
     /**
-     * Sets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void setAnimatedValue(String s) {
-        hasAnimVal = true;
-        animVal = s;
-        fireAnimatedAttributeListeners();
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        return new AnimatableStringValue(target, getBaseVal());
     }
 
     /**
-     * Removes the animated value.
+     * Updates the animated value with the given {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            this.animVal = ((AnimatableStringValue) val).getString();
+        }
         fireAnimatedAttributeListeners();
     }
 

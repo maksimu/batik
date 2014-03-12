@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,7 +27,7 @@ import org.apache.batik.gvt.GraphicsNode;
  * filter) changes due to a modification of the DOM.
  *
  * @author <a href="mailto:etissandier@ilog.fr">Emmanuel Tissandier</a>
- * @version $Id$
+ * @version $Id: StyleReference.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class StyleReference {
 
@@ -34,7 +35,7 @@ public class StyleReference {
     private String styleAttribute;
 
     /**
-     * Creates a new <tt>StyleReference</tt>.
+     * Creates a new <code>StyleReference</code>.
      * @param node the graphics node impacted.
      * @param styleAttribute the name of the style attribute that is impacted.
      */

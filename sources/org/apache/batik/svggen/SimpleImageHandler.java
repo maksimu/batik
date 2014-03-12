@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,13 +26,13 @@ import java.awt.image.renderable.RenderableImage;
 import org.w3c.dom.Element;
 
 /**
- * Implements the <tt>GenericImageHandler</tt> interface and only
+ * Implements the <code>GenericImageHandler</code> interface and only
  * uses &lt;image&gt; elements. This class delegates to the
- * <tt>ImageHandler</tt> interface for handling the xlink:href
+ * <code>ImageHandler</code> interface for handling the xlink:href
  * attribute on the elements it creates.
  *
  * @author <a href="mailto:vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SimpleImageHandler.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SimpleImageHandler implements GenericImageHandler, SVGSyntax, ErrorConstants {
     // duplicate the string here to remove dependencies on
@@ -40,7 +41,7 @@ public class SimpleImageHandler implements GenericImageHandler, SVGSyntax, Error
         "http://www.w3.org/1999/xlink";
 
     /**
-     * <tt>ImageHandler</tt> which handles xlink:href attribute setting
+     * <code>ImageHandler</code> which handles xlink:href attribute setting
      */
     protected ImageHandler imageHandler;
 
@@ -58,7 +59,7 @@ public class SimpleImageHandler implements GenericImageHandler, SVGSyntax, Error
     }
 
     /**
-     * This <tt>GenericImageHandler</tt> implementation does not
+     * This <code>GenericImageHandler</code> implementation does not
      * need to interact with the DOMTreeManager.
      */
     public void setDOMTreeManager(DOMTreeManager domTreeManager){

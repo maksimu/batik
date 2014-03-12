@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,25 +21,28 @@ package org.apache.batik.bridge;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
+import org.apache.batik.css.engine.CSSEngineEvent;
+import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.SVGContext;
 import org.apache.batik.dom.svg.SVGOMElement;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.events.MutationEvent;
 
 /**
  * Abstract bridge class for animatable elements that do not produce
  * a GraphicsNode.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatableGenericSVGBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class AnimatableGenericSVGBridge
         extends AnimatableSVGBridge
-        implements GenericBridge, SVGContext {
+        implements GenericBridge, BridgeUpdateHandler, SVGContext {
 
     /**
-     * Invoked to handle an <tt>Element</tt> for a given <tt>BridgeContext</tt>.
-     * For example, see the <tt>SVGTitleElementBridge</tt>.
+     * Invoked to handle an <code>Element</code> for a given <code>BridgeContext</code>.
+     * For example, see the <code>SVGTitleElementBridge</code>.
      *
      * @param ctx the bridge context to use
      * @param e the element being handled
@@ -133,16 +137,32 @@ public abstract class AnimatableGenericSVGBridge
         return 0f;
     }
 
-    /**
-     * Converts the given SVG length into user units.
-     * @param v the SVG length value
-     * @param type the SVG length units (one of the
-     *             {@link SVGLength}.SVG_LENGTH_* constants)
-     * @param pcInterp how to interpretet percentage values (one of the
-     *             {@link SVGContext}.PERCENTAGE_* constants) 
-     * @return the SVG value in user units
-     */
-    public float svgToUserSpace(float v, int type, int pcInterp) {
-        return 0f;
+    // BridgeUpdateHandler ///////////////////////////////////////////////////
+
+    public void dispose() {
+        ((SVGOMElement) e).setSVGContext(null);
+    }
+
+    public void handleDOMNodeInsertedEvent(MutationEvent evt) { 
+    }
+
+    public void handleDOMCharacterDataModified(MutationEvent evt) { 
+    }
+
+    public void handleDOMNodeRemovedEvent(MutationEvent evt) { 
+        dispose();
+    }
+
+    public void handleDOMAttrModifiedEvent(MutationEvent evt) {
+    }
+
+    public void handleCSSEngineEvent(CSSEngineEvent evt) {
+    }
+
+    public void handleAnimatedAttributeChanged
+            (AnimatedLiveAttributeValue alav) {
+    }
+
+    public void handleOtherAnimationChanged(String type) {
     }
 }

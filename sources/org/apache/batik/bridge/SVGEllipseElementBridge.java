@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,6 +21,7 @@ package org.apache.batik.bridge;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import org.apache.batik.dom.svg.AbstractSVGAnimatedLength;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
 import org.apache.batik.dom.svg.SVGOMEllipseElement;
@@ -32,7 +34,7 @@ import org.w3c.dom.Element;
  * Bridge class for the &lt;ellipse> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGEllipseElementBridge.java 527382 2007-04-11 04:31:58Z cam $
  */
 public class SVGEllipseElementBridge extends SVGShapeElementBridge {
 
@@ -69,16 +71,24 @@ public class SVGEllipseElementBridge extends SVGShapeElementBridge {
             SVGOMEllipseElement ee = (SVGOMEllipseElement) e;
 
             // 'cx' attribute - default is 0
-            float cx = ee.getCx().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _cx =
+                (AbstractSVGAnimatedLength) ee.getCx();
+            float cx = _cx.getCheckedValue();
 
             // 'cy' attribute - default is 0
-            float cy = ee.getCy().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _cy =
+                (AbstractSVGAnimatedLength) ee.getCy();
+            float cy = _cy.getCheckedValue();
 
             // 'rx' attribute - required
-            float rx = ee.getRx().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _rx =
+                (AbstractSVGAnimatedLength) ee.getRx();
+            float rx = _rx.getCheckedValue();
 
             // 'ry' attribute - required
-            float ry = ee.getRy().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _ry =
+                (AbstractSVGAnimatedLength) ee.getRy();
+            float ry = _ry.getCheckedValue();
 
             shapeNode.setShape(new Ellipse2D.Float(cx - rx, cy - ry,
                                                    rx * 2, ry * 2));

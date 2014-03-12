@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,12 +24,12 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.batik.transcoder.image.TIFFTranscoder;
 
 /**
- * Describes the type of destination for an <tt>SVGConverter</tt>
+ * Describes the type of destination for an <code>SVGConverter</code>
  * operation.
  *
  * @author Henri Ruini
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: DestinationType.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public final class DestinationType {
     public static final String PNG_STR  = "image/png";
@@ -40,19 +41,19 @@ public final class DestinationType {
     public static final int JPEG_CODE = 1;
     public static final int TIFF_CODE = 2;
     public static final int PDF_CODE  = 3;
-        
+
     public static final String PNG_EXTENSION  = ".png";
     public static final String JPEG_EXTENSION = ".jpg";
     public static final String TIFF_EXTENSION = ".tif";
     public static final String PDF_EXTENSION  = ".pdf";
 
-    public static final DestinationType PNG  
+    public static final DestinationType PNG
         = new DestinationType(PNG_STR, PNG_CODE, PNG_EXTENSION);
-    public static final DestinationType JPEG 
+    public static final DestinationType JPEG
         = new DestinationType(JPEG_STR, JPEG_CODE, JPEG_EXTENSION);
-    public static final DestinationType TIFF 
+    public static final DestinationType TIFF
         = new DestinationType(TIFF_STR, TIFF_CODE, TIFF_EXTENSION);
-    public static final DestinationType PDF  
+    public static final DestinationType PDF
         = new DestinationType(PDF_STR, PDF_CODE, PDF_EXTENSION);
 
     private String type;
@@ -64,7 +65,7 @@ public final class DestinationType {
         this.code = code;
         this.extension = extension;
     }
-    
+
     public String getExtension(){
         return extension;
     }
@@ -80,7 +81,7 @@ public final class DestinationType {
     /**
      * Returns a transcoder object of the result image type.
      *
-     * @return Transcoder object or <tt>null</tt> if there isn't a proper transcoder.
+     * @return Transcoder object or <code>null</code> if there isn't a proper transcoder.
      */
     protected Transcoder getTranscoder(){
         switch(code) {
@@ -123,7 +124,7 @@ public final class DestinationType {
         case PDF_CODE:
             return PDF;
         default:
-            throw new Error();
+            throw new Error("unknown code:" + code );
         }
     }
 }

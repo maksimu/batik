@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,8 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.util.SVGConstants;
 
 import org.w3c.dom.Attr;
@@ -32,7 +35,7 @@ import org.w3c.dom.svg.SVGMarkerElement;
  * 'orient' attribute.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedMarkerOrientValue.java 591550 2007-11-03 04:46:27Z cam $
  */
 public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
 
@@ -89,6 +92,24 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
         super(elt, ns, ln);
     }
 
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+   protected void updateAnimatedValue(AnimatableValue val) {
+        // XXX TODO
+        throw new UnsupportedOperationException
+            ("Animation of marker orient value is not implemented");
+    }
+
+    /**
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
+     */
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        // XXX TODO
+        throw new UnsupportedOperationException
+            ("Animation of marker orient value is not implemented");
+    }
+    
     /**
      * Called when an Attr node has been added.
      */
@@ -171,7 +192,8 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
     }
 
     /**
-     * This class represents the SVGAngle returned by {@link #getBaseVal()}.
+     * This class represents the SVGAngle returned by
+     * {@link AnimatedAngle#getBaseVal()}.
      */
     protected class BaseSVGAngle extends SVGOMAngle {
 
@@ -188,6 +210,7 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
         protected void reset() {
             try {
                 changing = true;
+                valid = true;
                 String value;
                 if (baseEnumerationVal ==
                         SVGMarkerElement.SVG_MARKER_ORIENT_ANGLE) {
@@ -241,7 +264,7 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
     }
 
     /**
-     * This class represents the SVGAngle returned by {@link #getAnimVal()}.
+     * This class represents the SVGAngle returned by {@link AnimatedAngle#getAnimVal()}.
      */
     protected class AnimSVGAngle extends SVGOMAngle {
 
@@ -376,6 +399,9 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
          * <b>DOM</b>: Implements {@link SVGAnimatedEnumeration#getBaseVal()}.
          */
         public short getBaseVal() {
+            if (baseAngleVal == null) {
+                baseAngleVal = new BaseSVGAngle();
+            }
             baseAngleVal.revalidate();
             return baseEnumerationVal;
         }
@@ -387,11 +413,17 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
         public void setBaseVal(short baseVal) throws DOMException {
             if (baseVal == SVGMarkerElement.SVG_MARKER_ORIENT_AUTO) {
                 baseEnumerationVal = baseVal;
+                if (baseAngleVal == null) {
+                    baseAngleVal = new BaseSVGAngle();
+                }
                 baseAngleVal.unitType = SVGAngle.SVG_ANGLETYPE_UNSPECIFIED;
                 baseAngleVal.value = 0;
                 baseAngleVal.reset();
             } else if (baseVal == SVGMarkerElement.SVG_MARKER_ORIENT_ANGLE) {
                 baseEnumerationVal = baseVal;
+                if (baseAngleVal == null) {
+                    baseAngleVal = new BaseSVGAngle();
+                }
                 baseAngleVal.reset();
             }
         }
@@ -402,6 +434,9 @@ public class SVGOMAnimatedMarkerOrientValue extends AbstractSVGAnimatedValue {
         public short getAnimVal() {
             if (hasAnimVal) {
                 return animEnumerationVal;
+            }
+            if (baseAngleVal == null) {
+                baseAngleVal = new BaseSVGAngle();
             }
             baseAngleVal.revalidate();
             return baseEnumerationVal;

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,7 +36,7 @@ import org.w3c.dom.NodeList;
  * Bridge class for the &lt;xbl:content&gt; element.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: XBLContentElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class XBLContentElementBridge extends AbstractGraphicsNodeBridge {
     
@@ -78,7 +79,7 @@ public class XBLContentElementBridge extends AbstractGraphicsNodeBridge {
     }
 
     /**
-     * Creates a <tt>GraphicsNode</tt> according to the specified parameters.
+     * Creates a <code>GraphicsNode</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param e the element that describes the graphics node to build
@@ -90,8 +91,8 @@ public class XBLContentElementBridge extends AbstractGraphicsNodeBridge {
     }
 
     /**
-     * Creates a <tt>GraphicsNode</tt> from the input element and
-     * populates the input <tt>CompositeGraphicsNode</tt>
+     * Creates a <code>GraphicsNode</code> from the input element and
+     * populates the input <code>CompositeGraphicsNode</code>
      *
      * @param ctx the bridge context to use
      * @param e the element that describes the graphics node to build
@@ -144,7 +145,7 @@ public class XBLContentElementBridge extends AbstractGraphicsNodeBridge {
     }
 
     /**
-     * Creates a <tt>CompositeGraphicsNode</tt>.
+     * Creates a <code>CompositeGraphicsNode</code>.
      */
     protected GraphicsNode instantiateGraphicsNode() {
         // Not needed, since createGraphicsNode is overridden

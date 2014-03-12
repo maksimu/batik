@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,36 +29,36 @@ import org.apache.batik.util.SVGTypes;
  * This class provides a manager for the 'alignment-baseline' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AlignmentBaselineManager.java 478160 2006-11-22 13:35:06Z dvholten $
  */
 public class AlignmentBaselineManager extends IdentifierManager {
-    
+
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_AFTER_EDGE_VALUE,
+        values.put(CSSConstants.CSS_AFTER_EDGE_VALUE,
                    SVGValueConstants.AFTER_EDGE_VALUE);
-	values.put(CSSConstants.CSS_ALPHABETIC_VALUE,
+        values.put(CSSConstants.CSS_ALPHABETIC_VALUE,
                    SVGValueConstants.ALPHABETIC_VALUE);
-	values.put(CSSConstants.CSS_AUTO_VALUE,
+        values.put(CSSConstants.CSS_AUTO_VALUE,
                    SVGValueConstants.AUTO_VALUE);
-	values.put(CSSConstants.CSS_BASELINE_VALUE,
+        values.put(CSSConstants.CSS_BASELINE_VALUE,
                    SVGValueConstants.BASELINE_VALUE);
-	values.put(CSSConstants.CSS_BEFORE_EDGE_VALUE,
+        values.put(CSSConstants.CSS_BEFORE_EDGE_VALUE,
                    SVGValueConstants.BEFORE_EDGE_VALUE);
-	values.put(CSSConstants.CSS_HANGING_VALUE,
+        values.put(CSSConstants.CSS_HANGING_VALUE,
                    SVGValueConstants.HANGING_VALUE);
-	values.put(CSSConstants.CSS_IDEOGRAPHIC_VALUE,
+        values.put(CSSConstants.CSS_IDEOGRAPHIC_VALUE,
                    SVGValueConstants.IDEOGRAPHIC_VALUE);
-	values.put(CSSConstants.CSS_MATHEMATICAL_VALUE,
+        values.put(CSSConstants.CSS_MATHEMATICAL_VALUE,
                    SVGValueConstants.MATHEMATICAL_VALUE);
-	values.put(CSSConstants.CSS_MIDDLE_VALUE,
+        values.put(CSSConstants.CSS_MIDDLE_VALUE,
                    SVGValueConstants.MIDDLE_VALUE);
-	values.put(CSSConstants.CSS_TEXT_AFTER_EDGE_VALUE,
+        values.put(CSSConstants.CSS_TEXT_AFTER_EDGE_VALUE,
                    SVGValueConstants.TEXT_AFTER_EDGE_VALUE);
-	values.put(CSSConstants.CSS_TEXT_BEFORE_EDGE_VALUE,
+        values.put(CSSConstants.CSS_TEXT_BEFORE_EDGE_VALUE,
                    SVGValueConstants.TEXT_BEFORE_EDGE_VALUE);
     }
 
@@ -66,7 +67,7 @@ public class AlignmentBaselineManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return false;
+        return false;
     }
 
     /**
@@ -95,9 +96,9 @@ public class AlignmentBaselineManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_ALIGNMENT_BASELINE_PROPERTY;
+        return CSSConstants.CSS_ALIGNMENT_BASELINE_PROPERTY;
     }
-    
+
     /**
      * Implements {@link
      * org.apache.batik.css.engine.value.ValueManager#getDefaultValue()}.

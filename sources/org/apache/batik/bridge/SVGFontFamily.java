@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,11 +36,11 @@ import org.w3c.dom.NodeList;
  * A font family class for SVG fonts.
  *
  * @author <a href="mailto:bella.robinson@cmis.csiro.au">Bella Robinson</a>
- * @version $Id$
+ * @version $Id: SVGFontFamily.java 489226 2006-12-21 00:05:36Z cam $
  */
 public class SVGFontFamily implements GVTFontFamily {
 
-    public static final 
+    public static final
         AttributedCharacterIterator.Attribute TEXT_COMPOUND_ID =
         GVTAttributedCharacterIterator.TextAttribute.TEXT_COMPOUND_ID;
 
@@ -47,7 +48,7 @@ public class SVGFontFamily implements GVTFontFamily {
     protected Element fontElement;
     protected BridgeContext ctx;
     protected Boolean complex = null;
-    
+
 
 
     /**
@@ -107,10 +108,10 @@ public class SVGFontFamily implements GVTFontFamily {
         fontBridge = (SVGFontElementBridge)ctx.getBridge(fontElement);
         SoftReference sr = (SoftReference)attrs.get(TEXT_COMPOUND_ID);
         Element textElement = (Element)sr.get();
-        return fontBridge.createFont(ctx, fontElement, textElement, 
+        return fontBridge.createFont(ctx, fontElement, textElement,
                                      size, fontFace);
     }
-     
+
     /**
      * This method looks at the SVG font and checks if any of
      * the glyphs use renderable child elements.  If so this
@@ -121,13 +122,13 @@ public class SVGFontFamily implements GVTFontFamily {
     public boolean isComplex() {
         if (complex != null) return complex.booleanValue();
         boolean ret = isComplex(fontElement, ctx);
-        complex = new Boolean(ret);
+        complex = ret ? Boolean.TRUE : Boolean.FALSE;
         return ret;
     }
 
     public static boolean isComplex(Element fontElement, BridgeContext ctx) {
         NodeList glyphElements = fontElement.getElementsByTagNameNS
-	    (SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_GLYPH_TAG);
+            (SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_GLYPH_TAG);
 
         int numGlyphs = glyphElements.getLength();
         for (int i = 0; i < numGlyphs; i++) {

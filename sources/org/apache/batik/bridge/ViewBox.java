@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,24 +22,28 @@ import java.awt.geom.AffineTransform;
 import java.util.StringTokenizer;
 
 import org.apache.batik.dom.svg.LiveAttributeException;
+import org.apache.batik.dom.svg.SVGOMAnimatedRect;
 import org.apache.batik.parser.AWTTransformProducer;
 import org.apache.batik.parser.FragmentIdentifierHandler;
 import org.apache.batik.parser.FragmentIdentifierParser;
 import org.apache.batik.parser.ParseException;
 import org.apache.batik.parser.PreserveAspectRatioParser;
+import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.util.SVGConstants;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGAnimatedPreserveAspectRatio;
+import org.w3c.dom.svg.SVGAnimatedRect;
 import org.w3c.dom.svg.SVGPreserveAspectRatio;
+import org.w3c.dom.svg.SVGRect;
 
 /**
  * This class provides convenient methods to handle viewport.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: ViewBox.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class ViewBox implements SVGConstants, ErrorConstants {
 
@@ -76,30 +81,37 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
         p.setFragmentIdentifierHandler(vh);
         p.parse(ref);
 
-        Element attrDefElement = e; // the element that defines the attributes
+        // Determine the 'view' element that ref refers to.
+        Element viewElement = e;
         if (vh.hasId) {
             Document document = e.getOwnerDocument();
-            attrDefElement = document.getElementById(vh.id);
+            viewElement = document.getElementById(vh.id);
         }
-        if (attrDefElement == null) {
+        if (viewElement == null) {
             throw new BridgeException(ctx, e, ERR_URI_MALFORMED,
                                       new Object[] {ref});
         }
-        // if the referenced element is not a view, the attribute
-        // values to use are those defined on the enclosed svg element
-        if (!(attrDefElement.getNamespaceURI().equals(SVG_NAMESPACE_URI)
-              && attrDefElement.getLocalName().equals(SVG_VIEW_TAG))) {
-            attrDefElement = getClosestAncestorSVGElement(e);
+        if (!(viewElement.getNamespaceURI().equals(SVG_NAMESPACE_URI)
+              && viewElement.getLocalName().equals(SVG_VIEW_TAG))) {
+            viewElement = null;
         }
 
+        Element ancestorSVG = getClosestAncestorSVGElement(e);
+
         // 'viewBox'
-        float [] vb;
+        float[] vb;
         if (vh.hasViewBox) {
             vb = vh.viewBox;
         } else {
-            String viewBoxStr = attrDefElement.getAttributeNS
-                (null, SVG_VIEW_BOX_ATTRIBUTE);
-            vb = parseViewBoxAttribute(attrDefElement, viewBoxStr, ctx);
+            Element elt;
+            if (DOMUtilities.isAttributeSpecifiedNS
+                    (viewElement, null, SVG_VIEW_BOX_ATTRIBUTE)) {
+                elt = viewElement;
+            } else {
+                elt = ancestorSVG;
+            }
+            String viewBoxStr = elt.getAttributeNS(null, SVG_VIEW_BOX_ATTRIBUTE);
+            vb = parseViewBoxAttribute(elt, viewBoxStr, ctx);
         }
 
         // 'preserveAspectRatio'
@@ -109,18 +121,25 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
             align = vh.align;
             meet = vh.meet;
         } else {
-            String aspectRatio = attrDefElement.getAttributeNS
-                (null, SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE);
+            Element elt;
+            if (DOMUtilities.isAttributeSpecifiedNS
+                    (viewElement, null, SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
+                elt = viewElement;
+            } else {
+                elt = ancestorSVG;
+            }
+            String aspectRatio =
+                elt.getAttributeNS(null, SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE);
             PreserveAspectRatioParser pp = new PreserveAspectRatioParser();
             ViewHandler ph = new ViewHandler();
             pp.setPreserveAspectRatioHandler(ph);
             try {
                 pp.parse(aspectRatio);
-            } catch (ParseException ex) {
+            } catch (ParseException pEx) {
                 throw new BridgeException
-                    (ctx, attrDefElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, elt, pEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object[] {SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
-                                       aspectRatio, ex});
+                                       aspectRatio, pEx });
             }
             align = ph.align;
             meet = ph.meet;
@@ -157,9 +176,26 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
      * Returns the transformation matrix to apply to initalize a viewport or
      * null if the specified viewBox disables the rendering of the element.
      *
+     * @deprecated Replaced by {@link
+     *     #getPreserveAspectRatioTransform(Element,float,float,BridgeContext)},
+     *     which has more accurate error reporting.
      * @param e the element with a viewbox
      * @param w the width of the effective viewport
-     * @param h The height of the effective viewport 
+     * @param h The height of the effective viewport
+     */
+    public static AffineTransform getPreserveAspectRatioTransform(Element e,
+                                                                  float w,
+                                                                  float h) {
+        return getPreserveAspectRatioTransform(e, w, h, null);
+    }
+
+    /**
+     * Returns the transformation matrix to apply to initalize a viewport or
+     * null if the specified viewBox disables the rendering of the element.
+     *
+     * @param e the element with a viewbox
+     * @param w the width of the effective viewport
+     * @param h The height of the effective viewport
      * @param ctx The BridgeContext to use for error information
      */
     public static AffineTransform getPreserveAspectRatioTransform
@@ -181,7 +217,7 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
      * @param e the element with a viewbox
      * @param viewBox the viewBox definition
      * @param w the width of the effective viewport
-     * @param h The height of the effective viewport 
+     * @param h The height of the effective viewport
      * @param ctx The BridgeContext to use for error information
      */
     public static
@@ -204,11 +240,11 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
         p.setPreserveAspectRatioHandler(ph);
         try {
             p.parse(aspectRatio);
-        } catch (ParseException ex) {
+        } catch (ParseException pEx ) {
             throw new BridgeException
-                (ctx, e, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                (ctx, e, pEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                  new Object[] {SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
-                                   aspectRatio, ex});
+                                   aspectRatio, pEx });
         }
 
         return getPreserveAspectRatioTransform(vb, ph.align, ph.meet, w, h);
@@ -221,14 +257,14 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
      * @param e the element with a viewbox
      * @param vb the viewBox definition as float
      * @param w the width of the effective viewport
-     * @param h The height of the effective viewport 
+     * @param h The height of the effective viewport
      * @param ctx The BridgeContext to use for error information
      */
     public static
         AffineTransform getPreserveAspectRatioTransform(Element e,
-							float[] vb,
-							float w,
-							float h,
+                                                        float[] vb,
+                                                        float w,
+                                                        float h,
                                                         BridgeContext ctx) {
 
         String aspectRatio
@@ -240,11 +276,11 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
         p.setPreserveAspectRatioHandler(ph);
         try {
             p.parse(aspectRatio);
-        } catch (ParseException ex) {
+        } catch (ParseException pEx ) {
             throw new BridgeException
-                (ctx, e, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                (ctx, e, pEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                  new Object[] {SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
-                                   aspectRatio, ex});
+                                   aspectRatio, pEx });
         }
 
         return getPreserveAspectRatioTransform(vb, ph.align, ph.meet, w, h);
@@ -257,7 +293,7 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
      * @param e the element with a viewbox
      * @param vb the viewBox definition as float
      * @param w the width of the effective viewport
-     * @param h The height of the effective viewport 
+     * @param h The height of the effective viewport
      * @param aPAR The animated preserveAspectRatio value
      * @param ctx The BridgeContext to use for error information
      */
@@ -275,6 +311,33 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
         } catch (LiveAttributeException ex) {
             throw new BridgeException(ctx, ex);
         }
+    }
+
+    /**
+     * Returns the transformation matrix to apply to initialize a viewport or
+     * null if the specified viewBox disables the rendering of the element.
+     *
+     * @param e the element with a viewbox
+     * @param aViewBox the viewBox definition
+     * @param aPAR the preserveAspectRatio definition
+     * @param w the width of the effective viewport
+     * @param h the height of the effective viewport
+     * @param ctx the BridgeContext to use for error information
+     */
+    public static AffineTransform getPreserveAspectRatioTransform
+            (Element e, SVGAnimatedRect aViewBox,
+             SVGAnimatedPreserveAspectRatio aPAR,
+             float w, float h, BridgeContext ctx) {
+
+        if (!((SVGOMAnimatedRect) aViewBox).isSpecified()) {
+            // no viewBox specified
+            return new AffineTransform();
+        }
+        SVGRect viewBox = aViewBox.getAnimVal();
+        float[] vb = new float[] { viewBox.getX(), viewBox.getY(),
+                                   viewBox.getWidth(), viewBox.getHeight() };
+
+        return getPreserveAspectRatioTransform(e, vb, w, h, aPAR, ctx);
     }
 
     /**
@@ -298,10 +361,10 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
                 vb[i] = Float.parseFloat(st.nextToken());
                 i++;
             }
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException nfEx ) {
             throw new BridgeException
-                (ctx, e, ERR_ATTRIBUTE_VALUE_MALFORMED,
-                 new Object[] {SVG_VIEW_BOX_ATTRIBUTE, value, ex});
+                (ctx, e, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                 new Object[] {SVG_VIEW_BOX_ATTRIBUTE, value, nfEx });
         }
         if (i != 4) {
             throw new BridgeException
@@ -396,7 +459,7 @@ public abstract class ViewBox implements SVGConstants, ErrorConstants {
 
 
         /**
-         * Constructs a new <tt>ViewHandler</tt> instance.
+         * Constructs a new <code>ViewHandler</code> instance.
          */
         protected ViewHandler() { }
 

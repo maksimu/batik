@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,12 +18,12 @@
  */
 package org.apache.batik.bridge;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.batik.anim.AbstractAnimation;
 import org.apache.batik.anim.AnimationEngine;
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.anim.MotionAnimation;
 import org.apache.batik.anim.values.AnimatableMotionPointValue;
 import org.apache.batik.anim.values.AnimatableValue;
@@ -30,7 +31,6 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 import org.apache.batik.dom.svg.SVGAnimatedPathDataSupport;
 import org.apache.batik.dom.svg.SVGOMElement;
 import org.apache.batik.dom.svg.SVGOMPathElement;
-import org.apache.batik.dom.svg.SVGOMTransform;
 import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.parser.AWTPathProducer;
 import org.apache.batik.parser.AngleHandler;
@@ -39,7 +39,6 @@ import org.apache.batik.parser.LengthArrayProducer;
 import org.apache.batik.parser.LengthPairListParser;
 import org.apache.batik.parser.PathParser;
 import org.apache.batik.parser.ParseException;
-import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,7 +48,7 @@ import org.w3c.dom.svg.SVGAngle;
  * Bridge class for the 'animateMotion' animation element.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGAnimateMotionElementBridge.java 501922 2007-01-31 17:47:47Z dvholten $
  */
 public class SVGAnimateMotionElementBridge extends SVGAnimateElementBridge {
 
@@ -109,16 +108,16 @@ public class SVGAnimateMotionElementBridge extends SVGAnimateElementBridge {
                     }
                     public void endAngle() throws ParseException {
                     }
-                };
+                }
                 AngleParser ap = new AngleParser();
                 Handler h = new Handler();
                 ap.setAngleHandler(h);
                 try {
                     ap.parse(rotateString);
-                } catch (ParseException ex) {
+                } catch (ParseException pEx ) {
                     throw new BridgeException
                         (ctx, element,
-                         ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                         pEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
                          new Object[] { SVG_ROTATE_ATTRIBUTE, rotateString });
                 }
                 rotateAngle = h.theAngle;
@@ -145,7 +144,7 @@ public class SVGAnimateMotionElementBridge extends SVGAnimateElementBridge {
     }
 
     /**
-     * Returns the parsed 'type' attribute (or the path from a referencing
+     * Returns the parsed 'path' attribute (or the path from a referencing
      * 'mpath') from the animation element.
      */
     protected ExtendedGeneralPath parsePath() {
@@ -180,9 +179,9 @@ public class SVGAnimateMotionElementBridge extends SVGAnimateElementBridge {
             pp.setPathHandler(app);
             pp.parse(pathString);
             return (ExtendedGeneralPath) app.getShape();
-        } catch (ParseException ex) {
+        } catch (ParseException pEx ) {
             throw new BridgeException
-                (ctx, element, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                (ctx, element, pEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
                  new Object[] { SVG_PATH_ATTRIBUTE, pathString });
         }
     }
@@ -197,7 +196,7 @@ public class SVGAnimateMotionElementBridge extends SVGAnimateElementBridge {
         if (len == 0) {
             return null;
         }
-        ArrayList keyPoints = new ArrayList(7);
+        List keyPoints = new ArrayList(7);
         int i = 0, start = 0, end;
         char c;
 outer:  while (i < len) {
@@ -223,9 +222,9 @@ outer:  while (i < len) {
                 float keyPointCoord =
                     Float.parseFloat(keyPointsString.substring(start, end));
                 keyPoints.add(new Float(keyPointCoord));
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, element, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, element, nfEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object[] { SVG_KEY_POINTS_ATTRIBUTE, keyPointsString });
             }
         }
@@ -274,9 +273,9 @@ outer:  while (i < len) {
                 ret[i / 2] = new AnimatableMotionPointValue(animationTarget, x, y, 0);
             }
             return ret;
-        } catch (ParseException ex) {
+        } catch (ParseException pEx ) {
             throw new BridgeException
-                (ctx, element, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                (ctx, element, pEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
                  new Object[] { SVG_VALUES_ATTRIBUTE, s });
         }
     }

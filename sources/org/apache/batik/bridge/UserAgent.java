@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,7 +36,7 @@ import org.w3c.dom.svg.SVGDocument;
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: UserAgent.java 712954 2008-11-11 06:19:23Z cam $
  */
 public interface UserAgent {
 
@@ -298,4 +299,11 @@ public interface UserAgent {
      *                loaded (not available, corrupt, unknown format, ...).
      */
     SVGDocument getBrokenLinkDocument(Element e, String url, String message);
+
+    /**
+     * This method should load a new document described by the supplied URL.
+     *
+     * @param url The url to be loaded as a string.
+     */
+    void loadDocument(String url);
 }

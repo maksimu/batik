@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -36,7 +37,7 @@ import org.w3c.dom.css.CSSValue;
  * This class provides a manager for the 'enable-background' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: EnableBackgroundManager.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class EnableBackgroundManager extends LengthManager {
     
@@ -49,7 +50,7 @@ public class EnableBackgroundManager extends LengthManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return false;
+        return false;
     }
 
     /**
@@ -77,7 +78,7 @@ public class EnableBackgroundManager extends LengthManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_ENABLE_BACKGROUND_PROPERTY;
+        return CSSConstants.CSS_ENABLE_BACKGROUND_PROPERTY;
     }
     
     /**
@@ -132,20 +133,20 @@ public class EnableBackgroundManager extends LengthManager {
      */
     public Value createStringValue(short type, String value,
                                    CSSEngine engine) {
-	if (type != CSSPrimitiveValue.CSS_IDENT) {
+        if (type != CSSPrimitiveValue.CSS_IDENT) {
             throw createInvalidStringTypeDOMException(type);
-	}
-	if (!value.equalsIgnoreCase(CSSConstants.CSS_ACCUMULATE_VALUE)) {
+        }
+        if (!value.equalsIgnoreCase(CSSConstants.CSS_ACCUMULATE_VALUE)) {
             throw createInvalidIdentifierDOMException(value);
         }
-	return SVGValueConstants.ACCUMULATE_VALUE;
+        return SVGValueConstants.ACCUMULATE_VALUE;
     }
 
     /**
      * Implements {@link ValueManager#createFloatValue(short,float)}.
      */
     public Value createFloatValue(short unitType, float floatValue)
-	throws DOMException {
+        throws DOMException {
         throw createDOMException();
     }
 

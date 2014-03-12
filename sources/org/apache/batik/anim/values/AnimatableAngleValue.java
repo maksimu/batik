@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,7 +18,7 @@
  */
 package org.apache.batik.anim.values;
 
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 import org.w3c.dom.svg.SVGAngle;
 
@@ -25,9 +26,16 @@ import org.w3c.dom.svg.SVGAngle;
  * An SVG angle value in the animation system.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatableAngleValue.java 532986 2007-04-27 06:30:58Z cam $
  */
 public class AnimatableAngleValue extends AnimatableNumberValue {
+
+    /**
+     * The unit string representations.
+     */
+    protected static final String[] UNITS = {
+        "", "", "deg", "rad", "grad"
+    };
 
     /**
      * The angle unit.
@@ -86,7 +94,7 @@ public class AnimatableAngleValue extends AnimatableNumberValue {
             }
         }
 
-        if (res.value != v && res.unit != u) {
+        if (res.value != v || res.unit != u) {
             res.value = v;
             res.unit = u;
             res.hasChanged = true;
@@ -116,6 +124,13 @@ public class AnimatableAngleValue extends AnimatableNumberValue {
     public AnimatableValue getZeroValue() {
         return new AnimatableAngleValue
             (target, 0, SVGAngle.SVG_ANGLETYPE_UNSPECIFIED);
+    }
+
+    /**
+     * Returns the CSS text representation of the value.
+     */
+    public String getCssText() {
+        return super.getCssText() + UNITS[unit];
     }
 
     /**

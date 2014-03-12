@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -14,7 +15,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
- */package org.apache.batik.transcoder.image;
+ */
+package org.apache.batik.transcoder.image;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -22,11 +24,11 @@ import java.util.HashMap;
 import org.apache.batik.transcoder.TranscoderInput;
 
 /**
- * Test the ImageTranscoder with the KEY_MAX_WIDTH and/or the KEY_MAX_HEIGHT 
+ * Test the ImageTranscoder with the KEY_MAX_WIDTH and/or the KEY_MAX_HEIGHT
  * transcoding hint.
  *
  * @author <a href="mailto:ruini@iki.fi">Henri Ruini</a>
- * @version $Id$ 
+ * @version $Id: MaxDimensionTest.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class MaxDimensionTest extends AbstractImageTranscoderTest {
 
@@ -47,7 +49,7 @@ public class MaxDimensionTest extends AbstractImageTranscoderTest {
 
     //-- Constructors --------------------------------------------------------
     /**
-     * Constructs a new <tt>MaxDimensionTest</tt>.
+     * Constructs a new <code>MaxDimensionTest</code>.
      *
      * @param inputURI URI of the input image.
      * @param refImageURI URI of the reference image.
@@ -62,7 +64,7 @@ public class MaxDimensionTest extends AbstractImageTranscoderTest {
     }
 
     /**
-     * Constructs a new <tt>MaxDimensionTest</tt>.
+     * Constructs a new <code>MaxDimensionTest</code>.
      *
      * @param inputURI URI of the input image.
      * @param refImageURI URI of the reference image.
@@ -83,12 +85,12 @@ public class MaxDimensionTest extends AbstractImageTranscoderTest {
 
     //-- Methods -------------------------------------------------------------
     /**
-     * Creates the <tt>TranscoderInput</tt>.
+     * Creates the <code>TranscoderInput</code>.
      */
     protected TranscoderInput createTranscoderInput() {
         return new TranscoderInput(resolveURL(inputURI).toString());
     }
-    
+
     /**
      * Creates a Map that contains additional transcoding hints.
      *

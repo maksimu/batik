@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,13 +29,13 @@ import org.w3c.css.sac.SelectorList;
  * This class provides a default implementation of the SAC DocumentHandler.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: DefaultDocumentHandler.java 478283 2006-11-22 18:53:40Z dvholten $
  */
 public class DefaultDocumentHandler implements DocumentHandler {
     /**
      * The instance of this class.
      */
-    public final static DocumentHandler INSTANCE = new DefaultDocumentHandler();
+    public static final DocumentHandler INSTANCE = new DefaultDocumentHandler();
 
     /**
      * Creates a new DefaultDocumentHandler.
@@ -75,8 +76,8 @@ public class DefaultDocumentHandler implements DocumentHandler {
      * <b>SAC</b>: Implements {@link
      * org.w3c.css.sac.DocumentHandler#namespaceDeclaration(String,String)}.
      */
-    public void namespaceDeclaration(String prefix, String uri) 
-	throws CSSException {
+    public void namespaceDeclaration(String prefix, String uri)
+        throws CSSException {
     }
 
     /**
@@ -84,9 +85,9 @@ public class DefaultDocumentHandler implements DocumentHandler {
      * DocumentHandler#importStyle(String,SACMediaList,String)}.
      */
     public void importStyle(String       uri,
-			    SACMediaList media, 
-			    String       defaultNamespaceURI)
-	throws CSSException {
+                            SACMediaList media,
+                            String       defaultNamespaceURI)
+        throws CSSException {
     }
 
     /**
@@ -106,7 +107,7 @@ public class DefaultDocumentHandler implements DocumentHandler {
     /**
      * <b>SAC</b>: Implements {@link
      * org.w3c.css.sac.DocumentHandler#startPage(String,String)}.
-     */    
+     */
     public void startPage(String name, String pseudo_page)
         throws CSSException {
     }

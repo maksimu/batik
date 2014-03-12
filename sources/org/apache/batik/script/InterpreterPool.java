@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,8 @@
  */
 package org.apache.batik.script;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,7 +32,7 @@ import org.w3c.dom.Document;
 /**
  * A class allowing to create/query an {@link
  * org.apache.batik.script.Interpreter} corresponding to a particular
- * <tt>Document</tt> and scripting language.
+ * <code>Document</code> and scripting language.
  *
  * <p>By default, it is able to create interpreters for ECMAScript,
  * Python and Tcl scripting languages if you provide the right jar
@@ -37,7 +40,7 @@ import org.w3c.dom.Document;
  * files).</p>
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
- * @version $Id$
+ * @version $Id: InterpreterPool.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class InterpreterPool {
 
@@ -61,13 +64,15 @@ public class InterpreterPool {
         while (iter.hasNext()) {
             InterpreterFactory factory = null;
             factory = (InterpreterFactory)iter.next();
-            // System.err.println("Factory : " + factory);
-            defaultFactories.put(factory.getMimeType(), factory);
+            String[] mimeTypes = factory.getMimeTypes();
+            for (int i = 0; i < mimeTypes.length; i++) {
+                defaultFactories.put(mimeTypes[i], factory);
+            }
         }
     }
 
     /**
-     * Constructs a new <tt>InterpreterPool</tt>.
+     * Constructs a new <code>InterpreterPool</code>.
      */
     public InterpreterPool() {
         factories.putAll(defaultFactories);
@@ -82,13 +87,42 @@ public class InterpreterPool {
      * @param document the document that needs the interpreter
      * @param language the scripting language
      */
-    public Interpreter createInterpreter(Document document, String language) {
-        InterpreterFactory factory = (InterpreterFactory)factories.get(language);
+    public Interpreter createInterpreter(Document document, 
+                                         String language) {
+        return createInterpreter(document, language, null);
+    }
+
+    /**
+     * Creates a new interpreter for the specified document and
+     * according to the specified language. This method can return
+     * null if no interpreter has been found for the specified
+     * language.
+     *
+     * @param document the document that needs the interpreter
+     * @param language the scripting language
+     * @param imports The set of classes/packages to import (if
+     *                the interpreter supports that).
+     */
+    public Interpreter createInterpreter(Document document, 
+                                         String language,
+                                         ImportInfo imports) {
+        InterpreterFactory factory;
+        factory = (InterpreterFactory)factories.get(language);
+
         if (factory == null) return null;
 
+        if (imports == null)
+            imports = ImportInfo.getImports();
+
+        Interpreter interpreter = null;
         SVGOMDocument svgDoc = (SVGOMDocument) document;
-        Interpreter interpreter = factory.createInterpreter
-            (svgDoc.getURLObject(), svgDoc.isSVG12());
+        URL url = null;
+        try {
+            url = new URL(svgDoc.getDocumentURI());
+        } catch (MalformedURLException e) {
+        }
+        interpreter = factory.createInterpreter(url, svgDoc.isSVG12(),
+                                                imports);
 
         if (interpreter == null) return null;
 

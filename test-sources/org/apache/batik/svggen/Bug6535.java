@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,7 +27,7 @@ import java.awt.Font;
  * This test validates outputing font-size as a float
  *
  * @author <a href="mailto:vhardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: Bug6535.java 475477 2006-11-15 22:44:28Z cam $
  */
 public class Bug6535 implements Painter {
     public void paint(Graphics2D g){

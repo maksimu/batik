@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -33,7 +34,7 @@ import javax.swing.JRadioButtonMenuItem;
  * browser frame.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: LocalHistory.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class LocalHistory {
     /**
@@ -77,10 +78,10 @@ public class LocalHistory {
     protected int state;
 
     // States
-    protected final static int STABLE_STATE = 0;
-    protected final static int BACK_PENDING_STATE = 1;
-    protected final static int FORWARD_PENDING_STATE = 2;
-    protected final static int RELOAD_PENDING_STATE = 3;
+    protected static final int STABLE_STATE = 0;
+    protected static final int BACK_PENDING_STATE = 1;
+    protected static final int FORWARD_PENDING_STATE = 2;
+    protected static final int RELOAD_PENDING_STATE = 3;
 
     /**
      * Creates a new local history.
@@ -115,7 +116,7 @@ public class LocalHistory {
 
     /**
      * Goes back of one position in the history.
-     * Assumes that <tt>canGoBack()</tt> is true.
+     * Assumes that <code>canGoBack()</code> is true.
      */
     public void back() {
         update();
@@ -133,7 +134,7 @@ public class LocalHistory {
 
     /**
      * Goes forward of one position in the history.
-     * Assumes that <tt>canGoForward()</tt> is true.
+     * Assumes that <code>canGoForward()</code> is true.
      */
     public void forward() {
         update();
@@ -198,7 +199,7 @@ public class LocalHistory {
         if (i == -1) {
             i = uri.lastIndexOf('\\' );
         }
-         
+
         if (i != -1) {
             text = uri.substring(i + 1);
         }

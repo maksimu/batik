@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -32,7 +33,7 @@ import org.w3c.dom.svg.SVGDocument;
  * This class is used to resolve the URI that can be found in a SVG document.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: URIResolver.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class URIResolver {
     /**
@@ -62,9 +63,9 @@ public class URIResolver {
 
     /**
      * Imports the Element referenced by the given URI on Element
-     * <tt>ref</tt>.
+     * <code>ref</code>.
      * @param uri The element URI.
-     * @param ref The Element in the DOM tree to evaluate <tt>uri</tt>
+     * @param ref The Element in the DOM tree to evaluate <code>uri</code>
      *            from.  
      * @return The referenced element or null if element can't be found.
      */
@@ -83,9 +84,9 @@ public class URIResolver {
 
     /**
      * Imports the Node referenced by the given URI on Element
-     * <tt>ref</tt>.
+     * <code>ref</code>.
      * @param uri The element URI.
-     * @param ref The Element in the DOM tree to evaluate <tt>uri</tt>
+     * @param ref The Element in the DOM tree to evaluate <code>uri</code>
      *            from. 
      * @return The referenced Node/Document or null if element can't be found.
      */

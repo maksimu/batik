@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,12 +21,12 @@ package org.apache.batik.bridge;
 import org.apache.batik.util.ParsedURL;
 
 /**
- * Default implementation for the <tt>ExternalResourceSecurity</tt> interface.
+ * Default implementation for the <code>ExternalResourceSecurity</code> interface.
  * It allows all types of external resources to be loaded, but only if they
  * come from the same server as the document they are referenced from.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: DefaultExternalResourceSecurity.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class DefaultExternalResourceSecurity implements ExternalResourceSecurity {
     public static final String DATA_PROTOCOL = "data";
@@ -96,6 +97,3 @@ public class DefaultExternalResourceSecurity implements ExternalResourceSecurity
         }
     }
 }
-
-
-    

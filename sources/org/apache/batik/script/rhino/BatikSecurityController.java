@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,13 +30,13 @@ import org.mozilla.javascript.SecurityController;
 import org.mozilla.javascript.WrappedException;
 
 /**
- * This implementation of the Rhino <tt>SecurityController</tt> interface is
+ * This implementation of the Rhino <code>SecurityController</code> interface is
  * meant for use within the context of Batik only. It is a partial
  * implementation of the interface that does what is needed by Batik and
  * no more.
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
- * @version $Id$
+ * @version $Id: BatikSecurityController.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class BatikSecurityController extends SecurityController {
 

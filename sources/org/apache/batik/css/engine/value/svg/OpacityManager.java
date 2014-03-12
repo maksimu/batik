@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -32,7 +33,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  * This class provides a manager for the '*-opacity' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: OpacityManager.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class OpacityManager extends AbstractValueManager {
     
@@ -58,7 +59,7 @@ public class OpacityManager extends AbstractValueManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return inherited;
+        return inherited;
     }
 
     /**
@@ -86,7 +87,7 @@ public class OpacityManager extends AbstractValueManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return property;
+        return property;
     }
     
     /**
@@ -101,9 +102,9 @@ public class OpacityManager extends AbstractValueManager {
      */
     public Value createValue(LexicalUnit lu, CSSEngine engine)
         throws DOMException {
-	switch (lu.getLexicalUnitType()) {
-	case LexicalUnit.SAC_INHERIT:
-	    return SVGValueConstants.INHERIT_VALUE;
+        switch (lu.getLexicalUnitType()) {
+        case LexicalUnit.SAC_INHERIT:
+            return SVGValueConstants.INHERIT_VALUE;
 
         case LexicalUnit.SAC_INTEGER:
             return new FloatValue(CSSPrimitiveValue.CSS_NUMBER,
@@ -121,9 +122,9 @@ public class OpacityManager extends AbstractValueManager {
      */
     public Value createFloatValue(short type, float floatValue)
         throws DOMException {
-	if (type == CSSPrimitiveValue.CSS_NUMBER) {
-	    return new FloatValue(type, floatValue);
-	}
+        if (type == CSSPrimitiveValue.CSS_NUMBER) {
+            return new FloatValue(type, floatValue);
+        }
         throw createInvalidFloatTypeDOMException(type);
     }
 }

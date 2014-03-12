@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,46 +40,46 @@ import org.w3c.dom.css.CSSValue;
  * This class provides a manager for the 'cursor' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: CursorManager.java 478160 2006-11-22 13:35:06Z dvholten $
  */
 public class CursorManager extends AbstractValueManager {
-    
+
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_AUTO_VALUE,
+        values.put(CSSConstants.CSS_AUTO_VALUE,
                    ValueConstants.AUTO_VALUE);
-	values.put(CSSConstants.CSS_CROSSHAIR_VALUE,
+        values.put(CSSConstants.CSS_CROSSHAIR_VALUE,
                    ValueConstants.CROSSHAIR_VALUE);
-	values.put(CSSConstants.CSS_DEFAULT_VALUE,
+        values.put(CSSConstants.CSS_DEFAULT_VALUE,
                    ValueConstants.DEFAULT_VALUE);
-	values.put(CSSConstants.CSS_E_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_E_RESIZE_VALUE,
                    ValueConstants.E_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_HELP_VALUE,
+        values.put(CSSConstants.CSS_HELP_VALUE,
                    ValueConstants.HELP_VALUE);
-	values.put(CSSConstants.CSS_MOVE_VALUE,
+        values.put(CSSConstants.CSS_MOVE_VALUE,
                    ValueConstants.MOVE_VALUE);
-	values.put(CSSConstants.CSS_N_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_N_RESIZE_VALUE,
                    ValueConstants.N_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_NE_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_NE_RESIZE_VALUE,
                    ValueConstants.NE_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_NW_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_NW_RESIZE_VALUE,
                    ValueConstants.NW_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_POINTER_VALUE,
+        values.put(CSSConstants.CSS_POINTER_VALUE,
                    ValueConstants.POINTER_VALUE);
-	values.put(CSSConstants.CSS_S_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_S_RESIZE_VALUE,
                    ValueConstants.S_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_SE_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_SE_RESIZE_VALUE,
                    ValueConstants.SE_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_SW_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_SW_RESIZE_VALUE,
                    ValueConstants.SW_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_TEXT_VALUE,
+        values.put(CSSConstants.CSS_TEXT_VALUE,
                    ValueConstants.TEXT_VALUE);
-	values.put(CSSConstants.CSS_W_RESIZE_VALUE,
+        values.put(CSSConstants.CSS_W_RESIZE_VALUE,
                    ValueConstants.W_RESIZE_VALUE);
-	values.put(CSSConstants.CSS_WAIT_VALUE,
+        values.put(CSSConstants.CSS_WAIT_VALUE,
                    ValueConstants.WAIT_VALUE);
     }
 
@@ -86,7 +87,7 @@ public class CursorManager extends AbstractValueManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return true;
+        return true;
     }
 
     /**
@@ -114,9 +115,9 @@ public class CursorManager extends AbstractValueManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_CURSOR_PROPERTY;
+        return CSSConstants.CSS_CURSOR_PROPERTY;
     }
-    
+
     /**
      * Implements {@link ValueManager#getDefaultValue()}.
      */
@@ -130,9 +131,9 @@ public class CursorManager extends AbstractValueManager {
     public Value createValue(LexicalUnit lu, CSSEngine engine)
         throws DOMException {
         ListValue result = new ListValue();
-	switch (lu.getLexicalUnitType()) {
-	case LexicalUnit.SAC_INHERIT:
-	    return ValueConstants.INHERIT_VALUE;
+        switch (lu.getLexicalUnitType()) {
+        case LexicalUnit.SAC_INHERIT:
+            return ValueConstants.INHERIT_VALUE;
 
         case LexicalUnit.SAC_URI:
             do {
@@ -161,10 +162,10 @@ public class CursorManager extends AbstractValueManager {
 
         case LexicalUnit.SAC_IDENT:
             String s = lu.getStringValue().toLowerCase().intern();
-	    Object v = values.get(s);
-	    if (v == null) {
-		throw createInvalidIdentifierDOMException(lu.getStringValue());
-	    }
+            Object v = values.get(s);
+            if (v == null) {
+                throw createInvalidIdentifierDOMException(lu.getStringValue());
+            }
             result.append((Value)v);
             lu = lu.getNextLexicalUnit();
         }

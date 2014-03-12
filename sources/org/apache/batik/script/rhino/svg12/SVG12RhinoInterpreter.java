@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,6 +20,7 @@ package org.apache.batik.script.rhino.svg12;
 
 import java.net.URL;
 
+import org.apache.batik.script.ImportInfo;
 import org.apache.batik.script.rhino.RhinoInterpreter;
 
 import org.mozilla.javascript.Context;
@@ -29,7 +31,7 @@ import org.mozilla.javascript.ScriptableObject;
  * A RhinoInterpreter for SVG 1.2 documents.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVG12RhinoInterpreter.java 742654 2009-02-09 17:49:42Z deweese $
  */
 public class SVG12RhinoInterpreter extends RhinoInterpreter {
 
@@ -38,6 +40,14 @@ public class SVG12RhinoInterpreter extends RhinoInterpreter {
      */
     public SVG12RhinoInterpreter(URL documentURL) {
         super(documentURL);
+    }
+
+    /**
+     * Creates an SVG12RhinoInterpreter object.
+     */
+    public SVG12RhinoInterpreter(URL documentURL,
+                                 ImportInfo imports) {
+        super(documentURL, imports);
     }
 
     /**

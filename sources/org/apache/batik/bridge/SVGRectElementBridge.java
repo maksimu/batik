@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,6 +22,7 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
+import org.apache.batik.dom.svg.AbstractSVGAnimatedLength;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
 import org.apache.batik.dom.svg.SVGOMRectElement;
@@ -33,7 +35,7 @@ import org.w3c.dom.Element;
  * Bridge class for the &lt;rect> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGRectElementBridge.java 527382 2007-04-11 04:31:58Z cam $
  */
 public class SVGRectElementBridge extends SVGShapeElementBridge {
 
@@ -71,25 +73,37 @@ public class SVGRectElementBridge extends SVGShapeElementBridge {
             SVGOMRectElement re = (SVGOMRectElement) e;
 
             // 'x' attribute - default is 0
-            float x = re.getX().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _x =
+                (AbstractSVGAnimatedLength) re.getX();
+            float x = _x.getCheckedValue();
 
             // 'y' attribute - default is 0
-            float y = re.getY().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _y =
+                (AbstractSVGAnimatedLength) re.getY();
+            float y = _y.getCheckedValue();
 
             // 'width' attribute - required
-            float w = re.getWidth().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _width =
+                (AbstractSVGAnimatedLength) re.getWidth();
+            float w = _width.getCheckedValue();
 
             // 'height' attribute - required
-            float h = re.getHeight().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _height =
+                (AbstractSVGAnimatedLength) re.getHeight();
+            float h = _height.getCheckedValue();
 
             // 'rx' attribute - default is 0
-            float rx = re.getRx().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _rx =
+                (AbstractSVGAnimatedLength) re.getRx();
+            float rx = _rx.getCheckedValue();
             if (rx > w / 2) {
                 rx = w / 2;
             }
 
             // 'ry' attribute - default is rx
-            float ry = re.getRy().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _ry =
+                (AbstractSVGAnimatedLength) re.getRy();
+            float ry = _ry.getCheckedValue();
             if (ry > h / 2) {
                 ry = h / 2;
             }
@@ -98,7 +112,7 @@ public class SVGRectElementBridge extends SVGShapeElementBridge {
             if (rx == 0 || ry == 0) {
                 shape = new Rectangle2D.Float(x, y, w, h);
             } else {
-                shape = new RoundRectangle2D.Float(x, y, w, h, rx*2, ry*2);
+                shape = new RoundRectangle2D.Float(x, y, w, h, rx * 2, ry * 2);
             }
             shapeNode.setShape(shape);
         } catch (LiveAttributeException ex) {

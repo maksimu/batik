@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,6 +21,10 @@ package org.apache.batik.dom.svg;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.batik.anim.values.AnimatablePointListValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
+
 import org.apache.batik.parser.ParseException;
 
 import org.w3c.dom.Attr;
@@ -33,9 +38,9 @@ import org.w3c.dom.svg.SVGPointList;
  * This class is the implementation of the SVGAnimatedPoints interface.
  *
  * @author <a href="mailto:nicolas.socheleau@bitflash.com">Nicolas Socheleau</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedPoints.java 527382 2007-04-11 04:31:58Z cam $
  */
-public class SVGOMAnimatedPoints 
+public class SVGOMAnimatedPoints
         extends AbstractSVGAnimatedValue
         implements SVGAnimatedPoints {
 
@@ -75,7 +80,7 @@ public class SVGOMAnimatedPoints
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimatedPointList#getPoints()}.
+     * <b>DOM</b>: Implements {@link SVGAnimatedPoints#getPoints()}.
      */
     public SVGPointList getPoints() {
         if (baseVal == null) {
@@ -85,7 +90,7 @@ public class SVGOMAnimatedPoints
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimatedPointList#getAnimatedPoints()}.
+     * <b>DOM</b>: Implements {@link SVGAnimatedPoints#getAnimatedPoints()}.
      */
     public SVGPointList getAnimatedPoints() {
         if (animVal == null) {
@@ -95,22 +100,58 @@ public class SVGOMAnimatedPoints
     }
 
     /**
-     * Sets the animated value.
+     * Throws an exception if the points list value is malformed.
      */
-    public void setAnimatedValue(float[] pts) {
-        if (animVal == null) {
-            animVal = new AnimSVGPointList();
+    public void check() {
+        if (!hasAnimVal) {
+            if (baseVal == null) {
+                baseVal = new BaseSVGPointList();
+            }
+            baseVal.revalidate();
+            if (baseVal.missing) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+            }
+            if (baseVal.malformed) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                     baseVal.getValueAsString());
+            }
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(pts);
-        fireAnimatedAttributeListeners();
     }
 
     /**
-     * Resets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGPointList pl = getPoints();
+        int n = pl.getNumberOfItems();
+        float[] points = new float[n * 2];
+        for (int i = 0; i < n; i++) {
+            SVGPoint p = pl.getItem(i);
+            points[i * 2] = p.getX();
+            points[i * 2 + 1] = p.getY();
+        }
+        return new AnimatablePointListValue(target, points);
+    }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            AnimatablePointListValue animPointList =
+                (AnimatablePointListValue) val;
+            if (animVal == null) {
+                animVal = new AnimSVGPointList();
+            }
+            animVal.setAnimatedValue(animPointList.getNumbers());
+        }
         fireAnimatedAttributeListeners();
     }
 
@@ -159,6 +200,16 @@ public class SVGOMAnimatedPoints
     protected class BaseSVGPointList extends AbstractSVGPointList {
 
         /**
+         * Whether the attribute is missing.
+         */
+        protected boolean missing;
+
+        /**
+         * Whether the attribute is malformed.
+         */
+        protected boolean malformed;
+
+        /**
          * Create a DOMException.
          */
         protected DOMException createDOMException(short type, String key,
@@ -199,6 +250,26 @@ public class SVGOMAnimatedPoints
         }
 
         /**
+         * Resets the value of the associated attribute.
+         */
+        protected void resetAttribute() {
+            super.resetAttribute();
+            missing = false;
+            malformed = false;
+        }
+
+        /**
+         * Appends the string representation of the given {@link SVGItem} to
+         * the DOM attribute.  This is called in response to an append to
+         * the list.
+         */
+        protected void resetAttribute(SVGItem item) {
+            super.resetAttribute(item);
+            missing = false;
+            malformed = false;
+        }
+
+        /**
          * Initializes the list, if needed.
          */
         protected void revalidate() {
@@ -206,11 +277,14 @@ public class SVGOMAnimatedPoints
                 return;
             }
 
+            valid = true;
+            missing = false;
+            malformed = false;
+
             String s = getValueAsString();
             if (s == null) {
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+                missing = true;
+                return;
             }
             try {
                 ListBuilder builder = new ListBuilder();
@@ -223,12 +297,8 @@ public class SVGOMAnimatedPoints
                 itemList = builder.getList();
             } catch (ParseException e) {
                 itemList = new ArrayList(1);
-                valid = true;
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED, s);
+                malformed = true;
             }
-            valid = true;
         }
     }
 
@@ -288,7 +358,7 @@ public class SVGOMAnimatedPoints
             if (itemList.size() == 0) {
                 return "";
             }
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer( itemList.size() * 8 );
             Iterator i = itemList.iterator();
             if (i.hasNext()) {
                 sb.append(((SVGItem) i.next()).getValueAsString());

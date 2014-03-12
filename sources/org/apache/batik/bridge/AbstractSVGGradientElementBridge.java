@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,7 +38,7 @@ import org.w3c.dom.Node;
  * Bridge class for vending gradients.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: AbstractSVGGradientElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class AbstractSVGGradientElementBridge
         extends AnimatableGenericSVGBridge
@@ -49,7 +50,7 @@ public abstract class AbstractSVGGradientElementBridge
     protected AbstractSVGGradientElementBridge() {}
 
     /**
-     * Creates a <tt>Paint</tt> according to the specified parameters.
+     * Creates a <code>Paint</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param paintElement the element that defines a Paint
@@ -208,7 +209,7 @@ public abstract class AbstractSVGGradientElementBridge
     }
 
     /**
-     * Returns a list of <tt>Stop</tt> elements, children of the
+     * Returns a list of <code>Stop</code> elements, children of the
      * specified paintElement can have or null if any.
      *
      * @param gradientElement the paint element
@@ -300,7 +301,7 @@ public abstract class AbstractSVGGradientElementBridge
         }
 
         /**
-         * Creates a <tt>Stop</tt> according to the specified parameters.
+         * Creates a <code>Stop</code> according to the specified parameters.
          *
          * @param ctx the bridge context to use
          * @param gradientElement the gradient element
@@ -321,10 +322,10 @@ public abstract class AbstractSVGGradientElementBridge
             float offset;
             try {
                 offset = SVGUtilities.convertRatio(s);
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, stopElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
-                     new Object[] {SVG_OFFSET_ATTRIBUTE, s, ex});
+                    (ctx, stopElement, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                     new Object[] {SVG_OFFSET_ATTRIBUTE, s, nfEx });
             }
             Color color
                 = CSSUtilities.convertStopColor(stopElement, opacity, ctx);

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,7 +30,7 @@ import org.apache.batik.ext.awt.image.renderable.Filter;
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
  * @author <a href="mailto:Thomas.DeWeese@Kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: RasterImageNode.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class RasterImageNode extends AbstractGraphicsNode {
 
@@ -39,7 +40,7 @@ public class RasterImageNode extends AbstractGraphicsNode {
     protected Filter image;
 
     /**
-     * Constructs a new empty <tt>RasterImageNode</tt>.
+     * Constructs a new empty <code>RasterImageNode</code>.
      */
     public RasterImageNode() {}
 

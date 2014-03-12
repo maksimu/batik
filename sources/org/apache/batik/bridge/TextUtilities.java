@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -34,7 +35,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
  * @author <a href="mailto:bill.haneman@ireland.sun.com">Bill Haneman</a>
- * @version $Id$
+ * @version $Id: TextUtilities.java 1141532 2011-06-30 13:32:08Z jeremias $
  */
 public abstract class TextUtilities implements CSSConstants, ErrorConstants {
 
@@ -125,9 +126,9 @@ public abstract class TextUtilities implements CSSConstants, ErrorConstants {
                 values.add
                     (new Float(Math.toRadians
                                (SVGUtilities.convertSVGNumber(s))));
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, element, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, element, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object [] {attrName, valueStr});
             }
         }
@@ -205,8 +206,10 @@ public abstract class TextUtilities implements CSSConstants, ErrorConstants {
     public static Float convertFontWeight(Element e) {
         Value v = CSSUtilities.getComputedStyle
             (e, SVGCSSEngine.FONT_WEIGHT_INDEX);
-        float f = v.getFloatValue();
-        switch ((int)f) {
+        int weight = (int)v.getFloatValue();
+        //Note: the mapping from CSS2 to TextAttribute's weights is somewhat arbitrary.
+        //Important is to map 400/normal to REGULAR and 700/bold to BOLD.
+        switch (weight) {
         case 100:
             return TextAttribute.WEIGHT_EXTRA_LIGHT;
         case 200:
@@ -218,17 +221,27 @@ public abstract class TextUtilities implements CSSConstants, ErrorConstants {
         case 500:
             return TextAttribute.WEIGHT_SEMIBOLD;
         default:
-            return TextAttribute.WEIGHT_BOLD;
-            /* Would like to do this but the JDK 1.3 & 1.4
-               seems to drop back to 'REGULAR' instead of 'BOLD'
-               if there is not a match.
-        case 700:
-            return TextAttribute.WEIGHT_HEAVY;
-        case 800:
-            return TextAttribute.WEIGHT_EXTRABOLD;
-        case 900:
-            return TextAttribute.WEIGHT_ULTRABOLD;
-            */
+            String javaVersionString = System.getProperty("java.specification.version");
+            float javaVersion = (javaVersionString != null
+                    ? Float.parseFloat(javaVersionString) : 1.5f);
+            if (javaVersion < 1.5) {
+                // Would like to do this but the JDK 1.3 & 1.4
+                // seems to drop back to 'REGULAR' instead of 'BOLD'
+                // if there is not a match.
+                return TextAttribute.WEIGHT_BOLD;
+            }
+            switch (weight) {
+            case 600:
+                return TextAttribute.WEIGHT_MEDIUM;
+            case 700:
+                return TextAttribute.WEIGHT_BOLD;
+            case 800:
+                return TextAttribute.WEIGHT_HEAVY;
+            case 900:
+                return TextAttribute.WEIGHT_ULTRABOLD;
+            default:
+                return TextAttribute.WEIGHT_REGULAR; //No matching CSS value (probably illegal)
+            }
         }
     }
 

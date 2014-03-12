@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -33,15 +34,15 @@ import org.apache.batik.util.io.StringNormalizingReader;
  * and error handling methods.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractParser.java 502167 2007-02-01 09:26:51Z dvholten $
  */
 public abstract class AbstractParser implements Parser {
 
     /**
      * The default resource bundle base name.
      */
-    public final static String BUNDLE_CLASSNAME =
-	"org.apache.batik.parser.resources.Messages";
+    public static final String BUNDLE_CLASSNAME =
+        "org.apache.batik.parser.resources.Messages";
 
     /**
      * The error handler.
@@ -52,7 +53,7 @@ public abstract class AbstractParser implements Parser {
      * The localizable support.
      */
     protected LocalizableSupport localizableSupport =
-        new LocalizableSupport(BUNDLE_CLASSNAME, 
+        new LocalizableSupport(BUNDLE_CLASSNAME,
                                AbstractParser.class.getClassLoader());
 
     /**
@@ -69,14 +70,14 @@ public abstract class AbstractParser implements Parser {
      * Returns the current character value.
      */
     public int getCurrent() {
-	return current;
+        return current;
     }
 
     /**
      * Implements {@link org.apache.batik.i18n.Localizable#setLocale(Locale)}.
      */
     public void setLocale(Locale l) {
-	localizableSupport.setLocale(l);
+        localizableSupport.setLocale(l);
     }
 
     /**
@@ -108,7 +109,7 @@ public abstract class AbstractParser implements Parser {
      * @param handler The error handler.
      */
     public void setErrorHandler(ErrorHandler handler) {
-	errorHandler = handler;
+        errorHandler = handler;
     }
 
     /**
@@ -174,6 +175,32 @@ public abstract class AbstractParser implements Parser {
     }
 
     /**
+     * simple api to call often reported error.
+     * Just a wrapper for reportError().
+     *
+     * @param expectedChar what caller expected
+     * @param currentChar what caller found
+     */
+    protected void reportCharacterExpectedError( char expectedChar, int currentChar ){
+        reportError("character.expected",
+                    new Object[] { new Character( expectedChar ),
+                                   new Integer( currentChar ) });
+
+    }
+
+    /**
+     * simple api to call often reported error.
+     * Just a wrapper for reportError().
+     *
+     * @param currentChar what the caller found and didnt expect
+     */
+    protected void reportUnexpectedCharacterError( int currentChar ){
+        reportError("character.unexpected",
+                    new Object[] { new Integer( currentChar ) });
+
+    }
+
+    /**
      * Returns a localized error message.
      * @param key The message key in the resource bundle.
      * @param args The message arguments.
@@ -216,27 +243,27 @@ public abstract class AbstractParser implements Parser {
      */
     protected void skipCommaSpaces() throws IOException {
         wsp1: for (;;) {
-	    switch (current) {
-	    default:
-		break wsp1;
-	    case 0x20:
-	    case 0x9:
-	    case 0xD:
-	    case 0xA:
-	    }
-	    current = reader.read();
-	}
-	if (current == ',') {
+            switch (current) {
+            default:
+                break wsp1;
+            case 0x20:
+            case 0x9:
+            case 0xD:
+            case 0xA:
+            }
+            current = reader.read();
+        }
+        if (current == ',') {
             wsp2: for (;;) {
-		switch (current = reader.read()) {
-		default:
-		    break wsp2;
-		case 0x20:
-		case 0x9:
-		case 0xD:
-		case 0xA:
-		}
-	    }
-	}
+                switch (current = reader.read()) {
+                default:
+                    break wsp2;
+                case 0x20:
+                case 0x9:
+                case 0xD:
+                case 0xA:
+                }
+            }
+        }
     }
 }

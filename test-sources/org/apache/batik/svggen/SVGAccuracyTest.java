@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -42,25 +43,24 @@ import org.apache.batik.test.AbstractTest;
 import org.apache.batik.test.DefaultTestReport;
 import org.apache.batik.test.TestReport;
 
-import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DOMImplementation;
 
 /**
  * This test validates that a given rendering sequence, modeled
- * by a <tt>Painter</tt> is properly converted to an SVG document
+ * by a <code>Painter</code> is properly converted to an SVG document
  * by comparing the generated SVG document to a known, valid
  * SVG reference.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SVGAccuracyTest.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGAccuracyTest extends AbstractTest
     implements SVGConstants{
     /**
      * Error when an error occurs while generating SVG
-     * with the <tt>SVGGraphics2D</tt>
+     * with the <code>SVGGraphics2D</code>
      * {0} = painter class name if painter not null. Null otherwise
      * {1} = exception class name
      * {2} = exception message
@@ -137,7 +137,7 @@ public class SVGAccuracyTest extends AbstractTest
 
     /**
      * Constructor
-     * @param painter the <tt>Painter</tt> object which will
+     * @param painter the <code>Painter</code> object which will
      *        perform an arbitrary rendering sequence.
      * @param refURL the location of a reference SVG which
      *        should be exactly identical to that generated
@@ -288,7 +288,7 @@ public class SVGAccuracyTest extends AbstractTest
 
         return report;
     }
-    
+
     public int computeColumnNumber(String aStr, String bStr){
         if(aStr == null || bStr == null){
             return -1;
@@ -345,7 +345,7 @@ public class SVGAccuracyTest extends AbstractTest
     }
 
     /**
-     * Builds an <tt>SVGGraphics2D</tt> with a default
+     * Builds an <code>SVGGraphics2D</code> with a default
      * configuration.
      */
     protected SVGGraphics2D buildSVGGraphics2D() {
@@ -354,7 +354,7 @@ public class SVGAccuracyTest extends AbstractTest
         String namespaceURI = SVGConstants.SVG_NAMESPACE_URI;
         Document domFactory = impl.createDocument(namespaceURI, SVG_SVG_TAG, null);
         SVGGeneratorContext ctx = SVGGeneratorContext.createDefault(domFactory);
-        GraphicContextDefaults defaults 
+        GraphicContextDefaults defaults
             = new GraphicContextDefaults();
         defaults.font = new Font("Arial", Font.PLAIN, 12);
         ctx.setGraphicContextDefaults(defaults);
@@ -364,7 +364,7 @@ public class SVGAccuracyTest extends AbstractTest
 
 
     /**
-     * Eventually configure the <tt>SVGGraphics2D</tt> after dumping in it and just
+     * Eventually configure the <code>SVGGraphics2D</code> after dumping in it and just
      * before serializing the DOM Tree.
      */
     protected void configureSVGGraphics2D(SVGGraphics2D g2d) {}

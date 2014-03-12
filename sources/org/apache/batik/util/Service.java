@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -39,7 +40,7 @@ import java.util.List;
  * be missing in the JDK.
  *
  * @author <a href="mailto:Thomas.DeWeeese@Kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: Service.java 755817 2009-03-19 02:52:07Z cam $
  */
 public class Service {
 
@@ -89,13 +90,16 @@ public class Service {
         }
 
         while (e.hasMoreElements()) {
+            InputStream    is = null;
+            Reader         r  = null;
+            BufferedReader br = null;
             try {
                 URL u = (URL)e.nextElement();
                 // System.out.println("URL: " + u);
 
-                InputStream    is = u.openStream();
-                Reader         r  = new InputStreamReader(is, "UTF-8");
-                BufferedReader br = new BufferedReader(r);
+                is = u.openStream();
+                r  = new InputStreamReader(is, "UTF-8");
+                br = new BufferedReader(r);
 
                 String line = br.readLine();
                 while (line != null) {
@@ -115,7 +119,7 @@ public class Service {
                         }
                         // System.out.println("Line: " + line);
 
-                        // Try and load the class 
+                        // Try and load the class
                         Object obj = cl.loadClass(line).newInstance();
                         // stick it into our vector...
                         l.add(obj);
@@ -128,6 +132,29 @@ public class Service {
                 // Just try the next file...
             } catch (LinkageError le) {
                 // Just try the next file...
+            } finally {
+                // close and release all io-resources to avoid leaks
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException ignored) {
+                    }
+                    is = null;
+                }
+                if (r != null) {
+                    try{
+                        r.close();
+                    } catch (IOException ignored) {
+                    }
+                    r = null;
+                }
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException ignored) {
+                    }
+                    br = null;
+                }
             }
         }
         return l.iterator();

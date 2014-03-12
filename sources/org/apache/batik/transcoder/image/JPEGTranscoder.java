@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,10 +32,10 @@ import org.apache.batik.transcoder.TranscodingHints;
 import org.apache.batik.transcoder.image.resources.Messages;
 
 /**
- * This class is an <tt>ImageTranscoder</tt> that produces a JPEG image.
+ * This class is an <code>ImageTranscoder</code> that produces a JPEG image.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: JPEGTranscoder.java 1372327 2012-08-13 09:00:43Z helder $
  */
 public class JPEGTranscoder extends ImageTranscoder {
 
@@ -82,7 +83,7 @@ public class JPEGTranscoder extends ImageTranscoder {
                 te = new TranscoderException
                     (Messages.formatMessage("jpeg.unspecifiedQuality", null));
                 handler.error(te);
-                quality = .75f;
+                quality = 0.75f;
             }
 
             ImageWriter writer = ImageWriterRegistry.getInstance()
@@ -105,23 +106,28 @@ public class JPEGTranscoder extends ImageTranscoder {
 
     /**
      * The encoder quality factor key.
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_QUALITY</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Float (between 0 and 1)</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">1 (no lossy)</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">Recommended</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Specify the JPEG image encoding quality.</TD></TR>
-     * </TABLE>
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_QUALITY</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Float (between 0 and 1)</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">1 (no lossy)</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">Recommended</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Specify the JPEG image encoding quality.</td>
+     *   </tr>
+     * </table>
      */
     public static final TranscodingHints.Key KEY_QUALITY
         = new QualityKey();
@@ -133,7 +139,7 @@ public class JPEGTranscoder extends ImageTranscoder {
         public boolean isCompatibleValue(Object v) {
             if (v instanceof Float) {
                 float q = ((Float)v).floatValue();
-                return (q > 0 && q <= 1f);
+                return (q > 0 && q <= 1.0f);
             } else {
                 return false;
             }
@@ -147,7 +153,7 @@ public class JPEGTranscoder extends ImageTranscoder {
     private static class OutputStreamWrapper extends OutputStream {
         OutputStream os;
         /**
-         * Constructs a wrapper around <tt>os</tt> that will not throw
+         * Constructs a wrapper around <code>os</code> that will not throw
          * IOExceptions.
          * <@param os>The Stream to wrap.
          */
@@ -155,8 +161,8 @@ public class JPEGTranscoder extends ImageTranscoder {
             this.os = os;
         }
 
-        public void close() throws IOException { 
-            if (os == null) return; 
+        public void close() throws IOException {
+            if (os == null) return;
             try {
                 os.close();
             } catch (IOException ioe) {
@@ -164,8 +170,8 @@ public class JPEGTranscoder extends ImageTranscoder {
             }
         }
 
-        public void flush() throws IOException { 
-            if (os == null) return; 
+        public void flush() throws IOException {
+            if (os == null) return;
             try {
                 os.flush();
             } catch (IOException ioe) {
@@ -173,26 +179,26 @@ public class JPEGTranscoder extends ImageTranscoder {
             }
         }
 
-        public void write(byte[] b) throws IOException { 
-            if (os == null) return; 
+        public void write(byte[] b) throws IOException {
+            if (os == null) return;
             try {
                 os.write(b);
             } catch (IOException ioe) {
                 os = null;
             }
         }
-        
-        public void write(byte[] b, int off, int len) throws IOException { 
-            if (os == null) return; 
+
+        public void write(byte[] b, int off, int len) throws IOException {
+            if (os == null) return;
             try {
                 os.write(b, off, len);
             } catch (IOException ioe) {
                 os = null;
             }
         }
-        
-        public void write(int b)  throws IOException { 
-            if (os == null) return; 
+
+        public void write(int b)  throws IOException {
+            if (os == null) return;
             try {
                 os.write(b);
             } catch (IOException ioe) {

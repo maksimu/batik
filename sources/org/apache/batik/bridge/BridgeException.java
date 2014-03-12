@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import org.w3c.dom.svg.SVGDocument;
  * Thrown when the bridge has detected an error.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: BridgeException.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class BridgeException extends RuntimeException {
 
@@ -52,8 +53,8 @@ public class BridgeException extends RuntimeException {
     protected GraphicsNode node;
 
     /**
-     * Constructs a new <tt>BridgeException</tt> based on the specified
-     * <tt>LiveAttributeException</tt>.
+     * Constructs a new <code>BridgeException</code> based on the specified
+     * <code>LiveAttributeException</code>.
      *
      * @param ctx the bridge context to use for determining the element's
      *            source position
@@ -82,8 +83,8 @@ public class BridgeException extends RuntimeException {
         }
     }
 
-    /**
-     * Constructs a new <tt>BridgeException</tt> with the specified parameters.
+     /**
+     * Constructs a new <code>BridgeException</code> with the specified parameters.
      *
      * @param ctx the bridge context to use for determining the element's
      *            source position
@@ -93,6 +94,7 @@ public class BridgeException extends RuntimeException {
      */
     public BridgeException(BridgeContext ctx, Element e, String code,
                            Object[] params) {
+
         this.e = e;
         this.code = code;
         this.params = params;
@@ -102,7 +104,31 @@ public class BridgeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new <tt>BridgeException</tt> with the specified parameters.
+     * Constructs a new <code>BridgeException</code> with the specified parameters.
+     *
+     * @param ctx the bridge context to use for determining the element's
+     *            source position
+     * @param e the element on which the error occurred
+     * @param ex the exception which was the root-cause for this exception
+     * @param code the error code
+     * @param params the parameters to use for the error message
+     */
+    public BridgeException(BridgeContext ctx, Element e, Exception ex, String code,
+                           Object[] params) {
+
+        // todo ex can be chained in jdk >= 1.4
+        this.e = e;
+
+        message = ex.getMessage();
+        this.code = code;
+        this.params = params;
+        if (e != null && ctx != null) {
+            this.line = ctx.getDocumentLoader().getLineNumber(e);
+        }
+    }
+
+    /**
+     * Constructs a new <code>BridgeException</code> with the specified parameters.
      *
      * @param ctx the bridge context to use for determining the element's
      *            source position
@@ -161,9 +187,7 @@ public class BridgeException extends RuntimeException {
         fullparams[0] = uri;
         fullparams[1] = new Integer(line);
         fullparams[2] = lname;
-        for (int i=0; i < params.length; ++i) {
-            fullparams[i+3] = params[i];
-        }
+        System.arraycopy( params, 0, fullparams, 3, params.length );
         return Messages.formatMessage(code, fullparams);
     }
 

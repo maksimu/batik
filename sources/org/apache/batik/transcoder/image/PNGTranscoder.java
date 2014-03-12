@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2005-2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,10 +31,10 @@ import org.apache.batik.transcoder.keys.FloatKey;
 import org.apache.batik.transcoder.keys.IntegerKey;
 
 /**
- * This class is an <tt>ImageTranscoder</tt> that produces a PNG image.
+ * This class is an <code>ImageTranscoder</code> that produces a PNG image.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: PNGTranscoder.java 1372327 2012-08-13 09:00:43Z helder $
  */
 public class PNGTranscoder extends ImageTranscoder {
 
@@ -124,10 +125,10 @@ public class PNGTranscoder extends ImageTranscoder {
     // --------------------------------------------------------------------
 
     /**
-     * This interface is used by <tt>PNGTranscoder</tt> to write PNG images 
+     * This interface is used by <code>PNGTranscoder</code> to write PNG images 
      * through different codecs.
      *
-     * @version $Id$
+     * @version $Id: PNGTranscoder.java 1372327 2012-08-13 09:00:43Z helder $
      */
     public interface WriteAdapter {
         
@@ -151,27 +152,31 @@ public class PNGTranscoder extends ImageTranscoder {
     /**
      * The gamma correction key.
      *
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_GAMMA</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Float</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">PNGEncodeParam.INTENT_PERCEPTUAL</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Controls the gamma correction of the png image. 
-     *                  A value of zero for gamma disables the generation 
-     *                  of a gamma chunk.  No value causes an sRGB chunk 
-     *                  to be generated.</TD>
-     * </TR>
-     * </TABLE>
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_GAMMA</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Float</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">PNGEncodeParam.INTENT_PERCEPTUAL</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Controls the gamma correction of the PNG image. 
+     *       A value of zero for gamma disables the generation 
+     *       of a gamma chunk.  No value causes an sRGB chunk 
+     *       to be generated.</td>
+     *   </tr>
+     * </table>
      */
     public static final TranscodingHints.Key KEY_GAMMA
         = new FloatKey();
@@ -188,26 +193,30 @@ public class PNGTranscoder extends ImageTranscoder {
      * The color indexed image key to specify number of colors used in
      * palette.
      *
-     * <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1">
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Key: </TH>
-     * <TD VALIGN="TOP">KEY_INDEXED</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Value: </TH>
-     * <TD VALIGN="TOP">Integer</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Default: </TH>
-     * <TD VALIGN="TOP">none/true color image</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Required: </TH>
-     * <TD VALIGN="TOP">No</TD></TR>
-     * <TR>
-     * <TH VALIGN="TOP" ALIGN="RIGHT"><P ALIGN="RIGHT">Description: </TH>
-     * <TD VALIGN="TOP">Turns on the reduction of the image to index 
-     *     colors by specifying color bit depth, 1,2,4,8. The resultant 
-     *     PNG will be an indexed PNG with color bit depth specified.</TD>
-     * </TR>
-     * </TABLE> 
+     * <table border="0" cellspacing="0" cellpadding="1">
+     *   <tr>
+     *     <th valign="top" align="right">Key:</th>
+     *     <td valign="top">KEY_INDEXED</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Value:</th>
+     *     <td valign="top">Integer</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Default:</th>
+     *     <td valign="top">none/true color image</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Required:</th>
+     *     <td valign="top">No</td>
+     *   </tr>
+     *   <tr>
+     *     <th valign="top" align="right">Description:</th>
+     *     <td valign="top">Turns on the reduction of the image to index 
+     *       colors by specifying color bit depth, 1, 2, 4 or 8. The resultant 
+     *       PNG will be an indexed PNG with color bit depth specified.</td>
+     *   </tr>
+     * </table> 
      */
     public static final TranscodingHints.Key KEY_INDEXED
         = new IntegerKey();

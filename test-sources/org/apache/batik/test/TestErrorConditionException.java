@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,11 +22,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * Exception which <tt>AbstractTest</tt> extensions can throw from the 
- * <tt>rumImpl</tt> method to report an error condition.
+ * Exception which <code>AbstractTest</code> extensions can throw from the 
+ * <code>rumImpl</code> method to report an error condition.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: TestErrorConditionException.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class TestErrorConditionException extends Exception {
     /**

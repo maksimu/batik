@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,21 +21,19 @@ package org.apache.batik.dom.svg;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-import org.apache.batik.anim.AnimationTargetListener;
-
 /**
  * This interface is the placeholder for SVG application informations.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGContext.java 478249 2006-11-22 17:29:37Z dvholten $
  */
 public interface SVGContext {
 
     // Constants for percentage interpretation.
-    static final int PERCENTAGE_FONT_SIZE       = 0;
-    static final int PERCENTAGE_VIEWPORT_WIDTH  = 1;
-    static final int PERCENTAGE_VIEWPORT_HEIGHT = 2;
-    static final int PERCENTAGE_VIEWPORT_SIZE   = 3;
+    int PERCENTAGE_FONT_SIZE       = 0;
+    int PERCENTAGE_VIEWPORT_WIDTH  = 1;
+    int PERCENTAGE_VIEWPORT_HEIGHT = 2;
+    int PERCENTAGE_VIEWPORT_SIZE   = 3;
 
     /**
      * Returns the size of a px CSS unit in millimeters.
@@ -95,25 +94,4 @@ public interface SVGContext {
      * Returns the font-size on the associated element.
      */
     float getFontSize();
-
-    /**
-     * Converts the given SVG length into user units.
-     * @param v the SVG length value
-     * @param type the SVG length units (one of the
-     *             {@link SVGLength}.SVG_LENGTH_* constants)
-     * @param pcInterp how to interpretet percentage values (one of the
-     *             {@link SVGContext}.PERCENTAGE_* constants) 
-     * @return the SVG value in user units
-     */
-    float svgToUserSpace(float v, int type, int pcInterp);
-
-    /**
-     * Adds a listener for changes to the given CSS property.
-     */
-    void addTargetListener(String pn, AnimationTargetListener l);
-
-    /**
-     * Removes a listener for changes to the given attribute value.
-     */
-    void removeTargetListener(String pn, AnimationTargetListener l);
 }

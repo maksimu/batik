@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,17 +21,17 @@ package org.apache.batik.gvt.filter;
 import org.apache.batik.gvt.GraphicsNode;
 
 /**
- * This interface lets <tt>GraphicsNode</tt> create instances of
- * <tt>GraphicsNodeRable</tt> appropriate for the filter module
+ * This interface lets <code>GraphicsNode</code> create instances of
+ * <code>GraphicsNodeRable</code> appropriate for the filter module
  * implementation.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: GraphicsNodeRableFactory.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface GraphicsNodeRableFactory {
     /**
-     * Returns a <tt>GraphicsNodeRable</tt> initialized with the
-     * input <tt>GraphicsNode</tt>.
+     * Returns a <code>GraphicsNodeRable</code> initialized with the
+     * input <code>GraphicsNode</code>.
      */
     GraphicsNodeRable createGraphicsNodeRable(GraphicsNode node);
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,7 +27,7 @@ import org.apache.batik.xml.XMLUtilities;
  * fragment identifiers.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: FragmentIdentifierParser.java 502167 2007-02-01 09:26:51Z dvholten $
  */
 public class FragmentIdentifierParser extends NumberParser {
 
@@ -169,9 +170,7 @@ public class FragmentIdentifierParser extends NumberParser {
                 fragmentIdentifierHandler.idReference(id);
 
                 if (current != q) {
-                    reportError("character.expected",
-                                new Object[] { new Character(q),
-                                               new Integer(current) });
+                    reportCharacterExpectedError( q, current );
                     break ident;
                 }
                 current = reader.read();
@@ -1440,30 +1439,6 @@ public class FragmentIdentifierParser extends NumberParser {
                   break loop;
           }
       }
-    }
-
-    /**
-     * convenience method to simplify error-reporting.
-     * We just wrap the data into a call to {@link #reportError}.
-     *
-     * @param exp the expected character
-     * @param actual character from input
-     */
-    private void reportCharacterExpectedError( char exp, int actual ){
-        reportError("character.expected",
-                new Object[] { new Character( exp ),
-                               new Integer( actual ) });
-    }
-
-    /**
-     * convenience method to simplify error-reporting.
-     * We just wrap the data into a call to {@link #reportError}.
-     *
-     * @param actual the actual current character
-     */
-    private void reportUnexpectedCharacterError( int actual ){
-        reportError("character.unexpected",
-                new Object[] { new Integer( actual ) });
     }
 
 }

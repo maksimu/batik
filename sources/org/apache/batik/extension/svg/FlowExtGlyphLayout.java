@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2004 The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -33,7 +34,7 @@ import org.apache.batik.gvt.text.GlyphLayout;
  * A GlyphLayout class for SVG 1.2 flowing text.
  *
  * @author <a href="mailto:deweese@apache.org">deweese</a>
- * @version $Id$
+ * @version $Id: FlowExtGlyphLayout.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class FlowExtGlyphLayout extends GlyphLayout {
 
@@ -98,8 +99,8 @@ public class FlowExtGlyphLayout extends GlyphLayout {
     // display order not logical order).
 
     /**
-     * This will wrap the text associated with <tt>aci</tt> and
-     * <tt>layouts</tt>.
+     * This will wrap the text associated with <code>aci</code> and
+     * <code>layouts</code>.
      * @param acis An array of Attributed Charater Iterators containing the 
      *             text to wrap.  There is one aci per text chunk
      *             (which maps to flowPara elements. Used to access
@@ -150,6 +151,12 @@ public class FlowExtGlyphLayout extends GlyphLayout {
         for (int chunk=0; clIter.hasNext(); chunk++) {
             // System.out.println("Chunk: " + chunk);
             AttributedCharacterIterator aci = acis[chunk];
+            
+            Float lineHeightFloat 	   = 0.0f;
+            lineHeightFloat = (Float)aci.getAttribute(LINE_HEIGHT);
+            if (lineHeightFloat != null)
+                lineHeight = lineHeightFloat.floatValue();
+            
             if (currentRegion != null)
             {
                 List extraP = (List)aci.getAttribute(FLOW_EMPTY_PARAGRAPH);

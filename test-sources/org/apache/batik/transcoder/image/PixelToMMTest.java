@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import org.apache.batik.transcoder.TranscoderInput;
  * transcoding hint.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$ */
+ * @version $Id: PixelToMMTest.java 1372129 2012-08-12 15:31:50Z helder $ */
 public class PixelToMMTest extends AbstractImageTranscoderTest {
 
     /** The URI of the input image. */
@@ -40,22 +41,22 @@ public class PixelToMMTest extends AbstractImageTranscoderTest {
     protected Float px2mm;
 
     /**
-     * Constructs a new <tt>PixelToMMTest</tt>.
+     * Constructs a new <code>PixelToMMTest</code>.
      *
      * @param inputURI the URI of the input image
      * @param refImageURI the URI of the reference image
      * @param px2mm the pixel to mm conversion factor
      */
     public PixelToMMTest(String inputURI, 
-			 String refImageURI, 
-			 Float px2mm) {
+                         String refImageURI, 
+                         Float px2mm) {
         this.inputURI = inputURI;
         this.refImageURI = refImageURI;
         this.px2mm = px2mm;
     }
 
     /**
-     * Creates the <tt>TranscoderInput</tt>.
+     * Creates the <code>TranscoderInput</code>.
      */
     protected TranscoderInput createTranscoderInput() {
         return new TranscoderInput(resolveURL(inputURI).toString());

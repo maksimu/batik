@@ -45,13 +45,13 @@
   Requirements
   ------------
 
-   o  A Java 1.3 or later compatible virtual machine for your operating system.
+   o  A Java 1.4 or later compatible virtual machine for your operating system.
 
   Optional Libraries
   ------------------
 
   By default, Batik includes a scripting engine for ECMAScript. It is possible
-  to add support for additional scripting languages (Python and TCL)
+  to add support for additional scripting languages (Python and TCL).
   
   See http://xmlgraphics.apache.org/batik/install.html#optionalComponents for
   details.
@@ -59,17 +59,17 @@
   Installation Instructions and Documentation
   -------------------------------------------
 
-  Read the Install page at http://xmlgraphics.apache.org/batik for the
-  installation instructions.
+  Read the Install page at http://xmlgraphics.apache.org/batik/install.html
+  for the installation instructions.
 
   Look for the most updated documentation on the Apache Batik web site under
-  the Apache XML Project (http://xmlgraphics.apache.org/batik/).
+  the Apache XML Graphics Project (http://xmlgraphics.apache.org/batik/).
 
 
   Licensing and legal issues
   --------------------------
 
-  For legal and licensing issues, please read the LICENSE file.
+  For legal and licensing issues, please read the LICENSE and NOTICE files.
 
   Thanks for using Apache Batik.
 

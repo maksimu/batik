@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,29 +19,34 @@
 package org.apache.batik.anim.timing;
 
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * An abstract base class for time container elements.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: TimeContainer.java 579456 2007-09-26 03:58:47Z cam $
  */
 public abstract class TimeContainer extends TimedElement {
 
     /**
      * The child {@link TimedElement}s of this time container.
      */
-    protected LinkedHashSet children = new LinkedHashSet();
+    protected List children = new LinkedList();
 
     /**
      * Adds a {@link TimedElement} to this container.
      */
     public void addChild(TimedElement e) {
+        if (e == this) {
+            throw new IllegalArgumentException("recursive datastructure not allowed here!");
+        }
         children.add(e);
         e.parent = this;
         setRoot(e, root);
         root.fireElementAdded(e);
+        root.currentIntervalWillUpdate();
     }
 
     /**
@@ -51,9 +57,10 @@ public abstract class TimeContainer extends TimedElement {
         e.root = root;
         if (e instanceof TimeContainer) {
             TimeContainer c = (TimeContainer) e;
-            TimedElement[] es = c.getChildren();
-            for (int i = 0; i < es.length; i++) {
-                setRoot(es[i], root);
+            Iterator it = c.children.iterator();
+            while (it.hasNext()) {
+                TimedElement te = (TimedElement)it.next();
+                setRoot(te, root);
             }
         }
     }
@@ -66,6 +73,7 @@ public abstract class TimeContainer extends TimedElement {
         e.parent = null;
         setRoot(e, null);
         root.fireElementRemoved(e);
+        root.currentIntervalWillUpdate();
     }
 
     /**
@@ -76,22 +84,39 @@ public abstract class TimeContainer extends TimedElement {
     }
 
     /**
-     * Calculates the local simple time.
+     * Calculates the local simple time.  Currently the hyperlinking parameter
+     * is ignored, so DOM timing events are fired during hyperlinking seeks.
+     * If we were following SMIL 2.1 rather than SMIL Animation, then these
+     * events would have to be surpressed.
+     *
+     * @return the number of seconds until this element becomes active again
+     *         if it currently is not, {@link Float#POSITIVE_INFINITY} if this
+     *         element will become active at some undetermined point in the
+     *         future (because of unresolved begin times, for example) or
+     *         will never become active again, or <code>0f</code> if the
+     *         element is currently active.
      */
-    protected void sampleAt(float parentSimpleTime) {
-        super.sampleAt(parentSimpleTime);
-        sampleChildren(parentSimpleTime);
+    protected float sampleAt(float parentSimpleTime, boolean hyperlinking) {
+        super.sampleAt(parentSimpleTime, hyperlinking);
+        // Maybe check the return value of the previous statement.
+        return sampleChildren(parentSimpleTime, hyperlinking);
     }
 
     /**
      * Samples all the child timed elements.
      */
-    protected void sampleChildren(float parentSimpleTime) {
+    protected float sampleChildren(float parentSimpleTime,
+                                   boolean hyperlinking) {
+        float mint = Float.POSITIVE_INFINITY;
         Iterator i = children.iterator();
         while (i.hasNext()) {
             TimedElement e = (TimedElement) i.next();
-            e.sampleAt(parentSimpleTime);
+            float t = e.sampleAt(parentSimpleTime, hyperlinking);
+            if (t < mint) {
+                mint = t;
+            }
         }
+        return mint;
     }
 
     /**
@@ -104,6 +129,14 @@ public abstract class TimeContainer extends TimedElement {
             TimedElement e = (TimedElement) i.next();
             e.reset(clearCurrentBegin);
         }
+    }
+
+    /**
+     * Returns whether this timed element is for a constant animation (i.e., a
+     * 'set' animation.
+     */
+    protected boolean isConstantAnimation() {
+        return false;
     }
 
     /**

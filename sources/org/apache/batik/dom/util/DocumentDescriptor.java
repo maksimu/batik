@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import org.apache.batik.util.CleanerThread;
  * This class contains informations about a document.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: DocumentDescriptor.java 489226 2006-12-21 00:05:36Z cam $
  */
 public class DocumentDescriptor {
 
@@ -48,7 +49,7 @@ public class DocumentDescriptor {
      * Creates a new table.
      */
     public DocumentDescriptor() {
-      	table = new Entry[INITIAL_CAPACITY];
+        table = new Entry[INITIAL_CAPACITY];
     }
 
     /**
@@ -119,7 +120,7 @@ public class DocumentDescriptor {
             // The key is not in the hash table
             int len = table.length;
             if (count++ >= (len - ( len >> 2 ))) {
-                // more than 75% loaded: grow              
+                // more than 75% loaded: grow
                 rehash();
                 index = hash % table.length;
             }
@@ -194,10 +195,10 @@ public class DocumentDescriptor {
        */
       public Entry next;
 
-	/**
-	 * Creates a new entry
-	 */
-	public Entry(int hash,
+        /**
+         * Creates a new entry
+         */
+        public Entry(int hash,
                      Element element,
                      int locationLine,
                      int locationColumn,
@@ -207,7 +208,7 @@ public class DocumentDescriptor {
             this.locationLine   = locationLine;
             this.locationColumn = locationColumn;
             this.next           = next;
-	}
+        }
 
         public void cleared() {
             removeEntry(this);

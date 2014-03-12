@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,12 +29,12 @@ import org.apache.batik.util.HaltingThread;
  * A graphics node that represents a shape.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: ShapeNode.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class ShapeNode extends AbstractGraphicsNode {
 
     /**
-     * The shape that describes this <tt>ShapeNode</tt>.
+     * The shape that describes this <code>ShapeNode</code>.
      */
     protected Shape shape;
 
@@ -68,7 +69,7 @@ public class ShapeNode extends AbstractGraphicsNode {
     private Shape sensitiveArea;
 
     /**
-     * Constructs a new empty <tt>ShapeNode</tt>.
+     * Constructs a new empty <code>ShapeNode</code>.
      */
     public ShapeNode() {}
 
@@ -77,7 +78,7 @@ public class ShapeNode extends AbstractGraphicsNode {
     //
 
     /**
-     * Sets the shape of this <tt>ShapeNode</tt>.
+     * Sets the shape of this <code>ShapeNode</code>.
      *
      * @param newShape the new shape of this shape node
      */
@@ -96,14 +97,14 @@ public class ShapeNode extends AbstractGraphicsNode {
     }
 
     /**
-     * Returns the shape of this <tt>ShapeNode</tt>.
+     * Returns the shape of this <code>ShapeNode</code>.
      */
     public Shape getShape() {
         return shape;
     }
 
     /**
-     * Sets the <tt>ShapePainter</tt> used by this shape node to render its
+     * Sets the <code>ShapePainter</code> used by this shape node to render its
      * shape.
      *
      * @param newShapePainter the new ShapePainter to use
@@ -121,7 +122,7 @@ public class ShapeNode extends AbstractGraphicsNode {
     }
 
     /**
-     * Returns the <tt>ShapePainter</tt> used by this shape node to render its
+     * Returns the <code>ShapePainter</code> used by this shape node to render its
      * shape.
      */
     public ShapePainter getShapePainter() {
@@ -158,7 +159,7 @@ public class ShapeNode extends AbstractGraphicsNode {
     //
 
     /**
-     * Invalidates this <tt>ShapeNode</tt>. This node and all its ancestors have
+     * Invalidates this <code>ShapeNode</code>. This node and all its ancestors have
      * been informed that all its cached values related to its bounds must be
      * recomputed.
      */

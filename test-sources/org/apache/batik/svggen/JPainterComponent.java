@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,19 +26,19 @@ import javax.swing.JComponent;
 
 /**
  * Simple component which displays the rendering created by
- * a <tt>Painter</tt>.
+ * a <code>Painter</code>.
  *
  * @author <a href="mailto:vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: JPainterComponent.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class JPainterComponent extends JComponent {
     /**
-     * <tt>Painter</tt>
+     * <code>Painter</code>
      */
     protected Painter painter;
 
     /**
-     * Delegates to its <tt>Painter</tt>
+     * Delegates to its <code>Painter</code>
      */
     public void paint(Graphics _g){
         Graphics2D g = (Graphics2D)_g;

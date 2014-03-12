@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006 The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,29 +25,41 @@ import org.w3c.dom.svg.SVGElement;
  * Context class for SVG animation elements to support extra methods.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGAnimationContext.java 580685 2007-09-30 09:07:29Z cam $
  */
 public interface SVGAnimationContext extends SVGContext, ElementTimeControl {
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getTargetElement()}.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getTargetElement()}.
      */
     SVGElement getTargetElement();
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getStartTime()}.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getStartTime()}.
      */
     float getStartTime();
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getCurrentTime()}.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getCurrentTime()}.
      */
     float getCurrentTime();
 
     /**
-     * <b>DOM</b>: Implements {@link SVGAnimationElement#getSimpleDuration()}.
-     * With the difference that an indefinite simple duration is returned as
-     * {@link TimedElement.INDEFINITE}, rather than throwing an exception.
+     * <b>DOM</b>: Implements {@link
+     * org.w3c.dom.svg.SVGAnimationElement#getSimpleDuration()}.  With the
+     * difference that an indefinite simple duration is returned as
+     * {@link org.apache.batik.anim.timing.TimedElement#INDEFINITE}, rather than
+     * throwing an exception.
      */
     float getSimpleDuration();
+
+    /**
+     * Returns the time that the document would seek to if this animation
+     * element were hyperlinked to, or <code>NaN</code> if there is no
+     * such begin time.
+     */
+    float getHyperlinkBeginTime();
 }

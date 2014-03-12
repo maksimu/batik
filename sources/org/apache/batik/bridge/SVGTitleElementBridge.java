@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +23,7 @@ package org.apache.batik.bridge;
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGTitleElementBridge.java 475477 2006-11-15 22:44:28Z cam $
  */
 public class SVGTitleElementBridge extends SVGDescriptiveElementBridge {
 

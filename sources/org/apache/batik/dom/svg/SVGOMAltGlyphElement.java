@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,7 +21,6 @@ package org.apache.batik.dom.svg;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.dom.util.XMLSupport;
-import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -30,7 +30,7 @@ import org.w3c.dom.svg.SVGAltGlyphElement;
  * This class implements {@link SVGAltGlyphElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMAltGlyphElement.java 489964 2006-12-24 01:30:23Z cam $
  */
 public class SVGOMAltGlyphElement
     extends    SVGURIReferenceTextPositioningElement
@@ -39,7 +39,7 @@ public class SVGOMAltGlyphElement
     /**
      * The attribute initializer.
      */
-    protected final static AttributeInitializer attributeInitializer;
+    protected static final AttributeInitializer attributeInitializer;
     static {
         attributeInitializer = new AttributeInitializer(4);
         attributeInitializer.addAttribute(XMLSupport.XMLNS_NAMESPACE_URI,
@@ -52,6 +52,20 @@ public class SVGOMAltGlyphElement
         attributeInitializer.addAttribute(XLinkSupport.XLINK_NAMESPACE_URI,
                                           "xlink", "actuate", "onLoad");
     }
+
+//     /**
+//      * Table mapping XML attribute names to TraitInformation objects.
+//      */
+//     protected static DoublyIndexedTable xmlTraitInformation;
+//     static {
+//         DoublyIndexedTable t =
+//             new DoublyIndexedTable(SVGURIReferenceTextPositioningElement.xmlTraitInformation);
+//         t.put(null, SVG_FORMAT_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_GLYPH_REF_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         xmlTraitInformation = t;
+//     }
 
     /**
      * Creates a new SVGOMAltGlyphElement object.
@@ -66,7 +80,6 @@ public class SVGOMAltGlyphElement
      */
     public SVGOMAltGlyphElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
-
     }
 
     /**
@@ -119,41 +132,10 @@ public class SVGOMAltGlyphElement
         return new SVGOMAltGlyphElement();
     }
 
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Gets how percentage values are interpreted by the given attribute.
-     */
-    protected short getAttributePercentageInterpretation(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE) || ln.equals(SVG_DX_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_WIDTH;
-            }
-            if (ln.equals(SVG_Y_ATTRIBUTE) || ln.equals(SVG_DY_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_HEIGHT;
-            }
-        }
-        return super.getAttributePercentageInterpretation(ns, ln);
-    }
-
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_DX_ATTRIBUTE) || ln.equals(SVG_DY_ATTRIBUTE)
-                    || ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)) {
-                return SVGTypes.TYPE_LENGTH_LIST;
-            } else if (ln.equals(SVG_FORMAT_ATTRIBUTE)
-                    || ln.equals(SVG_GLYPH_REF_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            } else if (ln.equals(SVG_ROTATE_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER_LIST;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
+//     /**
+//      * Returns the table of TraitInformation objects for this element.
+//      */
+//     protected DoublyIndexedTable getTraitInformationTable() {
+//         return xmlTraitInformation;
+//     }
 }

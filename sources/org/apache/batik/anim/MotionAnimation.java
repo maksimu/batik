@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,16 +24,18 @@ import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.anim.values.AnimatableAngleValue;
 import org.apache.batik.anim.values.AnimatableMotionPointValue;
 import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimatableElement;
 import org.apache.batik.ext.awt.geom.Cubic;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 import org.apache.batik.ext.awt.geom.ExtendedPathIterator;
 import org.apache.batik.ext.awt.geom.PathLength;
+import org.apache.batik.util.SMILConstants;
 
 /**
  * An animation class for 'animateMotion' animations.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: MotionAnimation.java 575201 2007-09-13 07:41:26Z cam $
  */
 public class MotionAnimation extends InterpolatingAnimation {
 
@@ -176,13 +179,21 @@ public class MotionAnimation extends InterpolatingAnimation {
             } else { // CALC_MODE_PACED
                 // This corrects the keyTimes to be paced, so from now on
                 // it can be considered the same as CALC_MODE_LINEAR.
+                epi = path.getExtendedPathIterator();
                 this.keyTimes = new float[count];
-                this.keyTimes[0] = 0;
-                for (int i = 1; i < count - 1; i++) {
+                int j = 0;
+                for (int i = 0; i < count - 1; i++) {
+                    while (epi.currentSegment() ==
+                            ExtendedPathIterator.SEG_MOVETO) {
+                        j++;
+                        epi.next();
+                    }
                     this.keyTimes[i] =
-                        pathLength.getLengthAtSegment(i + 1) / totalLength;
+                        pathLength.getLengthAtSegment(j) / totalLength;
+                    j++;
+                    epi.next();
                 }
-                this.keyTimes[count - 1] = 1;
+                this.keyTimes[count - 1] = 1f;
             }
         }
 
@@ -194,11 +205,20 @@ public class MotionAnimation extends InterpolatingAnimation {
                                     SMILConstants.SMIL_KEY_POINTS_ATTRIBUTE });
             }
         } else {
+            epi = path.getExtendedPathIterator();
             keyPoints = new float[count];
+            int j = 0;
             for (int i = 0; i < count - 1; i++) {
-                keyPoints[i] = pathLength.getLengthAtSegment(i + 1);
+                while (epi.currentSegment() ==
+                        ExtendedPathIterator.SEG_MOVETO) {
+                    j++;
+                    epi.next();
+                }
+                keyPoints[i] = pathLength.getLengthAtSegment(j) / totalLength;
+                j++;
+                epi.next();
             }
-            keyPoints[count - 1] = totalLength;
+            keyPoints[count - 1] = 1f;
         }
         this.keyPoints = keyPoints;
     }
@@ -222,8 +242,12 @@ public class MotionAnimation extends InterpolatingAnimation {
             } else {
                 if (calcMode == CALC_MODE_LINEAR || calcMode == CALC_MODE_PACED
                         || calcMode == CALC_MODE_SPLINE) {
-                    interpolation = (unitTime - keyTimes[keyTimeIndex])
-                        / (keyTimes[keyTimeIndex + 1] - keyTimes[keyTimeIndex]);
+                    if (unitTime == 0) {
+                        interpolation = 0;
+                    } else {
+                        interpolation = (unitTime - keyTimes[keyTimeIndex])
+                            / (keyTimes[keyTimeIndex + 1] - keyTimes[keyTimeIndex]);
+                    }
                     if (calcMode == CALC_MODE_SPLINE && unitTime != 0) {
                         // XXX This could be done better, e.g. with
                         //     Newton-Raphson.
@@ -254,6 +278,7 @@ public class MotionAnimation extends InterpolatingAnimation {
                 point += interpolation *
                     (keyPoints[keyTimeIndex + 1] - keyPoints[keyTimeIndex]);
             }
+            point *= pathLength.lengthOfPath();
             Point2D p = pathLength.pointAtLength(point);
             float ang;
             if (rotateAuto) {

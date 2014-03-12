@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -43,24 +44,25 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.apache.batik.util.gui.resource.ActionMap;
 import org.apache.batik.util.gui.resource.ButtonFactory;
 import org.apache.batik.util.gui.resource.MissingListenerException;
-import org.apache.batik.util.gui.resource.ResourceManager;
+import org.apache.batik.util.resources.ResourceManager;
 
 /**
  * This class represents a dialog to display an error (message + Exception).
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: JErrorPane.java 1065469 2011-01-31 02:16:02Z cam $
  */
 public class JErrorPane extends JPanel implements ActionMap {
 
     /**
      * The resource file name
      */
-    protected final static String RESOURCES =
+    protected static final String RESOURCES =
         "org.apache.batik.util.gui.resources.JErrorPane";
 
     /**
@@ -112,6 +114,11 @@ public class JErrorPane extends JPanel implements ActionMap {
      * The sub panel that contains the stack trace text area.
      */
     protected JPanel subpanel;
+
+    /**
+     * The OK button.
+     */
+    protected JButton okButton;
 
     /**
      * Constructs a new JErrorPane.
@@ -177,10 +184,11 @@ public class JErrorPane extends JPanel implements ActionMap {
     }
 
     public JDialog createDialog(Component owner, String title) {
-        JDialog dialog  =
+        JDialog dialog =
             new JDialog(JOptionPane.getFrameForComponent(owner), title);
         dialog.getContentPane().add(this, BorderLayout.CENTER);
         dialog.pack();
+        dialog.getRootPane().setDefaultButton(okButton);
         return dialog;
     }
 
@@ -190,7 +198,7 @@ public class JErrorPane extends JPanel implements ActionMap {
         showDetailButton = bf.createJButton("ShowDetailButton");
         panel.add(showDetailButton);
 
-        JButton okButton = bf.createJButton("OKButton");
+        okButton = bf.createJButton("OKButton");
         panel.add(okButton);
 
         return panel;

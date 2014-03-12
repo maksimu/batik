@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,18 +19,18 @@
 package org.apache.batik.test;
 
 /**
- * Simple GUI tool to run a <tt>Test</tt>. This tool takes
- * a class name parameter as an input and provides a GUI to 
- * run an instance of the test. The generated <tt>TestReport</tt>
- * is printed to the standard output with the 
- * <tt>SimpleTestReportProcessor</tt>
+ * Simple GUI tool to run a <code>Test</code>. This tool takes
+ * a class name parameter as an input and provides a GUI to
+ * run an instance of the test. The generated <code>TestReport</code>
+ * is printed to the standard output with the
+ * <code>SimpleTestReportProcessor</code>
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SimpleTestRunner.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SimpleTestRunner {
     /**
-     * Error Messages. 
+     * Error Messages.
      */
     public static final String ERROR_CLASS_CAST =
         "Messages.SimpleTestRuner.error.class.cast";
@@ -40,16 +41,16 @@ public class SimpleTestRunner {
     public static final String ERROR_INSTANTIATION =
         "Messages.SimpleTestRunner.error.instantiation";
 
-    public static final String ERROR_ILLEGAL_ACCESS = 
+    public static final String ERROR_ILLEGAL_ACCESS =
         "Messages.SimpleTestRunner.error.illegal.access";
 
     /**
      * Usage for this tool
      */
-    public static final String USAGE 
+    public static final String USAGE
         = "Messages.SimpleTestRunner.usage";
 
-    public static void main(String args[]) throws Exception{
+    public static void main(String[] args) throws Exception{
         if(args.length < 1){
             System.err.println(Messages.formatMessage(USAGE, null));
             System.exit(0);
@@ -94,7 +95,7 @@ public class SimpleTestRunner {
 
             System.exit(0);
         }
-                               
+
 
         //
         // Run test and process report with simple
@@ -103,9 +104,9 @@ public class SimpleTestRunner {
         TestReport tr = t.run();
 
         try{
-            TestReportProcessor p 
+            TestReportProcessor p
                 = new org.apache.batik.test.xml.XMLTestReportProcessor();
-            
+
             p.processReport(tr);
         }catch(TestException e){
             System.out.println(e.getClass().getName());

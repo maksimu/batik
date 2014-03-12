@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,14 +27,14 @@ import java.security.Policy;
  * <br />
  * It is used by the Squiggle browser as well as the rasterizer.
  * <br />
- * This class can install a <tt>SecurityManager</tt> for an application
+ * This class can install a <code>SecurityManager</code> for an application
  * and resolves whether the application runs in a development
  * environment or from a jar file (in other words, it resolves code-base
  * issues for the application).
  * <br />
  *
  * @author <a mailto="vincent.hardy@sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: ApplicationSecurityEnforcer.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class ApplicationSecurityEnforcer {
     /**
@@ -145,11 +146,11 @@ public class ApplicationSecurityEnforcer {
     }
 
     /**
-     * Enforces security by installing a <tt>SecurityManager</tt>.
-     * This will throw a <tt>SecurityException</tt> if installing
-     * a <tt>SecurityManager</tt> requires overriding an existing
-     * <tt>SecurityManager</tt>. In other words, this method will 
-     * not install a new <tt>SecurityManager</tt> if there is 
+     * Enforces security by installing a <code>SecurityManager</code>.
+     * This will throw a <code>SecurityException</code> if installing
+     * a <code>SecurityManager</code> requires overriding an existing
+     * <code>SecurityManager</code>. In other words, this method will 
+     * not install a new <code>SecurityManager</code> if there is 
      * already one it did not install in place.
      */
     public void enforceSecurity(boolean enforce){

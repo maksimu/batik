@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,46 +36,46 @@ import org.w3c.dom.DOMImplementation;
  * Test the ImageTranscoder input with a DOM tree.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: DOMTest.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class DOMTest extends AbstractImageTranscoderTest {
 
     /**
-     * Constructs a new <tt>DOMTest</tt>.
+     * Constructs a new <code>DOMTest</code>.
      */
     public DOMTest() {
     }
 
     /**
-     * Creates the <tt>TranscoderInput</tt>.
+     * Creates the <code>TranscoderInput</code>.
      */
     protected TranscoderInput createTranscoderInput() {
-	DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
-	String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-	Document doc = impl.createDocument(svgNS, "svg", null);
+        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
+        String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
+        Document doc = impl.createDocument(svgNS, "svg", null);
 
-	Element root = doc.getDocumentElement();
+        Element root = doc.getDocumentElement();
 
-	root.setAttributeNS(null, "width", "400");
-	root.setAttributeNS(null, "height", "400");
+        root.setAttributeNS(null, "width", "400");
+        root.setAttributeNS(null, "height", "400");
 
-	Element r = doc.createElementNS(svgNS, "rect");
-	r.setAttributeNS(null, "x", "0");
-	r.setAttributeNS(null, "y", "0");
-	r.setAttributeNS(null, "width", "400");
-	r.setAttributeNS(null, "height", "400");
-	r.setAttributeNS(null, "style", "fill:black");
-	root.appendChild(r);
+        Element r = doc.createElementNS(svgNS, "rect");
+        r.setAttributeNS(null, "x", "0");
+        r.setAttributeNS(null, "y", "0");
+        r.setAttributeNS(null, "width", "400");
+        r.setAttributeNS(null, "height", "400");
+        r.setAttributeNS(null, "style", "fill:black");
+        root.appendChild(r);
 
-	r = doc.createElementNS(svgNS, "rect");
-	r.setAttributeNS(null, "x", "100");
-	r.setAttributeNS(null, "y", "50");
-	r.setAttributeNS(null, "width", "100");
-	r.setAttributeNS(null, "height", "50");
-	r.setAttributeNS(null, "style", "stroke:red; fill:none");
-	root.appendChild(r);
+        r = doc.createElementNS(svgNS, "rect");
+        r.setAttributeNS(null, "x", "100");
+        r.setAttributeNS(null, "y", "50");
+        r.setAttributeNS(null, "width", "100");
+        r.setAttributeNS(null, "height", "50");
+        r.setAttributeNS(null, "style", "stroke:red; fill:none");
+        root.appendChild(r);
 
-	return new TranscoderInput(doc);
+        return new TranscoderInput(doc);
     }
 
     /**

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import org.w3c.dom.Element;
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: UnitProcessor.java 501922 2007-01-31 17:47:47Z dvholten $
  */
 public abstract class UnitProcessor
     extends org.apache.batik.parser.UnitProcessor {
@@ -175,11 +176,11 @@ public abstract class UnitProcessor
         try {
             return org.apache.batik.parser.UnitProcessor.
                 svgToObjectBoundingBox(s, attr, d, ctx);
-        } catch (ParseException ex) {
+        } catch (ParseException pEx ) {
             throw new BridgeException
                 (getBridgeContext(ctx), ctx.getElement(),
-                 ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
-                 new Object[] {attr, s, ex});
+                 pEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                 new Object[] {attr, s, pEx });
         }
     }
 
@@ -308,11 +309,11 @@ public abstract class UnitProcessor
         try {
             return org.apache.batik.parser.UnitProcessor.
                 svgToUserSpace(s, attr, d, ctx);
-        } catch (ParseException ex) {
+        } catch (ParseException pEx ) {
             throw new BridgeException
                 (getBridgeContext(ctx), ctx.getElement(),
-                 ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
-                 new Object[] {attr, s, ex});
+                 pEx, ErrorConstants.ERR_ATTRIBUTE_VALUE_MALFORMED,
+                 new Object[] {attr, s, pEx, });
         }
     }
 
@@ -373,7 +374,7 @@ public abstract class UnitProcessor
          */
         public float getPixelToMM() {
             return getPixelUnitToMillimeter();
-            
+
         }
 
         /**

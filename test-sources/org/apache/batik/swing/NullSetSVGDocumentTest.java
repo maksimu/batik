@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -34,7 +35,7 @@ import org.apache.batik.test.TestReport;
  * properly imported to an SVGOMDocument and rendered from there.
  *
  * @author <a href="mailto:deweese@apache.org">l449433</a>
- * @version $Id$
+ * @version $Id: NullSetSVGDocumentTest.java 503369 2007-02-04 07:25:21Z cam $
  */
 public class NullSetSVGDocumentTest extends JSVGMemoryLeakTest {
     public NullSetSVGDocumentTest() {
@@ -83,7 +84,7 @@ public class NullSetSVGDocumentTest extends JSVGMemoryLeakTest {
 
     /* JSVGCanvasHandler.Delegate Interface */
     public boolean canvasInit(JSVGCanvas canvas) {
-        theCanvas = canvas;
+        setTheCanvas(canvas);
         theFrame  = handler.getFrame();
 
         canvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);

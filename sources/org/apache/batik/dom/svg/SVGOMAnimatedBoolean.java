@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableBooleanValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.svg.SVGAnimatedBoolean;
@@ -25,7 +30,7 @@ import org.w3c.dom.svg.SVGAnimatedBoolean;
  * This class implements the {@link SVGAnimatedBoolean} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedBoolean.java 490655 2006-12-28 05:19:44Z cam $
  */
 public class SVGOMAnimatedBoolean
         extends    AbstractSVGAnimatedValue
@@ -132,10 +137,23 @@ public class SVGOMAnimatedBoolean
     }
 
     /**
-     * Removes the animated value.  */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            this.animVal = ((AnimatableBooleanValue) val).getValue();
+        }
         fireAnimatedAttributeListeners();
+    }
+
+    /**
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
+     */
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        return new AnimatableBooleanValue(target, getBaseVal());
     }
 
     /**

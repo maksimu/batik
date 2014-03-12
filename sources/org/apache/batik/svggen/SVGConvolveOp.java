@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,7 +31,7 @@ import org.w3c.dom.Element;
  * an SVG filter descriptor.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: SVGConvolveOp.java 476924 2006-11-19 21:13:26Z dvholten $
  * @see                org.apache.batik.svggen.SVGBufferedImageOp
  */
 public class SVGConvolveOp extends AbstractSVGFilterConverter {
@@ -91,8 +92,8 @@ public class SVGConvolveOp extends AbstractSVGFilterConverter {
                                              kernel.getHeight());
 
             // Convert the kernel values
-            StringBuffer kernelMatrixBuf = new StringBuffer();
-            float data[] = kernel.getKernelData(null);
+            float[] data = kernel.getKernelData(null);
+            StringBuffer kernelMatrixBuf = new StringBuffer( data.length * 8 );
             for(int i=0; i<data.length; i++){
                 kernelMatrixBuf.append(doubleString(data[i]));
                 kernelMatrixBuf.append(SPACE);

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -32,6 +33,8 @@ import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.dom.util.XMLSupport;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.batik.parser.AWTTransformProducer;
+import org.apache.batik.parser.ClockHandler;
+import org.apache.batik.parser.ClockParser;
 import org.apache.batik.parser.ParseException;
 import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.SVG12Constants;
@@ -48,7 +51,7 @@ import org.w3c.dom.svg.SVGNumberList;
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGUtilities.java 594740 2007-11-14 02:55:05Z cam $
  */
 public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
 
@@ -83,7 +86,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
         if (n == 0) {
             return null;
         }
-        float fl[] = new float[n];
+        float[] fl = new float[n];
         for (int i=0; i < n; i++) {
             fl[i] = l.getItem(i).getValue();
         }
@@ -262,7 +265,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
 
             Iterator iter = refs.iterator();
             while (iter.hasNext()) {
-                if (purl.equals(iter.next())) 
+                if (purl.equals(iter.next()))
                     throw new BridgeException
                         (ctx, e, ERR_XLINK_HREF_CIRCULAR_DEPENDENCIES,
                          new Object[] {uriStr});
@@ -273,11 +276,11 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                 URIResolver resolver = ctx.createURIResolver(svgDoc, loader);
                 e = resolver.getElement(purl.toString(), e);
                 refs.add(purl);
-            } catch(IOException ex) {
-                throw new BridgeException(ctx, e, ERR_URI_IO,
+            } catch(IOException ioEx ) {
+                throw new BridgeException(ctx, e, ioEx, ERR_URI_IO,
                                           new Object[] {uriStr});
-            } catch(SecurityException ex) {
-                throw new BridgeException(ctx, e, ERR_URI_UNSECURE,
+            } catch(SecurityException secEx ) {
+                throw new BridgeException(ctx, e, secEx, ERR_URI_UNSECURE,
                                           new Object[] {uriStr});
             }
         }
@@ -505,7 +508,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                 (ctx, filterElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
                  new Object[] {SVG_FILTER_RES_ATTRIBUTE, s});
         }
-        
+
         if (vals[0] == null)
             filterRes[0] = -1;
         else {
@@ -533,7 +536,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
      * second Number. It always returns an array of two Floats.  If either
      * or both values are not provided the entries are set to null
      */
-    public static Float[] convertSVGNumberOptionalNumber(Element elem, 
+    public static Float[] convertSVGNumberOptionalNumber(Element elem,
                                                          String attrName,
                                                          String attrValue,
                                                          BridgeContext ctx) {
@@ -554,10 +557,10 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                     (ctx, elem, ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object[] {attrName, attrValue});
             }
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException nfEx ) {
             throw new BridgeException
-                (ctx, elem, ERR_ATTRIBUTE_VALUE_MALFORMED,
-                 new Object[] {attrName, attrValue, ex});
+                (ctx, elem, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                 new Object[] {attrName, attrValue, nfEx });
         }
         return ret;
     }
@@ -613,6 +616,19 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                (filterElement, SVG_FILTER_UNITS_ATTRIBUTE, units, ctx);
        }
 
+       // The last paragraph of section 7.11 in SVG 1.1 states that objects
+       // with zero width or height bounding boxes that use filters with
+       // filterUnits="objectBoundingBox" must not use the filter.
+       // TODO: Uncomment this after confirming this is the desired behaviour.
+       /*AbstractGraphicsNodeBridge bridge =
+           (AbstractGraphicsNodeBridge) ctx.getSVGContext(filteredElement);
+       if (unitsType == OBJECT_BOUNDING_BOX && bridge != null) {
+           Rectangle2D bbox = bridge.getBBox();
+           if (bbox != null && bbox.getWidth() == 0 || bbox.getHeight() == 0) {
+               return null;
+           }
+       }*/
+
        // resolve units in the (referenced) filteredElement's
        // coordinate system
        UnitProcessor.Context uctx
@@ -629,19 +645,19 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
        // Account for region padding
        //
        units = getChainableAttributeNS
-           (filterElement, null, 
+           (filterElement, null,
             SVG12Constants.SVG_FILTER_MARGINS_UNITS_ATTRIBUTE, ctx);
        if (units.length() == 0) {
            // Default to user space on use for margins, not objectBoundingBox
            unitsType = USER_SPACE_ON_USE;
        } else {
            unitsType = parseCoordinateSystem
-               (filterElement, 
+               (filterElement,
                 SVG12Constants.SVG_FILTER_MARGINS_UNITS_ATTRIBUTE, units, ctx);
        }
 
        // 'batik:dx' attribute - default is 0
-       String dxStr = filterElement.getAttributeNS(null, 
+       String dxStr = filterElement.getAttributeNS(null,
                                                    SVG12Constants.SVG_MX_ATRIBUTE);
        if (dxStr.length() == 0) {
            dxStr = SVG12Constants.SVG_FILTER_MX_DEFAULT_VALUE;
@@ -661,7 +677,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
        if (dhStr.length() == 0) {
            dhStr = SVG12Constants.SVG_FILTER_MH_DEFAULT_VALUE;
        }
-       
+
        return extendRegion(dxStr,
                            dyStr,
                            dwStr,
@@ -671,10 +687,10 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                            region,
                            uctx);
    }
-    
+
    /**
     * Returns a rectangle that represents the region extended by the
-    * specified differential coordinates. 
+    * specified differential coordinates.
     *
     * @param dxStr the differential x coordinate of the region
     * @param dyStr the differential y coordinate of the region
@@ -693,7 +709,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                                               GraphicsNode filteredNode,
                                               Rectangle2D region,
                                               UnitProcessor.Context uctx) {
-        
+
         float dx,dy,dw,dh;
         switch (unitsType) {
         case USER_SPACE_ON_USE:
@@ -731,7 +747,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
         default:
             throw new IllegalArgumentException("Invalid unit type");
         }
-        
+
         region.setRect(region.getX() + dx,
                        region.getY() + dy,
                        region.getWidth() + dw,
@@ -741,7 +757,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
     }
 
 
-    public static Rectangle2D 
+    public static Rectangle2D
         getBaseFilterPrimitiveRegion(Element filterPrimitiveElement,
                                      Element filteredElement,
                                      GraphicsNode filteredNode,
@@ -786,7 +802,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                 (s, SVG_HEIGHT_ATTRIBUTE, uctx);
         }
 
-        // NOTE: it may be that dx/dy/dw/dh should be applied here 
+        // NOTE: it may be that dx/dy/dw/dh should be applied here
         //       but since this is mostly aimed at feImage I am
         //       unsure that it is really needed.
         return new Rectangle2D.Double(x, y, w, h);
@@ -798,6 +814,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
      * element as the top one in the filter chain.
      *
      * @param filterPrimitiveElement the filter primitive element
+     * @param filterElement the filter element
      * @param filteredElement the element referencing the filter
      * @param filteredNode the graphics node to use (objectBoundingBox)
      * @param defaultRegion the default region to filter
@@ -806,6 +823,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
      */
     public static Rectangle2D
         convertFilterPrimitiveRegion(Element filterPrimitiveElement,
+                                     Element filterElement,
                                      Element filteredElement,
                                      GraphicsNode filteredNode,
                                      Rectangle2D defaultRegion,
@@ -813,12 +831,9 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                                      BridgeContext ctx) {
 
         // 'primitiveUnits' - default is userSpaceOnUse
-        Node parentNode = filterPrimitiveElement.getParentNode();
         String units = "";
-        if ((parentNode != null) &&
-            (parentNode.getNodeType() == Node.ELEMENT_NODE)) {
-            Element parent = (Element)parentNode;
-            units = getChainableAttributeNS(parent,
+        if (filterElement != null) {
+            units = getChainableAttributeNS(filterElement,
                                             null,
                                             SVG_PRIMITIVE_UNITS_ATTRIBUTE,
                                             ctx);
@@ -828,25 +843,28 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
             unitsType = USER_SPACE_ON_USE;
         } else {
             unitsType = parseCoordinateSystem
-                (filterPrimitiveElement, SVG_FILTER_UNITS_ATTRIBUTE, units,
-                 ctx);
+                (filterElement, SVG_FILTER_UNITS_ATTRIBUTE, units, ctx);
         }
 
-        // 'x' attribute - default is defaultRegion.getX()
-        String xStr =
-            filterPrimitiveElement.getAttributeNS(null, SVG_X_ATTRIBUTE);
+        String xStr = "", yStr = "", wStr = "", hStr = "";
 
-        // 'y' attribute - default is defaultRegion.getY()
-        String yStr =
-            filterPrimitiveElement.getAttributeNS(null, SVG_Y_ATTRIBUTE);
+        if (filterPrimitiveElement != null) {
+            // 'x' attribute - default is defaultRegion.getX()
+            xStr = filterPrimitiveElement.getAttributeNS(null,
+                                                         SVG_X_ATTRIBUTE);
 
-        // 'width' attribute - default is defaultRegion.getWidth()
-        String wStr =
-            filterPrimitiveElement.getAttributeNS(null, SVG_WIDTH_ATTRIBUTE);
+            // 'y' attribute - default is defaultRegion.getY()
+            yStr = filterPrimitiveElement.getAttributeNS(null,
+                                                         SVG_Y_ATTRIBUTE);
 
-        // 'height' attribute - default is defaultRegion.getHeight()
-        String hStr =
-            filterPrimitiveElement.getAttributeNS(null, SVG_HEIGHT_ATTRIBUTE);
+            // 'width' attribute - default is defaultRegion.getWidth()
+            wStr = filterPrimitiveElement.getAttributeNS(null,
+                                                         SVG_WIDTH_ATTRIBUTE);
+
+            // 'height' attribute - default is defaultRegion.getHeight()
+            hStr = filterPrimitiveElement.getAttributeNS(null,
+                                                         SVG_HEIGHT_ATTRIBUTE);
+        }
 
         double x = defaultRegion.getX();
         double y = defaultRegion.getY();
@@ -902,21 +920,19 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
             }
             break;
         default:
-            throw new Error(); // can't be reached
+            throw new Error("invalid unitsType:" + unitsType); // can't be reached
         }
 
         Rectangle2D region = new Rectangle2D.Double(x, y, w, h);
 
         // Now, extend filter primitive region with dx/dy/dw/dh
         // settings (Batik extension). The dx/dy/dw/dh padding is
-        // *always* in userSpaceOnUse space. 
+        // *always* in userSpaceOnUse space.
 
         units = "";
-        if ((parentNode != null) &&
-            (parentNode.getNodeType() == Node.ELEMENT_NODE)) {
-            Element parent = (Element)parentNode;
+        if (filterElement != null) {
             units = getChainableAttributeNS
-                (parent, null,
+                (filterElement, null,
                  SVG12Constants.SVG_FILTER_PRIMITIVE_MARGINS_UNITS_ATTRIBUTE,
                  ctx);
         }
@@ -925,39 +941,43 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
             unitsType = USER_SPACE_ON_USE;
         } else {
             unitsType = parseCoordinateSystem
-                (filterPrimitiveElement, 
+                (filterElement,
                  SVG12Constants.SVG_FILTER_PRIMITIVE_MARGINS_UNITS_ATTRIBUTE,
                  units, ctx);
         }
 
-        // 'batik:dx' attribute - default is 0
-        String dxStr = filterPrimitiveElement.getAttributeNS
-            (null, SVG12Constants.SVG_MX_ATRIBUTE);
+        String dxStr = "", dyStr = "", dwStr = "", dhStr = "";
+
+        if (filterPrimitiveElement != null) {
+            // 'batik:dx' attribute - default is 0
+            dxStr = filterPrimitiveElement.getAttributeNS
+                (null, SVG12Constants.SVG_MX_ATRIBUTE);
+
+            // 'batik:dy' attribute - default is 0
+            dyStr = filterPrimitiveElement.getAttributeNS
+                (null, SVG12Constants.SVG_MY_ATRIBUTE);
+
+            // 'batik:dw' attribute - default is 0
+            dwStr = filterPrimitiveElement.getAttributeNS
+                (null, SVG12Constants.SVG_MW_ATRIBUTE);
+
+            // 'batik:dh' attribute - default is 0
+            dhStr = filterPrimitiveElement.getAttributeNS
+                (null, SVG12Constants.SVG_MH_ATRIBUTE);
+        }
         if (dxStr.length() == 0) {
             dxStr = SVG12Constants.SVG_FILTER_MX_DEFAULT_VALUE;
         }
-
-        // 'batik:dy' attribute - default is 0
-        String dyStr = filterPrimitiveElement.getAttributeNS
-            (null, SVG12Constants.SVG_MY_ATRIBUTE);
         if (dyStr.length() == 0) {
             dyStr = SVG12Constants.SVG_FILTER_MY_DEFAULT_VALUE;
         }
-
-        // 'batik:dw' attribute - default is 0
-        String dwStr = filterPrimitiveElement.getAttributeNS
-            (null, SVG12Constants.SVG_MW_ATRIBUTE);
         if (dwStr.length() == 0) {
             dwStr = SVG12Constants.SVG_FILTER_MW_DEFAULT_VALUE;
         }
-
-        // 'batik:dh' attribute - default is 0
-        String dhStr = filterPrimitiveElement.getAttributeNS
-            (null, SVG12Constants.SVG_MH_ATRIBUTE);
         if (dhStr.length() == 0) {
             dhStr = SVG12Constants.SVG_FILTER_MH_DEFAULT_VALUE;
         }
-        
+
         region = extendRegion(dxStr,
                               dyStr,
                               dwStr,
@@ -966,10 +986,45 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                               filteredNode,
                               region,
                               uctx);
-        
+
         Rectangle2D.intersect(region, filterRegion, region);
 
         return region;
+    }
+
+    /**
+     * Returns the filter primitive region according to the x, y,
+     * width, height, and filterUnits attributes. Processing the
+     * element as the top one in the filter chain.
+     *
+     * @param filterPrimitiveElement the filter primitive element
+     * @param filteredElement the element referencing the filter
+     * @param filteredNode the graphics node to use (objectBoundingBox)
+     * @param defaultRegion the default region to filter
+     * @param filterRegion the filter chain region
+     * @param ctx the bridge context
+     */
+    public static Rectangle2D
+        convertFilterPrimitiveRegion(Element filterPrimitiveElement,
+                                     Element filteredElement,
+                                     GraphicsNode filteredNode,
+                                     Rectangle2D defaultRegion,
+                                     Rectangle2D filterRegion,
+                                     BridgeContext ctx) {
+
+        Node parentNode = filterPrimitiveElement.getParentNode();
+        Element filterElement = null;
+        if (parentNode != null &&
+                parentNode.getNodeType() == Node.ELEMENT_NODE) {
+            filterElement = (Element) parentNode;
+        }
+        return convertFilterPrimitiveRegion(filterPrimitiveElement,
+                                            filterElement,
+                                            filteredElement,
+                                            filteredNode,
+                                            defaultRegion,
+                                            filterRegion,
+                                            ctx);
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1086,7 +1141,7 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                 (hStr, SVG_HEIGHT_ATTRIBUTE, uctx);
             break;
         default:
-            throw new Error(); // can't be reached
+            throw new Error("invalid unitsType:" + unitsType ); // can't be reached
         }
         return new Rectangle2D.Double(x, y, w, h);
     }
@@ -1109,9 +1164,9 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
                                                    BridgeContext ctx) {
         try {
             return AWTTransformProducer.createAffineTransform(transform);
-        } catch (ParseException ex) {
-            throw new BridgeException(ctx, e, ERR_ATTRIBUTE_VALUE_MALFORMED,
-                                      new Object[] {attr, transform, ex});
+        } catch (ParseException pEx) {
+            throw new BridgeException(ctx, e, pEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                                      new Object[] {attr, transform, pEx });
         }
     }
 
@@ -1157,5 +1212,41 @@ public abstract class SVGUtilities implements SVGConstants, ErrorConstants {
         } else {
             return new Rectangle2D.Double();
         }
+    }
+
+    /**
+     * Returns the value of the 'snapshotTime' attribute on the specified
+     * element as a float, or <code>0f</code> if the attribute is missing
+     * or given as <code>"none"</code>.
+     *
+     * @param e the element from which to retrieve the 'snapshotTime' attribute
+     * @param ctx the BridgeContext to use for error information
+     */
+    public static float convertSnapshotTime(Element e, BridgeContext ctx) {
+        if (!e.hasAttributeNS(null, SVG_SNAPSHOT_TIME_ATTRIBUTE)) {
+            return 0f;
+        }
+        String t = e.getAttributeNS(null, SVG_SNAPSHOT_TIME_ATTRIBUTE);
+        if (t.equals(SVG_NONE_VALUE)) {
+            return 0f;
+        }
+
+        class Handler implements ClockHandler {
+            float time;
+            public void clockValue(float t) {
+                time = t;
+            }
+        }
+        ClockParser p = new ClockParser(false);
+        Handler h = new Handler();
+        p.setClockHandler(h);
+        try {
+            p.parse(t);
+        } catch (ParseException pEx ) {
+            throw new BridgeException
+                (null, e, pEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                 new Object[] { SVG_SNAPSHOT_TIME_ATTRIBUTE, t, pEx });
+        }
+        return h.time;
     }
 }

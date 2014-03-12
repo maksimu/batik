@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,7 +32,7 @@ import org.w3c.dom.Element;
  * attribute and sets the width and height of the element.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: DefaultImageHandler.java 501495 2007-01-30 18:00:36Z dvholten $
  * @see             org.apache.batik.svggen.SVGGraphics2D
  */
 public class DefaultImageHandler
@@ -52,10 +53,8 @@ public class DefaultImageHandler
         //
         // First, set the image width and height
         //
-        imageElement.setAttributeNS(null, SVG_WIDTH_ATTRIBUTE,
-                                    "" + image.getWidth(null));
-        imageElement.setAttributeNS(null, SVG_HEIGHT_ATTRIBUTE,
-                                    "" + image.getHeight(null));
+        imageElement.setAttributeNS(null, SVG_WIDTH_ATTRIBUTE,  String.valueOf( image.getWidth( null ) ) );
+        imageElement.setAttributeNS(null, SVG_HEIGHT_ATTRIBUTE, String.valueOf( image.getHeight( null ) ) );
 
         //
         // Now, set the href
@@ -82,10 +81,8 @@ public class DefaultImageHandler
         //
         // First, set the image width and height
         //
-        imageElement.setAttributeNS(null, SVG_WIDTH_ATTRIBUTE,
-                                    "" + image.getWidth());
-        imageElement.setAttributeNS(null, SVG_HEIGHT_ATTRIBUTE,
-                                    "" + image.getHeight());
+        imageElement.setAttributeNS(null, SVG_WIDTH_ATTRIBUTE,  String.valueOf( image.getWidth() ) );
+        imageElement.setAttributeNS(null, SVG_HEIGHT_ATTRIBUTE, String.valueOf( image.getHeight() ) );
 
         //
         // Now, set the href
@@ -112,10 +109,8 @@ public class DefaultImageHandler
         //
         // First, set the image width and height
         //
-        imageElement.setAttributeNS(null, SVG_WIDTH_ATTRIBUTE,
-                                    "" + image.getWidth());
-        imageElement.setAttributeNS(null, SVG_HEIGHT_ATTRIBUTE,
-                                    "" + image.getHeight());
+        imageElement.setAttributeNS(null, SVG_WIDTH_ATTRIBUTE,  String.valueOf( image.getWidth() ) );
+        imageElement.setAttributeNS(null, SVG_HEIGHT_ATTRIBUTE, String.valueOf( image.getHeight() ) );
 
         //
         // Now, set the href

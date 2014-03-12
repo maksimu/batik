@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,63 +19,63 @@
 package org.apache.batik.test;
 
 /**
- * Defines the interface of a <tt>Test</tt> case. It is
+ * Defines the interface of a <code>Test</code> case. It is
  * highly recommended that implementations derive from the
- * <tt>AbstractTest</tt> class or follow the same implementation
- * approach, so that no exception is thrown from the 
- * <tt>run</tt> method, which is critical for the operation
+ * <code>AbstractTest</code> class or follow the same implementation
+ * approach, so that no exception is thrown from the
+ * <code>run</code> method, which is critical for the operation
  * of the test infrastructure.
  *
  * @author <a href="mailto:vhardy@apache.lorg">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: Test.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface Test {
     /**
-     * Returns this <tt>Test</tt>'s name. 
+     * Returns this <code>Test</code>'s name.
      */
-    public String getName();
+    String getName();
 
     /**
-     * Returns the <tt>Test</tt>'s qualified id, that is,
-     * the string made of all the id's parents separated 
-     * by ".". For example, if this test's id is "C", 
-     * its parent id is "B" and its grand-parent id is 
+     * Returns the <code>Test</code>'s qualified id, that is,
+     * the string made of all the id's parents separated
+     * by ".". For example, if this test's id is "C",
+     * its parent id is "B" and its grand-parent id is
      * "A", this method should return "A.B.C".
      */
-    public String getQualifiedId();
+    String getQualifiedId();
 
     /**
-     * Returns the <tt>Test</tt>'s id. The notion of 
-     * identifier is left to the user of the <tt>Test</tt>
+     * Returns the <code>Test</code>'s id. The notion of
+     * identifier is left to the user of the <code>Test</code>
      * object, which explains why the user may set the
      * id.
      */
-    public String getId();
+    String getId();
 
     /**
-     * Sets this <tt>Test</tt>'s id.
+     * Sets this <code>Test</code>'s id.
      */
-    public void setId(String id);
+    void setId(String id);
 
     /**
-     * Requests this <tt>Test</tt> to run and produce a 
+     * Requests this <code>Test</code> to run and produce a
      * report. It is critical for the test infrastructure
-     * that implementations never throw exceptions 
+     * that implementations never throw exceptions
      * from the run method, even if an error occurs internally
-     * in the test. 
+     * in the test.
      *
      */
-    public TestReport run();
+    TestReport run();
 
     /**
-     * Returns this <tt>Test</tt>'s parent, in case this 
-     * <tt>Test</tt> is part of a <tt>TestSuite</tt>.
+     * Returns this <code>Test</code>'s parent, in case this
+     * <code>Test</code> is part of a <code>TestSuite</code>.
      * The returned value may be null.
      */
-    public TestSuite getParent();
+    TestSuite getParent();
 
     /**
-     * Set this <tt>Test</tt>'s parent.
+     * Set this <code>Test</code>'s parent.
      */
-    public void setParent(TestSuite parent);
+    void setParent(TestSuite parent);
 }

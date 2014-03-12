@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +23,7 @@ package org.apache.batik.ext.awt.g2d;
  * Enumeration for transformation types.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: TransformType.java 504084 2007-02-06 11:24:46Z dvholten $
  */
 public class TransformType{
     /*
@@ -104,7 +105,7 @@ public class TransformType{
         case TRANSFORM_GENERAL:
             return TransformType.GENERAL;
         default:
-            throw new Error("Unknown TransformType value");
+            throw new Error("Unknown TransformType value:" + val );
         }
     }
 }

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,12 +21,12 @@ package org.apache.batik.bridge;
 import org.apache.batik.util.ParsedURL;
 
 /**
- * This implementation of the <tt>ExternalResourceSecurity</tt> interface only
+ * This implementation of the <code>ExternalResourceSecurity</code> interface only
  * allows external resources embeded in the document, i.e., externalResources
  * embeded with the data protocol.
  *
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: EmbededExternalResourceSecurity.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class EmbededExternalResourceSecurity implements ExternalResourceSecurity {
     public static final String DATA_PROTOCOL = "data";
@@ -35,7 +36,7 @@ public class EmbededExternalResourceSecurity implements ExternalResourceSecurity
      * in the document.
      */
     public static final String ERROR_EXTERNAL_RESOURCE_NOT_EMBEDED
-        = "EmbededExternalResourceSecurity.error.external.esource.not.embeded";
+        = "EmbededExternalResourceSecurity.error.external.resource.not.embeded";
 
     /**
      * The exception is built in the constructor and thrown if 

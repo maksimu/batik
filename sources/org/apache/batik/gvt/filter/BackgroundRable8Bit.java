@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderContext;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.batik.ext.awt.image.CompositeRule;
 import org.apache.batik.ext.awt.image.PadMode;
@@ -43,7 +44,7 @@ import org.apache.batik.gvt.GraphicsNode;
  * createRendering methods.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: BackgroundRable8Bit.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class BackgroundRable8Bit
     extends    AbstractRable {
@@ -54,14 +55,14 @@ public class BackgroundRable8Bit
     private GraphicsNode node;
 
     /**
-     * Returns the <tt>GraphicsNode</tt> rendered by this image
+     * Returns the <code>GraphicsNode</code> rendered by this image
      */
     public GraphicsNode getGraphicsNode(){
         return node;
     }
 
     /**
-     * Sets the <tt>GraphicsNode</tt> this image should render
+     * Sets the <code>GraphicsNode</code> this image should render
      */
     public void setGraphicsNode(GraphicsNode node){
         if(node == null){
@@ -101,6 +102,7 @@ public class BackgroundRable8Bit
 
             // System.out.println("GN: " + gn);
             Rectangle2D cr2d = gn.getBounds();
+            if (cr2d == null) continue;
             AffineTransform at = gn.getTransform();
             if (at != null)
                 cr2d = at.createTransformedShape(cr2d).getBounds2D();
@@ -251,7 +253,7 @@ public class BackgroundRable8Bit
 
     /**
      * Returns a filter that represents the background image
-     * for <tt>child</tt>.
+     * for <code>child</code>.
      * @param gn    Node to get background image for.
      * @param child Child to stop at when compositing children of gn into
      *              the background image.
@@ -273,7 +275,7 @@ public class BackgroundRable8Bit
             r2d = cgn.getBackgroundEnable();
         }
 
-        Vector srcs = new Vector();
+        List srcs = new ArrayList();      // this hides a member in a super-class!!
         if (r2d == null) {
             Rectangle2D paoi = aoi;
             AffineTransform at = gn.getTransform();
@@ -293,19 +295,20 @@ public class BackgroundRable8Bit
             Iterator i = children.iterator();
             while (i.hasNext()) {
                 GraphicsNode childGN = (GraphicsNode)i.next();
-                // System.out.println("Parent: "      + cgn + 
-                //                    "\n  Child: "   + child + 
+                // System.out.println("Parent: "      + cgn +
+                //                    "\n  Child: "   + child +
                 //                    "\n  ChildGN: " + childGN);
                 if (childGN == child)
                     break;
 
                 Rectangle2D cbounds = childGN.getBounds();
+                if (cbounds == null) continue;
                 // System.out.println("Child : " + childGN);
                 // System.out.println("Bounds: " + cbounds);
                 // System.out.println("      : " + aoi);
 
                 AffineTransform at = childGN.getTransform();
-                if (at != null) 
+                if (at != null)
                     cbounds = at.createTransformedShape(cbounds).getBounds2D();
 
 
@@ -382,7 +385,7 @@ public class BackgroundRable8Bit
             // System.out.println("R2d: " + r2d);
             // System.out.println("AOI: " + aoiR2d);
 
-            if (r2d.intersects(aoiR2d) == false)
+            if ( ! r2d.intersects(aoiR2d) )
                 return null;
 
             Rectangle2D.intersect(r2d, aoiR2d, r2d);
@@ -392,14 +395,14 @@ public class BackgroundRable8Bit
         // System.out.println("BG: " + background);
         if ( background == null)
             return null;
-        
+
         background = new PadRable8Bit(background, r2d, PadMode.ZERO_PAD);
 
-        
+
         RenderedImage ri = background.createRendering
-            (new RenderContext(renderContext.getTransform(), r2d, 
+            (new RenderContext(renderContext.getTransform(), r2d,
                                renderContext.getRenderingHints()));
-        // System.out.println("RI: [" + ri.getMinX() + ", " 
+        // System.out.println("RI: [" + ri.getMinX() + ", "
         //                    + ri.getMinY() + ", " +
         //                    + ri.getWidth() + ", " +
         //                    + ri.getHeight() + "]");

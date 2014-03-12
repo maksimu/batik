@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,7 +19,7 @@
 package org.apache.batik.dom.svg;
 
 import org.apache.batik.dom.AbstractDocument;
-import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
@@ -29,11 +30,28 @@ import org.w3c.dom.svg.SVGFEComponentTransferElement;
  * This class implements {@link SVGFEComponentTransferElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMFEComponentTransferElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public class SVGOMFEComponentTransferElement
     extends    SVGOMFilterPrimitiveStandardAttributes
     implements SVGFEComponentTransferElement {
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGOMFilterPrimitiveStandardAttributes.xmlTraitInformation);
+        t.put(null, SVG_IN_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_CDATA));
+        xmlTraitInformation = t;
+    }
+
+    /**
+     * The 'in' attribute value.
+     */
+    protected SVGOMAnimatedString in;
 
     /**
      * Creates a new SVGOMFEComponentTransferElement object.
@@ -49,6 +67,22 @@ public class SVGOMFEComponentTransferElement
     public SVGOMFEComponentTransferElement(String prefix,
                                            AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        in = createLiveAnimatedString(null, SVG_IN_ATTRIBUTE);
     }
 
     /**
@@ -62,7 +96,7 @@ public class SVGOMFEComponentTransferElement
      * <b>DOM</b>: Implements {@link SVGFEComponentTransferElement#getIn1()}.
      */
     public SVGAnimatedString getIn1() {
-        return getAnimatedStringAttribute(null, SVG_IN_ATTRIBUTE);
+        return in;
     }
 
     /**
@@ -72,57 +106,10 @@ public class SVGOMFEComponentTransferElement
         return new SVGOMFEComponentTransferElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
     /**
-     * Returns whether the given XML attribute is animatable.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                updateStringAttributeValue(getIn1(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                return getBaseValue(getIn1());
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 }

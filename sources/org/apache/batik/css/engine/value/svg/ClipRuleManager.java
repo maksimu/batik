@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,18 +29,18 @@ import org.apache.batik.util.SVGTypes;
  * This class provides a manager for the 'clip-rule' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: ClipRuleManager.java 478160 2006-11-22 13:35:06Z dvholten $
  */
 public class ClipRuleManager extends IdentifierManager {
-    
+
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_EVENODD_VALUE,
+        values.put(CSSConstants.CSS_EVENODD_VALUE,
                    SVGValueConstants.EVENODD_VALUE);
-	values.put(CSSConstants.CSS_NONZERO_VALUE,
+        values.put(CSSConstants.CSS_NONZERO_VALUE,
                    SVGValueConstants.NONZERO_VALUE);
     }
 
@@ -48,7 +49,7 @@ public class ClipRuleManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return true;
+        return true;
     }
 
     /**
@@ -77,9 +78,9 @@ public class ClipRuleManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_CLIP_RULE_PROPERTY;
+        return CSSConstants.CSS_CLIP_RULE_PROPERTY;
     }
-    
+
     /**
      * Implements {@link
      * org.apache.batik.css.engine.value.ValueManager#getDefaultValue()}.

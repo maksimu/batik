@@ -24,6 +24,8 @@ import org.w3c.dom.NodeList;
 /**
  * Interface implemented by all nodes that support XBL.
  * Eventually will move to org.w3c.dom.xbl (or some such package).
+ *
+ * @version $Id: NodeXBL.java 498740 2007-01-22 18:35:57Z dvholten $
  */
 public interface NodeXBL {
 

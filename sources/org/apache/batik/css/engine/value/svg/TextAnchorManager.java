@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,20 +29,20 @@ import org.apache.batik.util.SVGTypes;
  * This class provides a manager for the 'text-anchor' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: TextAnchorManager.java 478283 2006-11-22 18:53:40Z dvholten $
  */
 public class TextAnchorManager extends IdentifierManager {
-    
+
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_START_VALUE,
+        values.put(CSSConstants.CSS_START_VALUE,
                    SVGValueConstants.START_VALUE);
-	values.put(CSSConstants.CSS_MIDDLE_VALUE,
+        values.put(CSSConstants.CSS_MIDDLE_VALUE,
                    SVGValueConstants.MIDDLE_VALUE);
-	values.put(CSSConstants.CSS_END_VALUE,
+        values.put(CSSConstants.CSS_END_VALUE,
                    SVGValueConstants.END_VALUE);
     }
 
@@ -50,7 +51,7 @@ public class TextAnchorManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return true;
+        return true;
     }
 
     /**
@@ -79,9 +80,9 @@ public class TextAnchorManager extends IdentifierManager {
      * org.apache.batik.css.engine.value.ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_TEXT_ANCHOR_PROPERTY;
+        return CSSConstants.CSS_TEXT_ANCHOR_PROPERTY;
     }
-    
+
     /**
      * Implements {@link
      * org.apache.batik.css.engine.value.ValueManager#getDefaultValue()}.

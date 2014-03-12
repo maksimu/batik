@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,7 +36,7 @@ import org.w3c.dom.Node;
  * Bridge class for the &lt;feComponentTransfer> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGFeComponentTransferElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGFeComponentTransferElementBridge
     extends AbstractSVGFilterPrimitiveElementBridge {
@@ -53,7 +54,7 @@ public class SVGFeComponentTransferElementBridge
     }
 
     /**
-     * Creates a <tt>Filter</tt> primitive according to the specified
+     * Creates a <code>Filter</code> primitive according to the specified
      * parameters.
      *
      * @param ctx the bridge context to use
@@ -61,12 +62,12 @@ public class SVGFeComponentTransferElementBridge
      * @param filteredElement the element that references the filter
      * @param filteredNode the graphics node to filter
      *
-     * @param inputFilter the <tt>Filter</tt> that represents the current
+     * @param inputFilter the <code>Filter</code> that represents the current
      *        filter input if the filter chain.
      * @param filterRegion the filter area defined for the filter chain
      *        the new node will be part of.
      * @param filterMap a map where the mediator can map a name to the
-     *        <tt>Filter</tt> it creates. Other <tt>FilterBridge</tt>s
+     *        <code>Filter</code> it creates. Other <code>FilterBridge</code>s
      *        can then access a filter node from the filterMap if they
      *        know its name.
      */
@@ -157,7 +158,7 @@ public class SVGFeComponentTransferElementBridge
     public static class SVGFeFuncAElementBridge extends SVGFeFuncElementBridge {
 
         /**
-         * Constructs a new bridge for the <tt>feFuncA</tt> element.
+         * Constructs a new bridge for the <code>feFuncA</code> element.
          */
         public SVGFeFuncAElementBridge() {}
 
@@ -175,7 +176,7 @@ public class SVGFeComponentTransferElementBridge
     public static class SVGFeFuncRElementBridge extends SVGFeFuncElementBridge {
 
         /**
-         * Constructs a new bridge for the <tt>feFuncR</tt> element.
+         * Constructs a new bridge for the <code>feFuncR</code> element.
          */
         public SVGFeFuncRElementBridge() {}
 
@@ -193,7 +194,7 @@ public class SVGFeComponentTransferElementBridge
     public static class SVGFeFuncGElementBridge extends SVGFeFuncElementBridge {
 
         /**
-         * Constructs a new bridge for the <tt>feFuncG</tt> element.
+         * Constructs a new bridge for the <code>feFuncG</code> element.
          */
         public SVGFeFuncGElementBridge() {}
 
@@ -211,7 +212,7 @@ public class SVGFeComponentTransferElementBridge
     public static class SVGFeFuncBElementBridge extends SVGFeFuncElementBridge {
 
         /**
-         * Constructs a new bridge for the <tt>feFuncB</tt> element.
+         * Constructs a new bridge for the <code>feFuncB</code> element.
          */
         public SVGFeFuncBElementBridge() {}
 
@@ -226,7 +227,7 @@ public class SVGFeComponentTransferElementBridge
     /**
      * The base bridge class for component transfer function.
      */
-    protected static abstract class SVGFeFuncElementBridge
+    protected abstract static class SVGFeFuncElementBridge
             extends AnimatableGenericSVGBridge {
 
         /**
@@ -235,7 +236,7 @@ public class SVGFeComponentTransferElementBridge
         protected SVGFeFuncElementBridge() {}
 
         /**
-         * Creates a <tt>ComponentTransferFunction</tt> according to
+         * Creates a <code>ComponentTransferFunction</code> according to
          * the specified parameters.
          *
          * @param filterElement the feComponentTransfer filter primitive element
@@ -291,7 +292,7 @@ public class SVGFeComponentTransferElementBridge
                 }
             }
             default:
-                throw new Error(); // can't be reached
+                throw new Error("invalid convertType:" + type ); // can't be reached
             }
 
         }
@@ -314,9 +315,9 @@ public class SVGFeComponentTransferElementBridge
                 for (int i = 0; tokens.hasMoreTokens(); ++i) {
                     v[i] = SVGUtilities.convertSVGNumber(tokens.nextToken());
                 }
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, e, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                    (ctx, e, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                      new Object[] {SVG_TABLE_VALUES_ATTRIBUTE, s});
         }
             return v;

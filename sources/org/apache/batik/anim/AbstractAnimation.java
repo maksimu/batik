@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,22 +20,23 @@ package org.apache.batik.anim;
 
 import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimatableElement;
 
-import org.apache.batik.anim.timing.Trace;
+// import org.apache.batik.anim.timing.Trace;
 
 /**
  * An abstract base class for the different types of animation.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AbstractAnimation.java 478283 2006-11-22 18:53:40Z dvholten $
  */
 public abstract class AbstractAnimation {
 
     // Constants for calcMode.
-    public final static short CALC_MODE_DISCRETE = 0;
-    public final static short CALC_MODE_LINEAR   = 1;
-    public final static short CALC_MODE_PACED    = 2;
-    public final static short CALC_MODE_SPLINE   = 3;
+    public static final short CALC_MODE_DISCRETE = 0;
+    public static final short CALC_MODE_LINEAR   = 1;
+    public static final short CALC_MODE_PACED    = 2;
+    public static final short CALC_MODE_SPLINE   = 3;
 
     /**
      * The TimedElement that controls the timing of this animation.
@@ -46,7 +48,7 @@ public abstract class AbstractAnimation {
      * document.
      */
     protected AnimatableElement animatableElement;
-    
+
     /**
      * The animation that is lower in the sandwich.
      */
@@ -129,17 +131,17 @@ public abstract class AbstractAnimation {
      * Returns the composed value of this animation, or null if it isn't active.
      */
     public AnimatableValue getComposedValue() {
-        Trace.enter(this, "getComposedValue", null); try {
-        Trace.print("isActive == " + isActive + ", isFrozen == " + isFrozen + ", isDirty == " + isDirty);
+        // Trace.enter(this, "getComposedValue", null); try {
+        // Trace.print("isActive == " + isActive + ", isFrozen == " + isFrozen + ", isDirty == " + isDirty);
         if (!isActive && !isFrozen) {
             return null;
         }
         if (isDirty) {
-            Trace.print("willReplace() == " + willReplace());
-            Trace.print("value == " + value);
+            // Trace.print("willReplace() == " + willReplace());
+            // Trace.print("value == " + value);
             AnimatableValue lowerValue = null;
             if (!willReplace()) {
-                Trace.print("lowerAnimation == " + lowerAnimation);
+                // Trace.print("lowerAnimation == " + lowerAnimation);
                 if (lowerAnimation == null) {
                     lowerValue = animatableElement.getUnderlyingValue();
                     usesUnderlyingValue = true;
@@ -147,15 +149,15 @@ public abstract class AbstractAnimation {
                     lowerValue = lowerAnimation.getComposedValue();
                     usesUnderlyingValue = false;
                 }
-                Trace.print("lowerValue == " + lowerValue);
+                // Trace.print("lowerValue == " + lowerValue);
             }
             composedValue =
                 value.interpolate(composedValue, null, 0f, lowerValue, 1);
-            Trace.print("composedValue == " + composedValue);
+            // Trace.print("composedValue == " + composedValue);
             isDirty = false;
         }
         return composedValue;
-        } finally { Trace.exit(); }
+        // } finally { Trace.exit(); }
     }
 
     /**

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,18 +22,17 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.lang.ref.SoftReference;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.apache.batik.css.engine.CSSEngineEvent;
 import org.apache.batik.css.engine.SVGCSSEngine;
 import org.apache.batik.dom.events.AbstractEvent;
+import org.apache.batik.dom.svg.AbstractSVGTransformList;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
 import org.apache.batik.dom.svg.SVGContext;
 import org.apache.batik.dom.svg.SVGMotionAnimatableElement;
 import org.apache.batik.dom.svg.SVGOMElement;
+import org.apache.batik.dom.svg.SVGOMAnimatedTransformList;
 import org.apache.batik.ext.awt.geom.SegmentList;
 import org.apache.batik.gvt.CanvasGraphicsNode;
 import org.apache.batik.gvt.CompositeGraphicsNode;
@@ -44,15 +44,12 @@ import org.w3c.dom.events.DocumentEvent;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.MutationEvent;
 import org.w3c.dom.svg.SVGFitToViewBox;
-import org.w3c.dom.svg.SVGLength;
-import org.w3c.dom.svg.SVGMatrix;
-import org.w3c.dom.svg.SVGTransformList;
 import org.w3c.dom.svg.SVGTransformable;
 
 /**
  * The base bridge class for SVG graphics node. By default, the namespace URI is
- * the SVG namespace. Override the <tt>getNamespaceURI</tt> if you want to add
- * custom <tt>GraphicsNode</tt> with a custom namespace.
+ * the SVG namespace. Override the <code>getNamespaceURI</code> if you want to add
+ * custom <code>GraphicsNode</code> with a custom namespace.
  *
  * <p>This class handles various attributes that are defined on most
  * of the SVG graphic elements as described in the SVG
@@ -68,14 +65,14 @@ import org.w3c.dom.svg.SVGTransformable;
  * </ul>
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: AbstractGraphicsNodeBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
-    implements SVGContext, 
-               BridgeUpdateHandler, 
-               GraphicsNodeBridge, 
+    implements SVGContext,
+               BridgeUpdateHandler,
+               GraphicsNodeBridge,
                ErrorConstants {
-    
+
     /**
      * The graphics node constructed by this bridge.
      */
@@ -90,14 +87,14 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
      * The unit context for length conversions.
      */
     protected UnitProcessor.Context unitContext;
-    
+
     /**
      * Constructs a new abstract bridge.
      */
     protected AbstractGraphicsNodeBridge() {}
 
     /**
-     * Creates a <tt>GraphicsNode</tt> according to the specified parameters.
+     * Creates a <code>GraphicsNode</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param e the element that describes the graphics node to build
@@ -112,7 +109,7 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
         GraphicsNode node = instantiateGraphicsNode();
 
         // 'transform'
-        setTransform(node, e);
+        setTransform(node, e, ctx);
 
         // 'visibility'
         node.setVisible(CSSUtilities.convertVisibility(e));
@@ -162,34 +159,45 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
     }
 
     /**
-     * Sets the graphics node's transform to the current animated transform
-     * value.
+     * Returns an {@link AffineTransform} that is the transformation to
+     * be applied to the node.
      */
-    protected void setTransform(GraphicsNode n, Element e) {
-        SVGTransformable te = (SVGTransformable) e;
+    protected AffineTransform computeTransform(SVGTransformable te,
+                                               BridgeContext ctx) {
         try {
-            // 'transform'
             AffineTransform at = new AffineTransform();
-            SVGTransformList tl = te.getTransform().getAnimVal();
-            int count = tl.getNumberOfItems();
-            for (int i = 0; i < count; i++) {
-                SVGMatrix m = tl.getItem(i).getMatrix();
-                at.concatenate(new AffineTransform(m.getA(), m.getB(),
-                                                   m.getC(), m.getD(),
-                                                   m.getE(), m.getF()));
-                                                 
+
+            // 'transform'
+            SVGOMAnimatedTransformList atl =
+                (SVGOMAnimatedTransformList) te.getTransform();
+            if (atl.isSpecified()) {
+                atl.check();
+                AbstractSVGTransformList tl =
+                    (AbstractSVGTransformList) te.getTransform().getAnimVal();
+                at.concatenate(tl.getAffineTransform());
             }
+
+            // motion animation
             if (e instanceof SVGMotionAnimatableElement) {
                 SVGMotionAnimatableElement mae = (SVGMotionAnimatableElement) e;
-                AffineTransform motion = mae.getMotionTransform();
-                if (motion != null) {
-                    at.concatenate(motion);
+                AffineTransform mat = mae.getMotionTransform();
+                if (mat != null) {
+                    at.concatenate(mat);
                 }
             }
-            n.setTransform(at);
+
+            return at;
         } catch (LiveAttributeException ex) {
             throw new BridgeException(ctx, ex);
         }
+    }
+
+    /**
+     * Sets the graphics node's transform to the current animated transform
+     * value.
+     */
+    protected void setTransform(GraphicsNode n, Element e, BridgeContext ctx) {
+        n.setTransform(computeTransform((SVGTransformable) e, ctx));
     }
 
     /**
@@ -282,13 +290,21 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
      * Invoked when an MutationEvent of type 'DOMNodeRemoved' is fired.
      */
     public void handleDOMNodeRemovedEvent(MutationEvent evt) {
+        Node parent = e.getParentNode();
+        if (parent instanceof SVGOMElement) {
+            SVGContext bridge = ((SVGOMElement) parent).getSVGContext();
+            if (bridge instanceof SVGSwitchElementBridge) {
+                ((SVGSwitchElementBridge) bridge).handleChildElementRemoved(e);
+                return;
+            }
+        }
         CompositeGraphicsNode gn = node.getParent();
         gn.remove(node);
         disposeTree(e);
     }
 
     /**
-     * Invoked when an MutationEvent of type 'DOMCharacterDataModified' 
+     * Invoked when an MutationEvent of type 'DOMCharacterDataModified'
      * is fired.
      */
     public void handleDOMCharacterDataModified(MutationEvent evt) {
@@ -301,12 +317,14 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
         SVGOMElement elt = (SVGOMElement)e;
         elt.setSVGContext(null);
         ctx.unbind(e);
+
+        bboxShape = null;
     }
 
     /**
      * Disposes all resources related to the specified node and its subtree.
      */
-    protected void disposeTree(Node node) {
+    protected static void disposeTree(Node node) {
         disposeTree(node, true);
     }
 
@@ -314,7 +332,7 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
      * Disposes all resources related to the specified node and its subtree,
      * and optionally removes the nodes' {@link SVGContext}.
      */
-    protected void disposeTree(Node node, boolean removeContext) {
+    protected static void disposeTree(Node node, boolean removeContext) {
         if (node instanceof SVGOMElement) {
             SVGOMElement elt = (SVGOMElement)node;
             SVGContext ctx = elt.getSVGContext();
@@ -390,7 +408,7 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
             (AnimatedLiveAttributeValue alav) {
         if (alav.getNamespaceURI() == null
                 && alav.getLocalName().equals(SVG_TRANSFORM_ATTRIBUTE)) {
-            setTransform(node, e);
+            setTransform(node, e, ctx);
             handleGeometryChanged();
         }
     }
@@ -400,7 +418,7 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
      */
     public void handleOtherAnimationChanged(String type) {
         if (type.equals("motion")) {
-            setTransform(node, e);
+            setTransform(node, e, ctx);
             handleGeometryChanged();
         }
     }
@@ -474,7 +492,7 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
             return null;
         }
         Shape s = node.getOutline();
-        
+
         if ((bboxShape != null) && (s == bboxShape.get())) return bbox;
         bboxShape = new SoftReference(s); // don't keep this live.
         bbox = null;
@@ -563,26 +581,5 @@ public abstract class AbstractGraphicsNodeBridge extends AnimatableSVGBridge
     public float getFontSize() {
         return CSSUtilities.getComputedStyle
             (e, SVGCSSEngine.FONT_SIZE_INDEX).getFloatValue();
-    }
-
-    /**
-     * Converts the given SVG length into user units.
-     * @param v the SVG length value
-     * @param type the SVG length units (one of the
-     *             {@link SVGLength}.SVG_LENGTH_* constants)
-     * @param pcInterp how to interpretet percentage values (one of the
-     *             {@link SVGContext}.PERCENTAGE_* constants) 
-     * @return the SVG value in user units
-     */
-    public float svgToUserSpace(float v, int type, int pcInterp) {
-        if (pcInterp == PERCENTAGE_FONT_SIZE
-                && type == SVGLength.SVG_LENGTHTYPE_PERCENTAGE) {
-            // XXX
-            return 0f;
-        } else {
-            return UnitProcessor.svgToUserSpace(v, (short) type,
-                                                (short) (3 - pcInterp),
-                                                unitContext);
-        }
     }
 }

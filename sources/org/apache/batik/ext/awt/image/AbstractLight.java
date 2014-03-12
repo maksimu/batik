@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,7 +24,7 @@ import java.awt.Color;
  * An abstract implementation of the Light interface.
  *
  * @author <a href="mailto:deweese@apache.org">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: AbstractLight.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class AbstractLight implements Light {
     /**
@@ -65,7 +66,7 @@ public abstract class AbstractLight implements Light {
     }
 
     /**
-     * Sets the new light color, <tt>newColor</tt> should be in sRGB.
+     * Sets the new light color, <code>newColor</code> should be in sRGB.
      */
     public void setColor(Color newColor){
         color = new double[3];

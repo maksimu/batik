@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -36,20 +37,20 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  * This class provides a manager for the 'baseline-shift' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: BaselineShiftManager.java 478160 2006-11-22 13:35:06Z dvholten $
  */
 public class BaselineShiftManager extends LengthManager {
-    
+
     /**
      * The identifier values.
      */
-    protected final static StringMap values = new StringMap();
+    protected static final StringMap values = new StringMap();
     static {
-	values.put(CSSConstants.CSS_BASELINE_VALUE,
+        values.put(CSSConstants.CSS_BASELINE_VALUE,
                    SVGValueConstants.BASELINE_VALUE);
-	values.put(CSSConstants.CSS_SUB_VALUE,
+        values.put(CSSConstants.CSS_SUB_VALUE,
                    SVGValueConstants.SUB_VALUE);
-	values.put(CSSConstants.CSS_SUPER_VALUE,
+        values.put(CSSConstants.CSS_SUPER_VALUE,
                    SVGValueConstants.SUPER_VALUE);
     }
 
@@ -57,7 +58,7 @@ public class BaselineShiftManager extends LengthManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return false;
+        return false;
     }
 
     /**
@@ -85,9 +86,9 @@ public class BaselineShiftManager extends LengthManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_BASELINE_SHIFT_PROPERTY;
+        return CSSConstants.CSS_BASELINE_SHIFT_PROPERTY;
     }
-    
+
     /**
      * Implements {@link ValueManager#getDefaultValue()}.
      */
@@ -105,8 +106,8 @@ public class BaselineShiftManager extends LengthManager {
             return SVGValueConstants.INHERIT_VALUE;
 
         case LexicalUnit.SAC_IDENT:
-	    Object v = values.get(lu.getStringValue().toLowerCase().intern());
-	    if (v == null) {
+            Object v = values.get(lu.getStringValue().toLowerCase().intern());
+            if (v == null) {
                 throw createInvalidIdentifierDOMException(lu.getStringValue());
             }
             return (Value)v;
@@ -119,13 +120,13 @@ public class BaselineShiftManager extends LengthManager {
      */
     public Value createStringValue(short type, String value, CSSEngine engine)
         throws DOMException {
-	if (type != CSSPrimitiveValue.CSS_IDENT) {
+        if (type != CSSPrimitiveValue.CSS_IDENT) {
             throw createInvalidIdentifierDOMException(value);
         }
-	Object v = values.get(value.toLowerCase().intern());
-	if (v == null) {
+        Object v = values.get(value.toLowerCase().intern());
+        if (v == null) {
             throw createInvalidIdentifierDOMException(value);
-	}
+        }
         return (Value)v;
     }
 
@@ -143,14 +144,14 @@ public class BaselineShiftManager extends LengthManager {
             sm.putLineHeightRelative(idx, true);
 
             int fsi = engine.getLineHeightIndex();
-	    CSSStylableElement parent;
-	    parent = (CSSStylableElement)elt.getParentNode();
-	    if (parent == null) {
-		// Hmmm somthing pretty odd - can't happen accordint to spec, 
-		// should always have text parent.
-		// http://www.w3.org/TR/SVG11/text.html#BaselineShiftProperty
-		parent = elt;
-	    }
+            CSSStylableElement parent;
+            parent = (CSSStylableElement)elt.getParentNode();
+            if (parent == null) {
+                // Hmmm somthing pretty odd - can't happen accordint to spec,
+                // should always have text parent.
+                // http://www.w3.org/TR/SVG11/text.html#BaselineShiftProperty
+                parent = elt;
+            }
             Value fs = engine.getComputedStyle(parent, pseudo, fsi);
             float fsv = fs.getFloatValue();
             float v = value.getFloatValue();

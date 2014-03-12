@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,7 +24,7 @@ package org.apache.batik.util;
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGConstants.java 662138 2008-06-01 03:26:00Z cam $
  */
 public interface SVGConstants extends CSSConstants, XMLConstants {
 
@@ -277,9 +278,67 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     // SVG features
     /////////////////////////////////////////////////////////////////////////
 
+    // SVG 1.0 feature strings
     String SVG_ORG_W3C_SVG_FEATURE = "org.w3c.svg";
-    String SVG_ORG_W3C_SVG_LANG_FEATURE = "org.w3c.svg.lang";
     String SVG_ORG_W3C_SVG_STATIC_FEATURE = "org.w3c.svg.static";
+    String SVG_ORG_W3C_SVG_ANIMATION_FEATURE = "org.w3c.svg.animation";
+    String SVG_ORG_W3C_SVG_DYNAMIC_FEATURE = "org.w3c.svg.dynamic";
+    String SVG_ORG_W3C_SVG_ALL_FEATURE = "org.w3c.svg.all";
+    String SVG_ORG_W3C_DOM_SVG_FEATURE = "org.w3c.dom.svg";
+    String SVG_ORG_W3C_DOM_SVG_STATIC_FEATURE = "org.w3c.dom.svg.static";
+    String SVG_ORG_W3C_DOM_SVG_ANIMATION_FEATURE = "org.w3c.dom.svg.animation";
+    String SVG_ORG_W3C_DOM_SVG_DYNAMIC_FEATURE = "org.w3c.dom.svg.dynamic";
+    String SVG_ORG_W3C_DOM_SVG_ALL_FEATURE = "org.w3c.dom.svg.all";
+
+    // SVG 1.1 feature strings
+    String SVG_SVG11_SVG_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVG";
+    String SVG_SVG11_SVG_DOM_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVGDOM";
+    String SVG_SVG11_SVG_STATIC_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVG-static";
+    String SVG_SVG11_SVG_DOM_STATIC_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVGDOM-static";
+    String SVG_SVG11_SVG_ANIMATION_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVG-animation";
+    String SVG_SVG11_SVG_DOM_ANIMATION_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVGDOM-animation";
+    String SVG_SVG11_SVG_DYNAMIC_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVG-dynamic";
+    String SVG_SVG11_SVG_DOM_DYNAMIC_FEATURE = "http://www.w3.org/TR/SVG11/feature#SVGDOM-dynamic";
+    String SVG_SVG11_CORE_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#CoreAttribute";
+    String SVG_SVG11_STRUCTURE_FEATURE = "http://www.w3.org/TR/SVG11/feature#Structure";
+    String SVG_SVG11_BASIC_STRUCTURE_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicStructure";
+    String SVG_SVG11_CONTAINER_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#ContainerAttribute";
+    String SVG_SVG11_CONDITIONAL_PROCESSING_FEATURE = "http://www.w3.org/TR/SVG11/feature#ConditionalProcessing";
+    String SVG_SVG11_IMAGE_FEATURE = "http://www.w3.org/TR/SVG11/feature#Image";
+    String SVG_SVG11_STYLE_FEATURE = "http://www.w3.org/TR/SVG11/feature#Style";
+    String SVG_SVG11_VIEWPORT_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#ViewportAttribute";
+    String SVG_SVG11_SHAPE_FEATURE = "http://www.w3.org/TR/SVG11/feature#Shape";
+    String SVG_SVG11_TEXT_FEATURE = "http://www.w3.org/TR/SVG11/feature#Text";
+    String SVG_SVG11_BASIC_TEXT_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicText";
+    String SVG_SVG11_PAINT_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#PaintAttribute";
+    String SVG_SVG11_BASIC_PAINT_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicPaintAttribute";
+    String SVG_SVG11_OPACITY_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#OpacityAttribute";
+    String SVG_SVG11_GRAPHICS_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#GraphicsAttribute";
+    String SVG_SVG11_BASIC_GRAPHICS_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicGraphicsAttribute";
+    String SVG_SVG11_MARKER_FEATURE = "http://www.w3.org/TR/SVG11/feature#Marker";
+    String SVG_SVG11_COLOR_PROFILE_FEATURE = "http://www.w3.org/TR/SVG11/feature#ColorProfile";
+    String SVG_SVG11_GRADIENT_FEATURE = "http://www.w3.org/TR/SVG11/feature#Gradient";
+    String SVG_SVG11_PATTERN_FEATURE = "http://www.w3.org/TR/SVG11/feature#Pattern";
+    String SVG_SVG11_CLIP_FEATURE = "http://www.w3.org/TR/SVG11/feature#Clip";
+    String SVG_SVG11_BASIC_CLIP_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicClip";
+    String SVG_SVG11_MASK_FEATURE = "http://www.w3.org/TR/SVG11/feature#Mask";
+    String SVG_SVG11_FILTER_FEATURE = "http://www.w3.org/TR/SVG11/feature#Filter";
+    String SVG_SVG11_BASIC_FILTER_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicFilter";
+    String SVG_SVG11_DOCUMENT_EVENTS_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#DocumentEventsAttribute";
+    String SVG_SVG11_GRAPHICAL_EVENTS_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#GraphicalEventsAttribute";
+    String SVG_SVG11_ANIMATION_EVENTS_ATTRIBUTE_FEATURE = "http://www.w3.org/TR/SVG11/feature#AnimationEventsAttribute";
+    String SVG_SVG11_CURSOR_FEATURE = "http://www.w3.org/TR/SVG11/feature#Cursor";
+    String SVG_SVG11_HYPERLINKING_FEATURE = "http://www.w3.org/TR/SVG11/feature#Hyperlinking";
+    String SVG_SVG11_XLINK_FEATURE = "http://www.w3.org/TR/SVG11/feature#Xlink";
+    String SVG_SVG11_EXTERNAL_RESOURCES_REQUIRED_FEATURE = "http://www.w3.org/TR/SVG11/feature#ExternalResourcesRequired";
+    String SVG_SVG11_VIEW_FEATURE = "http://www.w3.org/TR/SVG11/feature#View";
+    String SVG_SVG11_SCRIPT_FEATURE = "http://www.w3.org/TR/SVG11/feature#Script";
+    String SVG_SVG11_ANIMATION_FEATURE = "http://www.w3.org/TR/SVG11/feature#Animation";
+    String SVG_SVG11_FONT_FEATURE = "http://www.w3.org/TR/SVG11/feature#Font";
+    String SVG_SVG11_BASIC_FONT_FEATURE = "http://www.w3.org/TR/SVG11/feature#BasicFont";
+    String SVG_SVG11_EXTENSIBILITY_FEATURE = "http://www.w3.org/TR/SVG11/feature#Extensibility";
+
+    // TODO SVG 1.2 feature strings
 
     /////////////////////////////////////////////////////////////////////////
     // SVG tags
@@ -459,7 +518,6 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     String SVG_KEY_TIMES_ATTRIBUTE = "keyTimes";
     String SVG_LANG_ATTRIBUTE = "lang";
     String SVG_LENGTH_ADJUST_ATTRIBUTE = "lengthAdjust";
-    String SVG_LIGHT_COLOR_ATTRIBUTE = "lightColor";
     String SVG_LIGHTING_COLOR_ATTRIBUTE = "lighting-color";
     String SVG_LIMITING_CONE_ANGLE_ATTRIBUTE = "limitingConeAngle";
     String SVG_LOCAL_ATTRIBUTE = "local";
@@ -481,8 +539,6 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     String SVG_OPACITY_ATTRIBUTE = CSS_OPACITY_PROPERTY;
     String SVG_OPERATOR_ATTRIBUTE = "operator";
     String SVG_ORDER_ATTRIBUTE = "order";
-    String SVG_ORDER_X_ATTRIBUTE = "orderX";
-    String SVG_ORDER_Y_ATTRIBUTE = "orderY";
     String SVG_ORIENT_ATTRIBUTE = "orient";
     String SVG_ORIENTATION_ATTRIBUTE = "orientation";
     String SVG_ORIGIN_ATTRIBUTE = "origin";
@@ -510,7 +566,6 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     String SVG_REQUIRED_FEATURES_ATTRIBUTE = "requiredFeatures";
     String SVG_REQUIRED_EXTENSIONS_ATTRIBUTE = "requiredExtensions";
     String SVG_RESULT_ATTRIBUTE = "result";
-    String SVG_RESULT_SCALE_ATTRIBUTE = "resultScale";
     String SVG_RESTART_ATTRIBUTE = "restart";
     String SVG_RX_ATTRIBUTE = "rx";
     String SVG_RY_ATTRIBUTE = "ry";
@@ -520,6 +575,7 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     String SVG_SEED_ATTRIBUTE = "seed";
     String SVG_SHAPE_RENDERING_ATTRIBUTE = CSS_SHAPE_RENDERING_PROPERTY;
     String SVG_SLOPE_ATTRIBUTE = "slope";
+    String SVG_SNAPSHOT_TIME_ATTRIBUTE = "snapshotTime";
     String SVG_SPACE_ATTRIBUTE = "space";
     String SVG_SPACING_ATTRIBUTE = "spacing";
     String SVG_SPECULAR_CONSTANT_ATTRIBUTE = "specularConstant";
@@ -546,7 +602,6 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     String SVG_STYLE_ATTRIBUTE = "style";
     String SVG_SURFACE_SCALE_ATTRIBUTE = "surfaceScale";
     String SVG_SYSTEM_LANGUAGE_ATTRIBUTE = "systemLanguage";
-    String SVG_TABLE_ATTRIBUTE = "table";
     String SVG_TABLE_VALUES_ATTRIBUTE = "tableValues";
     String SVG_TARGET_ATTRIBUTE = "target";
     String SVG_TARGET_X_ATTRIBUTE = "targetX";
@@ -829,6 +884,9 @@ public interface SVGConstants extends CSSConstants, XMLConstants {
     String SVG_RECT_X_DEFAULT_VALUE = "0";
     String SVG_RECT_Y_DEFAULT_VALUE = "0";
     String SVG_SCRIPT_TYPE_ECMASCRIPT = "text/ecmascript";
+    String SVG_SCRIPT_TYPE_APPLICATION_ECMASCRIPT = "application/ecmascript";
+    String SVG_SCRIPT_TYPE_JAVASCRIPT = "text/javascript";
+    String SVG_SCRIPT_TYPE_APPLICATION_JAVASCRIPT = "application/javascript";
     String SVG_SCRIPT_TYPE_DEFAULT_VALUE = SVG_SCRIPT_TYPE_ECMASCRIPT;
     String SVG_SCRIPT_TYPE_JAVA = "application/java-archive";
     String SVG_SVG_X_DEFAULT_VALUE = "0";

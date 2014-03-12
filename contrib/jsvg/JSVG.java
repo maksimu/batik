@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,7 +36,7 @@ import org.apache.batik.swing.svg.SVGUserAgentGUIAdapter;
  * to open.
  *
  * @author <a href="mailto:Thomas.DeWeese@Kodak.com">deweese</a>
- * @version $Id$
+ * @version $Id: JSVG.java 479617 2006-11-27 13:43:51Z dvholten $
  */
 public class JSVG extends JFrame{
     static int windowCount=0;
@@ -68,9 +69,9 @@ public class JSVG extends JFrame{
         windowCount++;
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         for (int i=0; i<args.length; i++) {
             new JSVG(args[i]);
         }
     }
-};
+}

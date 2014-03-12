@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,6 +24,7 @@ import org.apache.batik.anim.values.AnimatableMotionPointValue;
 import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.XMLSupport;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.svg.SVGAnimatedBoolean;
@@ -37,11 +39,42 @@ import org.w3c.dom.svg.SVGStringList;
  * This class provides a common superclass for all graphics elements.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGGraphicsElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public abstract class SVGGraphicsElement
         extends SVGStylableElement
         implements SVGMotionAnimatableElement {
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGStylableElement.xmlTraitInformation);
+        t.put(null, SVG_TRANSFORM_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_TRANSFORM_LIST));
+        t.put(null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_BOOLEAN));
+//         t.put(null, SVG_REQUIRED_EXTENSIONS_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_URI_LIST));
+//         t.put(null, SVG_REQUIRED_FEATURES_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_URI_LIST));
+//         t.put(null, SVG_SYSTEM_LANGUAGE_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_LANG_LIST));
+        xmlTraitInformation = t;
+
+    }
+
+    /**
+     * The 'transform' attribute value.
+     */
+    protected SVGOMAnimatedTransformList transform;
+
+    /**
+     * The 'externalResourcesRequired' attribute value.
+     */
+    protected SVGOMAnimatedBoolean externalResourcesRequired;
 
     /**
      * Supplemental transformation due to motion animation.
@@ -61,6 +94,33 @@ public abstract class SVGGraphicsElement
      */
     protected SVGGraphicsElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        transform =
+            createLiveAnimatedTransformList(null, SVG_TRANSFORM_ATTRIBUTE, "");
+        externalResourcesRequired =
+            createLiveAnimatedBoolean
+                (null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE, false);
+    }
+
+    /**
+     * Returns the table of TraitInformation objects for this element.
+     */
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 
     // SVGLocatable support /////////////////////////////////////////////
@@ -121,7 +181,7 @@ public abstract class SVGGraphicsElement
      * org.w3c.dom.svg.SVGTransformable#getTransform()}.
      */
     public SVGAnimatedTransformList getTransform() {
-        return SVGTransformableSupport.getTransform(this);
+        return transform;
     }
 
     // SVGExternalResourcesRequired support /////////////////////////////
@@ -131,8 +191,7 @@ public abstract class SVGGraphicsElement
      * org.w3c.dom.svg.SVGExternalResourcesRequired#getExternalResourcesRequired()}.
      */
     public SVGAnimatedBoolean getExternalResourcesRequired() {
-        return SVGExternalResourcesRequiredSupport.
-            getExternalResourcesRequired(this);
+        return externalResourcesRequired;
     }
 
     // SVGLangSpace support //////////////////////////////////////////////////
@@ -209,59 +268,7 @@ public abstract class SVGGraphicsElement
         return motionTransform;
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns whether the given XML attribute is animatable.
-     */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)
-                    || ln.equals(SVG_TRANSFORM_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_TRANSFORM_ATTRIBUTE)) {
-                return SVGTypes.TYPE_TRANSFORM_LIST;
-            } else if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return SVGTypes.TYPE_IDENT;
-            } else if (ln.equals(SVG_REQUIRED_EXTENSIONS_ATTRIBUTE)
-                    || ln.equals(SVG_REQUIRED_FEATURES_ATTRIBUTE)) {
-                return SVGTypes.TYPE_URI_LIST;
-            } else if (ln.equals(SVG_SYSTEM_LANGUAGE_ATTRIBUTE)) {
-                return SVGTypes.TYPE_LANG_LIST;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
     // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                updateBooleanAttributeValue(getExternalResourcesRequired(),
-                                            val);
-                return;
-            } else if (ln.equals(SVG_TRANSFORM_ATTRIBUTE)) {
-                updateTransformListAttributeValue(getTransform(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
 
     /**
      * Updates a 'other' animation value in this target.
@@ -283,19 +290,5 @@ public abstract class SVGGraphicsElement
         } else {
             super.updateOtherValue(type, val);
         }
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return getBaseValue(getExternalResourcesRequired());
-            } else if (ln.equals(SVG_TRANSFORM_ATTRIBUTE)) {
-                return getBaseValue(getTransform());
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
     }
 }

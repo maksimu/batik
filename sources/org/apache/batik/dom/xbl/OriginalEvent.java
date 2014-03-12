@@ -23,6 +23,8 @@ import org.w3c.dom.events.Event;
  * Interface implemented by Event objects usable in an XBL processing
  * document.
  * Eventually will move to org.w3c.dom.xbl (or some such package).
+ *
+ * @version $Id: OriginalEvent.java 498740 2007-01-22 18:35:57Z dvholten $
  */
 public interface OriginalEvent {
 

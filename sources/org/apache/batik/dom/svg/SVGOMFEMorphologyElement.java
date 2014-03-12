@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,9 +18,8 @@
  */
 package org.apache.batik.dom.svg;
 
-import org.apache.batik.anim.values.AnimatableNumberOptionalNumberValue;
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
@@ -32,20 +32,46 @@ import org.w3c.dom.svg.SVGFEMorphologyElement;
  * This class implements {@link SVGFEMorphologyElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMFEMorphologyElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public class SVGOMFEMorphologyElement
     extends    SVGOMFilterPrimitiveStandardAttributes
     implements SVGFEMorphologyElement {
 
     /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGOMFilterPrimitiveStandardAttributes.xmlTraitInformation);
+        t.put(null, SVG_IN_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_CDATA));
+        t.put(null, SVG_OPERATOR_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_IDENT));
+        t.put(null, SVG_RADIUS_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_NUMBER_OPTIONAL_NUMBER));
+        xmlTraitInformation = t;
+    }
+
+    /**
      * The 'operator' attribute values.
      */
-    protected final static String[] OPERATOR_VALUES = {
+    protected static final String[] OPERATOR_VALUES = {
         "",
         SVG_ERODE_VALUE,
         SVG_DILATE_VALUE
     };
+
+    /**
+     * The 'in' attribute value.
+     */
+    protected SVGOMAnimatedString in;
+
+    /**
+     * The 'operator' attribute value.
+     */
+    protected SVGOMAnimatedEnumeration operator;
 
     /**
      * Creates a new SVGOMFEMorphologyElement object.
@@ -60,6 +86,25 @@ public class SVGOMFEMorphologyElement
      */
     public SVGOMFEMorphologyElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        in = createLiveAnimatedString(null, SVG_IN_ATTRIBUTE);
+        operator =
+            createLiveAnimatedEnumeration
+                (null, SVG_OPERATOR_ATTRIBUTE, OPERATOR_VALUES, (short) 1);
     }
 
     /**
@@ -73,30 +118,31 @@ public class SVGOMFEMorphologyElement
      * <b>DOM</b>: Implements {@link SVGFEMorphologyElement#getIn1()}.
      */
     public SVGAnimatedString getIn1() {
-        return getAnimatedStringAttribute(null, SVG_IN_ATTRIBUTE);
+        return in;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGFEMorphologyElement#getOperator()}.
      */
     public SVGAnimatedEnumeration getOperator() {
-        return getAnimatedEnumerationAttribute
-            (null, SVG_OPERATOR_ATTRIBUTE, OPERATOR_VALUES, (short)1);
+        return operator;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGFEMorphologyElement#getRadiusX()}.
      */
     public SVGAnimatedNumber getRadiusX() {
-        throw new RuntimeException(" !!! TODO getRadiusX()");
-    } 
+        throw new UnsupportedOperationException
+            ("SVGFEMorphologyElement.getRadiusX is not implemented"); // XXX
+    }
 
     /**
      * <b>DOM</b>: Implements {@link SVGFEMorphologyElement#getRadiusY()}.
      */
     public SVGAnimatedNumber getRadiusY() {
-        throw new RuntimeException(" !!! TODO getRadiusY()");
-    } 
+        throw new UnsupportedOperationException
+            ("SVGFEMorphologyElement.getRadiusY is not implemented"); // XXX
+    }
 
     /**
      * Returns a new uninitialized instance of this object's class.
@@ -105,89 +151,55 @@ public class SVGOMFEMorphologyElement
         return new SVGOMFEMorphologyElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
     /**
-     * Returns whether the given XML attribute is animatable.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)
-                    || ln.equals(SVG_OPERATOR_ATTRIBUTE)
-                    || ln.equals(SVG_RADIUS_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            } else if (ln.equals(SVG_OPERATOR_ATTRIBUTE)) {
-                return SVGTypes.TYPE_IDENT;
-            } else if (ln.equals(SVG_RADIUS_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER_OPTIONAL_NUMBER;
-            }
-        }
-        return super.getAttributeType(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 
     // AnimationTarget ///////////////////////////////////////////////////////
 
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                updateStringAttributeValue(getIn1(), val);
-                return;
-            } else if (ln.equals(SVG_OPERATOR_ATTRIBUTE)) {
-                updateEnumerationAttributeValue(getOperator(), val);
-                return;
-            } else if (ln.equals(SVG_RADIUS_ATTRIBUTE)) {
-                // XXX Needs testing.
-                if (val == null) {
-                    updateNumberAttributeValue(getRadiusX(), null);
-                    updateNumberAttributeValue(getRadiusY(), null);
-                } else {
-                    AnimatableNumberOptionalNumberValue anonv =
-                        (AnimatableNumberOptionalNumberValue) val;
-                    SVGOMAnimatedNumber ai =
-                        (SVGOMAnimatedNumber) getRadiusX();
-                    ai.setAnimatedValue(anonv.getNumber());
-                    ai = (SVGOMAnimatedNumber) getRadiusY();
-                    if (anonv.hasOptionalNumber()) {
-                        ai.setAnimatedValue(anonv.getOptionalNumber());
-                    } else {
-                        ai.setAnimatedValue(anonv.getNumber());
-                    }
-                }
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_IN_ATTRIBUTE)) {
-                return getBaseValue(getIn1());
-            } else if (ln.equals(SVG_OPERATOR_ATTRIBUTE)) {
-                return getBaseValue(getOperator());
-            } else if (ln.equals(SVG_RADIUS_ATTRIBUTE)) {
-                return getBaseValue(getRadiusX(), getRadiusY());
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
-    }
+// XXX TBD
+//     /**
+//      * Updates an attribute value in this target.
+//      */
+//     public void updateAttributeValue(String ns, String ln,
+//                                      AnimatableValue val) {
+//         if (ns == null) {
+//             if (ln.equals(SVG_RADIUS_ATTRIBUTE)) {
+//                 // XXX Needs testing.
+//                 if (val == null) {
+//                     updateNumberAttributeValue(getRadiusX(), null);
+//                     updateNumberAttributeValue(getRadiusY(), null);
+//                 } else {
+//                     AnimatableNumberOptionalNumberValue anonv =
+//                         (AnimatableNumberOptionalNumberValue) val;
+//                     SVGOMAnimatedNumber ai =
+//                         (SVGOMAnimatedNumber) getRadiusX();
+//                     ai.setAnimatedValue(anonv.getNumber());
+//                     ai = (SVGOMAnimatedNumber) getRadiusY();
+//                     if (anonv.hasOptionalNumber()) {
+//                         ai.setAnimatedValue(anonv.getOptionalNumber());
+//                     } else {
+//                         ai.setAnimatedValue(anonv.getNumber());
+//                     }
+//                 }
+//                 return;
+//             }
+//         }
+//         super.updateAttributeValue(ns, ln, val);
+//     }
+// 
+//     /**
+//      * Returns the underlying value of an animatable XML attribute.
+//      */
+//     public AnimatableValue getUnderlyingValue(String ns, String ln) {
+//         if (ns == null) {
+//             if (ln.equals(SVG_RADIUS_ATTRIBUTE)) {
+//                 return getBaseValue(getRadiusX(), getRadiusY());
+//             }
+//         }
+//         return super.getUnderlyingValue(ns, ln);
+//     }
 }

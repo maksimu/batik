@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,6 +24,7 @@ import java.awt.geom.GeneralPath;
 import org.apache.batik.css.engine.SVGCSSEngine;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
+import org.apache.batik.dom.svg.SVGOMAnimatedPoints;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
 import org.apache.batik.gvt.ShapeNode;
 import org.apache.batik.parser.AWTPolygonProducer;
@@ -35,7 +37,7 @@ import org.w3c.dom.svg.SVGPointList;
  * Bridge class for the &lt;polygon> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGPolygonElementBridge.java 594018 2007-11-12 04:17:41Z cam $
  */
 public class SVGPolygonElementBridge extends SVGDecoratedShapeElementBridge {
 
@@ -75,9 +77,11 @@ public class SVGPolygonElementBridge extends SVGDecoratedShapeElementBridge {
                               Element e,
                               ShapeNode shapeNode) {
 
+        SVGOMPolygonElement pe = (SVGOMPolygonElement) e;
         try {
-            SVGOMPolygonElement pe = (SVGOMPolygonElement) e;
-            SVGPointList pl = pe.getAnimatedPoints();
+            SVGOMAnimatedPoints _points = pe.getSVGOMAnimatedPoints();
+            _points.check();
+            SVGPointList pl = _points.getAnimatedPoints();
             int size = pl.getNumberOfItems();
             if (size == 0) {
                 shapeNode.setShape(DEFAULT_SHAPE);

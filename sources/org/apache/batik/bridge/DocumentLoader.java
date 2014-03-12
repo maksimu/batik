@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,7 +36,7 @@ import org.w3c.dom.svg.SVGDocument;
  * maintaining a cache.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: DocumentLoader.java 1538969 2013-11-05 12:33:17Z vhennebert $
  */
 public class DocumentLoader {
 
@@ -59,19 +60,19 @@ public class DocumentLoader {
     protected UserAgent userAgent;
 
     /**
-     * Constructs a new <tt>DocumentLoader</tt>.
+     * Constructs a new <code>DocumentLoader</code>.
      */
     protected DocumentLoader() { }
 
     /**
-     * Constructs a new <tt>DocumentLoader</tt> with the specified XML parser.
+     * Constructs a new <code>DocumentLoader</code> with the specified XML parser.
      * @param userAgent the user agent to use
      */
     public DocumentLoader(UserAgent userAgent) {
         this.userAgent = userAgent;
         documentFactory = new SAXSVGDocumentFactory
             (userAgent.getXMLParserClassName(), true);
-	documentFactory.setValidating(userAgent.isXMLParserValidating());
+        documentFactory.setValidating(userAgent.isXMLParserValidating());
     }
 
     public Document checkCache(String uri) {
@@ -119,7 +120,7 @@ public class DocumentLoader {
      * @exception IOException if an I/O error occured while loading
      * the document
      */
-    public Document loadDocument(String uri, InputStream is) 
+    public Document loadDocument(String uri, InputStream is)
         throws IOException {
         Document ret = checkCache(uri);
         if (ret != null)

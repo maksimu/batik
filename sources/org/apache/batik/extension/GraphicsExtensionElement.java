@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,11 +19,14 @@
 package org.apache.batik.extension;
 
 import org.apache.batik.dom.AbstractDocument;
-import org.apache.batik.dom.svg.SVGExternalResourcesRequiredSupport;
 import org.apache.batik.dom.svg.SVGLocatableSupport;
+import org.apache.batik.dom.svg.SVGOMAnimatedBoolean;
+import org.apache.batik.dom.svg.SVGOMAnimatedTransformList;
 import org.apache.batik.dom.svg.SVGTestsSupport;
-import org.apache.batik.dom.svg.SVGTransformableSupport;
+import org.apache.batik.dom.svg.TraitInformation;
 import org.apache.batik.dom.util.XMLSupport;
+import org.apache.batik.util.DoublyIndexedTable;
+import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.svg.SVGAnimatedBoolean;
 import org.w3c.dom.svg.SVGAnimatedTransformList;
@@ -45,11 +49,44 @@ import org.w3c.dom.svg.SVGTransformable;
  * {@link SVGLangSpace} and {@link SVGTests}.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: GraphicsExtensionElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public abstract class GraphicsExtensionElement
         extends    StylableExtensionElement
         implements SVGTransformable {
+
+    /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(StylableExtensionElement.xmlTraitInformation);
+        t.put(null, SVG_TRANSFORM_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_TRANSFORM_LIST));
+        t.put(null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_BOOLEAN));
+        t.put(null, SVG_REQUIRED_EXTENSIONS_ATTRIBUTE,
+                new TraitInformation(false, SVGTypes.TYPE_URI_LIST));
+        t.put(null, SVG_REQUIRED_FEATURES_ATTRIBUTE,
+                new TraitInformation(false, SVGTypes.TYPE_URI_LIST));
+        t.put(null, SVG_SYSTEM_LANGUAGE_ATTRIBUTE,
+                new TraitInformation(false, SVGTypes.TYPE_LANG_LIST));
+        xmlTraitInformation = t;
+    }
+
+    /**
+     * The 'transform' attribute value.
+     */
+    protected SVGOMAnimatedTransformList transform =
+        createLiveAnimatedTransformList(null, SVG_TRANSFORM_ATTRIBUTE, "");
+
+    /**
+     * The 'externalResourcesRequired' attribute value.
+     */
+    protected SVGOMAnimatedBoolean externalResourcesRequired =
+        createLiveAnimatedBoolean
+            (null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE, false);
 
     /**
      * Creates a new GraphicsExtensionElement object.
@@ -124,7 +161,7 @@ public abstract class GraphicsExtensionElement
      * org.w3c.dom.svg.SVGTransformable#getTransform()}.
      */
     public SVGAnimatedTransformList getTransform() {
-        return SVGTransformableSupport.getTransform(this);
+        return transform;
     }
 
     // SVGExternalResourcesRequired support /////////////////////////////
@@ -134,8 +171,7 @@ public abstract class GraphicsExtensionElement
      * org.w3c.dom.svg.SVGExternalResourcesRequired#getExternalResourcesRequired()}.
      */
     public SVGAnimatedBoolean getExternalResourcesRequired() {
-        return SVGExternalResourcesRequiredSupport.
-            getExternalResourcesRequired(this);
+        return externalResourcesRequired;
     }
 
     // SVGLangSpace support //////////////////////////////////////////////////

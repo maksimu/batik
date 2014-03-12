@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,7 +18,11 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableLengthValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.parser.UnitProcessor;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.svg.SVGAnimatedLength;
@@ -28,7 +33,7 @@ import org.w3c.dom.svg.SVGLength;
  * SVGAnimatedLength} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractSVGAnimatedLength.java 595120 2007-11-14 23:22:26Z cam $
  */
 public abstract class AbstractSVGAnimatedLength
     extends    AbstractSVGAnimatedValue
@@ -38,19 +43,19 @@ public abstract class AbstractSVGAnimatedLength
     /**
      * This constant represents horizontal lengths.
      */
-    public final static short HORIZONTAL_LENGTH =
+    public static final short HORIZONTAL_LENGTH =
         UnitProcessor.HORIZONTAL_LENGTH;
 
     /**
      * This constant represents vertical lengths.
      */
-    public final static short VERTICAL_LENGTH =
+    public static final short VERTICAL_LENGTH =
         UnitProcessor.VERTICAL_LENGTH;
 
     /**
      * This constant represents other lengths.
      */
-    public final static short OTHER_LENGTH =
+    public static final short OTHER_LENGTH =
         UnitProcessor.OTHER_LENGTH;
 
     /**
@@ -72,7 +77,7 @@ public abstract class AbstractSVGAnimatedLength
      * Whether the value is changing.
      */
     protected boolean changing;
-    
+
     /**
      * Whether the value must be non-negative.
      */
@@ -86,18 +91,18 @@ public abstract class AbstractSVGAnimatedLength
      * @param dir The length's direction.
      * @param nonneg Whether the length must be non-negative.
      */
-    protected AbstractSVGAnimatedLength(AbstractElement elt,
-                                        String ns,
-                                        String ln,
-                                        short dir,
-                                        boolean nonneg) {
+    public AbstractSVGAnimatedLength(AbstractElement elt,
+                                     String ns,
+                                     String ln,
+                                     short dir,
+                                     boolean nonneg) {
         super(elt, ns, ln);
         direction = dir;
         nonNegative = nonneg;
     }
 
     /**
-     * Returns the default value to use when the associated attribute
+     * @return the default value to use when the associated attribute
      * was not specified.
      */
     protected abstract String getDefaultValue();
@@ -123,23 +128,74 @@ public abstract class AbstractSVGAnimatedLength
     }
 
     /**
-     * Sets the animated value.
+     * Gets the current animated length value.  If the attribute is missing
+     * or malformed, an exception is thrown.
      */
-    public void setAnimatedValue(int type, float val) {
-        if (animVal == null) {
-            animVal = new AnimSVGLength(direction);
+    public float getCheckedValue() {
+        if (hasAnimVal) {
+            if (animVal == null) {
+                animVal = new AnimSVGLength(direction);
+            }
+            if (nonNegative && animVal.value < 0) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_NEGATIVE,
+                     animVal.getValueAsString());
+            }
+            return animVal.getValue();
+        } else {
+            if (baseVal == null) {
+                baseVal = new BaseSVGLength(direction);
+            }
+            baseVal.revalidate();
+            if (baseVal.missing) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+            } else if (baseVal.unitType ==
+                        SVGLength.SVG_LENGTHTYPE_UNKNOWN) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                     baseVal.getValueAsString());
+            }
+            if (nonNegative && baseVal.value < 0) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_NEGATIVE,
+                     baseVal.getValueAsString());
+            }
+            return baseVal.getValue();
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(type, val);
+    }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            AnimatableLengthValue animLength = (AnimatableLengthValue) val;
+            if (animVal == null) {
+                animVal = new AnimSVGLength(direction);
+            }
+            animVal.setAnimatedValue(animLength.getLengthType(),
+                                     animLength.getLengthValue());
+        }
         fireAnimatedAttributeListeners();
     }
 
     /**
-     * Resets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
-        fireAnimatedAttributeListeners();
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGLength base = getBaseVal();
+        return new AnimatableLengthValue
+            (target, base.getUnitType(), base.getValueInSpecifiedUnits(),
+             target.getPercentageInterpretation
+                 (getNamespaceURI(), getLocalName(), false));
     }
 
     /**
@@ -177,7 +233,7 @@ public abstract class AbstractSVGAnimatedLength
     }
 
     /**
-     * This class represents the SVGLength returned by {@link #getBaseVal()}.
+     * This class represents the SVGLength returned by {@link AbstractSVGAnimatedLength#getBaseVal() }.
      */
     protected class BaseSVGLength extends AbstractSVGLength {
 
@@ -185,9 +241,15 @@ public abstract class AbstractSVGAnimatedLength
          * Whether this length is valid.
          */
         protected boolean valid;
-        
+
+        /**
+         * Whether the attribute is missing.
+         */
+        protected boolean missing;
+
         /**
          * Creates a new BaseSVGLength.
+         * @param direction is one of HORIZONTAL_LENGTH, VERTICAL_LENGTH, or OTHER_LENGTH
          */
         public BaseSVGLength(short direction) {
             super(direction);
@@ -206,6 +268,7 @@ public abstract class AbstractSVGAnimatedLength
         protected void reset() {
             try {
                 changing = true;
+                valid = true;
                 String value = getValueAsString();
                 element.setAttributeNS(namespaceURI, localName, value);
             } finally {
@@ -221,31 +284,22 @@ public abstract class AbstractSVGAnimatedLength
                 return;
             }
 
-            unitType = SVG_LENGTHTYPE_UNKNOWN;
-            value = 0;
+            missing = false;
+            valid = true;
 
             Attr attr = element.getAttributeNodeNS(namespaceURI, localName);
             String s;
             if (attr == null) {
                 s = getDefaultValue();
                 if (s == null) {
-                    throw new LiveAttributeException
-                        (element, localName,
-                         LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+                    missing = true;
+                    return;
                 }
             } else {
                 s = attr.getValue();
             }
 
             parse(s);
-
-            if (nonNegative && value < 0) {
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_NEGATIVE, s);
-            }
-
-            valid = true;
         }
 
         /**
@@ -257,12 +311,13 @@ public abstract class AbstractSVGAnimatedLength
     }
 
     /**
-     * This class represents the SVGLength returned by {@link #getAnimVal()}.
+     * This class represents the SVGLength returned by {@link AbstractSVGAnimatedLength#getAnimVal()}.
      */
     protected class AnimSVGLength extends AbstractSVGLength {
 
         /**
          * Creates a new AnimSVGLength.
+         * @param direction is one of HORIZONTAL_LENGTH, VERTICAL_LENGTH, or OTHER_LENGTH
          */
         public AnimSVGLength(short direction) {
             super(direction);
@@ -365,6 +420,8 @@ public abstract class AbstractSVGAnimatedLength
 
         /**
          * Sets the animated value.
+         * @param type one of the values defines in org.w3c.dom.svg.SVGLength
+         * @param val the length
          */
         protected void setAnimatedValue(int type, float val) {
             super.newValueSpecifiedUnits((short) type, val);

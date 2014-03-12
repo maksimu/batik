@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,18 +24,18 @@ package org.apache.batik.bridge;
  * according to an Element.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: Bridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public interface Bridge {
 
     /**
-     * Returns the namespace URI of the element this <tt>Bridge</tt> is
+     * Returns the namespace URI of the element this <code>Bridge</code> is
      * dedicated to.
      */
     String getNamespaceURI();
 
     /**
-     * Returns the local name of the element this <tt>Bridge</tt> is dedicated
+     * Returns the local name of the element this <code>Bridge</code> is dedicated
      * to.
      */
     String getLocalName();

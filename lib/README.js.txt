@@ -1,19 +1,23 @@
-This distribution includes a binary distribution of Mozilla Rhino compiled
-from CVS code (post 1.6R2) as at March 24, 2006, with modifications.
+This distribution includes a binary distribution of Mozilla Rhino 1.6 release 5
+plus one patch.
 
-Source code for Rhino is available on Mozilla web site:
+You can get the unpatched 1.6R5 release of Rhino from the following URL:
 
-  http://www.mozilla.org/rhino
+  ftp://ftp.mozilla.org/pub/mozilla.org/js/rhino1_6R5.zip
 
-The CVS code on which the included distribution of Rhino is based can be
-retrieved by running:
+To obtain the source code for the 1.6R5 release of Rhino, issue the following
+commands:
 
-  CVSROOT=:pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot cvs checkout \
-  	-D 2006-03-24 mozilla/js/rhino
+  cvs -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot \
+    co -D2006-11-20 mozilla/js/rhino
 
-The modifications made to the code are available in the form of a patch at:
+The patch is available here:
 
-  https://bugzilla.mozilla.org/attachment.cgi?id=214133
+  https://bugzilla.mozilla.org/attachment.cgi?id=288467
 
-Rhino is licensed under the NPL (Netscape Public License) which 
-is in the LICENSE.js.txt file
+which is attached to this bug:
+
+  https://bugzilla.mozilla.org/show_bug.cgi?id=367627
+
+Rhino is licensed under both the MPL (Mozilla Public License) 1.1 and the
+GPL (GNU General Public License) 2.0, which are in the LICENSE.js.txt file.

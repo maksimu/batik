@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,14 +20,17 @@ package org.apache.batik.bridge;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.batik.anim.AnimationEngine;
 import org.apache.batik.anim.AnimationException;
-import org.apache.batik.anim.AnimationTarget;
-import org.apache.batik.anim.SMILConstants;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.anim.timing.TimedDocumentRoot;
 import org.apache.batik.anim.timing.TimedElement;
 import org.apache.batik.anim.values.AnimatableAngleValue;
@@ -43,6 +47,7 @@ import org.apache.batik.anim.values.AnimatablePathDataValue;
 import org.apache.batik.anim.values.AnimatablePointListValue;
 import org.apache.batik.anim.values.AnimatablePreserveAspectRatioValue;
 import org.apache.batik.anim.values.AnimatableNumberOrIdentValue;
+import org.apache.batik.anim.values.AnimatableRectValue;
 import org.apache.batik.anim.values.AnimatableStringValue;
 import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.anim.values.AnimatableColorValue;
@@ -69,8 +74,10 @@ import org.apache.batik.parser.PathArrayProducer;
 import org.apache.batik.parser.PathParser;
 import org.apache.batik.parser.PointsParser;
 import org.apache.batik.parser.ParseException;
+import org.apache.batik.parser.PreserveAspectRatioHandler;
 import org.apache.batik.parser.PreserveAspectRatioParser;
 import org.apache.batik.util.RunnableQueue;
+import org.apache.batik.util.SMILConstants;
 import org.apache.batik.util.XMLConstants;
 
 import org.w3c.dom.Document;
@@ -78,8 +85,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.events.Event;
-import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.svg.SVGAngle;
 import org.w3c.dom.svg.SVGLength;
@@ -89,7 +94,7 @@ import org.w3c.dom.svg.SVGPreserveAspectRatio;
  * An AnimationEngine for SVG documents.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGAnimationEngine.java 820114 2009-09-29 22:32:33Z cam $
  */
 public class SVGAnimationEngine extends AnimationEngine {
 
@@ -111,12 +116,23 @@ public class SVGAnimationEngine extends AnimationEngine {
     protected boolean started;
 
     /**
+     * The Runnable that ticks the document.
+     */
+    protected AnimationTickRunnable animationTickRunnable;
+
+    /**
+     * The initial time that will be seeked to when the animation engine starts,
+     * as set by {@link #setCurrentTime}.
+     */
+    protected float initialStartTime;
+
+    /**
      * The factory for unparsed string values.
      */
-    protected UncomputedAnimatableStringValueFactory 
-        uncomputedAnimatableStringValueFactory = 
+    protected UncomputedAnimatableStringValueFactory
+        uncomputedAnimatableStringValueFactory =
             new UncomputedAnimatableStringValueFactory();
-    
+
     /**
      * The factory for length-or-ident values.
      */
@@ -127,7 +143,8 @@ public class SVGAnimationEngine extends AnimationEngine {
      * The factory for number-or-ident values.
      */
     protected AnimatableNumberOrIdentFactory
-        animatableNumberOrIdentFactory = new AnimatableNumberOrIdentFactory();
+        animatableNumberOrIdentFactory =
+            new AnimatableNumberOrIdentFactory(false);
 
     /**
      * Factories for {@link AnimatableValue} parsing.
@@ -161,7 +178,7 @@ public class SVGAnimationEngine extends AnimationEngine {
         animatableNumberOrIdentFactory, // TYPE_NUMBER_OR_INHERIT
         uncomputedAnimatableStringValueFactory, // TYPE_FONT_FAMILY_VALUE
         null, // TYPE_FONT_FACE_FONT_SIZE_VALUE
-        animatableNumberOrIdentFactory, // TYPE_FONT_WEIGHT_VALUE
+        new AnimatableNumberOrIdentFactory(true), // TYPE_FONT_WEIGHT_VALUE
         new AnimatableAngleOrIdentFactory(), // TYPE_ANGLE_OR_IDENT
         null, // TYPE_KEY_SPLINES_VALUE
         new AnimatablePointListValueFactory(), // TYPE_POINTS_VALUE
@@ -183,6 +200,7 @@ public class SVGAnimationEngine extends AnimationEngine {
         new AnimatableNumberOrPercentageValueFactory(), // TYPE_NUMBER_OR_PERCENTAGE
         null, // TYPE_TIMING_SPECIFIER_LIST
         new AnimatableBooleanValueFactory(), // TYPE_BOOLEAN
+        new AnimatableRectValueFactory() // TYPE_RECT
     };
 
     /**
@@ -196,11 +214,6 @@ public class SVGAnimationEngine extends AnimationEngine {
     protected LinkedList initialBridges = new LinkedList();
 
     /**
-     * Event listener for the document 'load' event.
-     */
-    protected EventListener loadEventListener = new LoadListener();
-
-    /**
      * A StyleMap used by the {@link Factory}s when computing CSS values.
      */
     protected StyleMap dummyStyleMap;
@@ -209,16 +222,26 @@ public class SVGAnimationEngine extends AnimationEngine {
      * The thread that ticks the animation engine.
      */
     protected AnimationThread animationThread;
-    
+
+    /**
+     * The animation limiting mode.
+     */
+    protected int animationLimitingMode;
+
+    /**
+     * The amount of animation limiting.
+     */
+    protected float animationLimitingAmount;
+
     /**
      * Set of SMIL animation event names for SVG 1.1.
      */
-    protected static HashSet animationEventNames11 = new HashSet();
+    protected static final Set animationEventNames11 = new HashSet();
 
     /**
      * Set of SMIL animation event names for SVG 1.2.
      */
-    protected static HashSet animationEventNames12 = new HashSet();
+    protected static final Set animationEventNames12 = new HashSet();
 
     static {
         String[] eventNamesCommon = {
@@ -257,17 +280,16 @@ public class SVGAnimationEngine extends AnimationEngine {
         cssEngine = d.getCSSEngine();
         dummyStyleMap = new StyleMap(cssEngine.getNumberOfProperties());
         isSVG12 = d.isSVG12();
-
-        SVGOMElement svg = (SVGOMElement) d.getDocumentElement();
-        svg.addEventListener("SVGLoad", loadEventListener, false);
     }
 
     /**
      * Disposes this animation engine.
      */
     public void dispose() {
-        SVGOMElement svg = (SVGOMElement) document.getDocumentElement();
-        svg.removeEventListener("SVGLoad", loadEventListener, false);
+        synchronized (this) {
+            pause();
+            super.dispose();
+        }
     }
 
     /**
@@ -318,7 +340,7 @@ public class SVGAnimationEngine extends AnimationEngine {
     public AnimatableValue getUnderlyingCSSValue(Element animElt,
                                                  AnimationTarget target,
                                                  String pn) {
-        ValueManager vms[] = cssEngine.getValueManagers();
+        ValueManager[] vms = cssEngine.getValueManagers();
         int idx = cssEngine.getPropertyIndex(pn);
         if (idx != -1) {
             int type = vms[idx].getPropertyType();
@@ -345,10 +367,137 @@ public class SVGAnimationEngine extends AnimationEngine {
     }
 
     /**
+     * Pauses the animations.
+     */
+    public void pause() {
+        super.pause();
+        UpdateManager um = ctx.getUpdateManager();
+        if (um != null) {
+            um.getUpdateRunnableQueue().setIdleRunnable(null);
+        }
+    }
+
+    /**
+     * Pauses the animations.
+     */
+    public void unpause() {
+        super.unpause();
+        UpdateManager um = ctx.getUpdateManager();
+        if (um != null) {
+            um.getUpdateRunnableQueue().setIdleRunnable(animationTickRunnable);
+        }
+    }
+
+    /**
+     * Returns the current document time.
+     */
+    public float getCurrentTime() {
+        boolean p = pauseTime != 0;
+        unpause();
+        float t = timedDocumentRoot.getCurrentTime();
+        if (p) {
+            pause();
+        }
+        return Float.isNaN(t) ? 0 : t;
+    }
+
+    /**
+     * Sets the current document time.
+     */
+    public float setCurrentTime(float t) {
+        if (started) {
+            float ret = super.setCurrentTime(t);
+            if (animationTickRunnable != null) {
+                animationTickRunnable.resume();
+            }
+            return ret;
+        } else {
+            initialStartTime = t;
+            return 0;
+        }
+    }
+
+    /**
      * Creates a new returns a new TimedDocumentRoot object for the document.
      */
     protected TimedDocumentRoot createDocumentRoot() {
         return new AnimationRoot();
+    }
+
+    /**
+     * Starts the animation engine.
+     */
+    public void start(long documentStartTime) {
+        if (started) {
+            return;
+        }
+        started = true;
+        try {
+            try {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(new Date(documentStartTime));
+                timedDocumentRoot.resetDocument(cal);
+                Object[] bridges = initialBridges.toArray();
+                initialBridges = null;
+                for (int i = 0; i < bridges.length; i++) {
+                    SVGAnimationElementBridge bridge =
+                        (SVGAnimationElementBridge) bridges[i];
+                    bridge.initializeAnimation();
+                }
+                for (int i = 0; i < bridges.length; i++) {
+                    SVGAnimationElementBridge bridge =
+                        (SVGAnimationElementBridge) bridges[i];
+                    bridge.initializeTimedElement();
+                }
+
+                // tick(0, false);
+                // animationThread = new AnimationThread();
+                // animationThread.start();
+                UpdateManager um = ctx.getUpdateManager();
+                if (um != null) {
+                    RunnableQueue q = um.getUpdateRunnableQueue();
+                    animationTickRunnable = new AnimationTickRunnable(q, this);
+                    q.setIdleRunnable(animationTickRunnable);
+                    if (initialStartTime != 0) {
+                        setCurrentTime(initialStartTime);
+                    }
+                }
+            } catch (AnimationException ex) {
+                throw new BridgeException(ctx, ex.getElement().getElement(),
+                                          ex.getMessage());
+            }
+        } catch (Exception ex) {
+            if (ctx.getUserAgent() == null) {
+                ex.printStackTrace();
+            } else {
+                ctx.getUserAgent().displayError(ex);
+            }
+        }
+    }
+
+    /**
+     * Sets the animation limiting mode to "none".
+     */
+    public void setAnimationLimitingNone() {
+        animationLimitingMode = 0;
+    }
+
+    /**
+     * Sets the animation limiting mode to a percentage of CPU.
+     * @param pc the maximum percentage of CPU to use (0 &lt; pc ≤ 1)
+     */
+    public void setAnimationLimitingCPU(float pc) {
+        animationLimitingMode = 1;
+        animationLimitingAmount = pc;
+    }
+
+    /**
+     * Sets the animation limiting mode to a number of frames per second.
+     * @param fps the maximum number of frames per second (fps &gt; 0)
+     */
+    public void setAnimationLimitingFPS(float fps) {
+        animationLimitingMode = 2;
+        animationLimitingAmount = fps;
     }
 
     /**
@@ -434,9 +583,13 @@ public class SVGAnimationEngine extends AnimationEngine {
 
         /**
          * Invoked to indicate that this timed element became inactive.
+         * @param stillActive if true, indicates that the element is still
+         *                    actually active, but between the end of the
+         *                    computed repeat duration and the end of the
+         *                    interval
          * @param isFrozen whether the element is frozen or not
          */
-        protected void toInactive(boolean isFrozen) {
+        protected void toInactive(boolean stillActive, boolean isFrozen) {
         }
 
         /**
@@ -481,12 +634,11 @@ public class SVGAnimationEngine extends AnimationEngine {
         }
 
         /**
-         * Returns the event target that is the parent of the given
-         * timed element.  Used for eventbase timing specifiers where
-         * the element ID is omitted.
+         * Returns the target of this animation as an {@link EventTarget}.  Used
+         * for eventbase timing specifiers where the element ID is omitted.
          */
-        protected EventTarget getParentEventTarget(TimedElement e) {
-            return AnimationSupport.getParentEventTarget(e);
+        protected EventTarget getAnimationEventTarget() {
+            return null;
         }
 
         /**
@@ -512,52 +664,80 @@ public class SVGAnimationEngine extends AnimationEngine {
         public boolean isBefore(TimedElement other) {
             return false;
         }
+
+        /**
+         * Invoked by timed elements in this document to indicate that the
+         * current interval will be re-evaluated at the next sample.
+         */
+        protected void currentIntervalWillUpdate() {
+            if (animationTickRunnable != null) {
+                animationTickRunnable.resume();
+            }
+        }
     }
 
     /**
-     * Listener class for the document 'load' event.
+     * Idle runnable to tick the animation, that reads times from System.in.
      */
-    protected class LoadListener implements EventListener {
+    protected static class DebugAnimationTickRunnable extends AnimationTickRunnable {
 
-        /**
-         * Handles the event.
-         */
-        public void handleEvent(Event evt) {
-            if (evt.getTarget() != evt.getCurrentTarget()) {
-                return;
-            }
-            try {
-                try {
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTimeInMillis(evt.getTimeStamp());
-                    timedDocumentRoot.resetDocument(cal);
-                    Object[] bridges = initialBridges.toArray();
-                    initialBridges = null;
-                    for (int i = 0; i < bridges.length; i++) {
-                        SVGAnimationElementBridge bridge =
-                            (SVGAnimationElementBridge) bridges[i];
-                        bridge.initializeAnimation();
+        float t = 0f;
+
+        public DebugAnimationTickRunnable(RunnableQueue q, SVGAnimationEngine eng) {
+            super(q, eng);
+            waitTime = Long.MAX_VALUE;
+            new Thread() {
+                public void run() {
+                    java.io.BufferedReader r = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+                    System.out.println("Enter times.");
+                    for (;;) {
+                        String s;
+                        try {
+                            s = r.readLine();
+                        } catch (java.io.IOException e) {
+                            s = null;
+                        }
+                        if (s == null) {
+                            System.exit(0);
+                        }
+                        t = Float.parseFloat(s);
+                        DebugAnimationTickRunnable.this.resume();
                     }
-                    for (int i = 0; i < bridges.length; i++) {
-                        SVGAnimationElementBridge bridge =
-                            (SVGAnimationElementBridge) bridges[i];
-                        bridge.initializeTimedElement();
-                    }
-                    started = true;
-                    tick(0);
-                    // animationThread = new AnimationThread();
-                    // animationThread.start();
-                    ctx.getUpdateManager().getUpdateRunnableQueue().setIdleRunnable
-                        (new AnimationTickRunnable());
-                } catch (AnimationException ex) {
-                    throw new BridgeException(ctx, ex.getElement().getElement(),
-                                              ex.getMessage());
                 }
-            } catch (BridgeException ex) {
-                if (ctx.getUserAgent() == null) {
-                    ex.printStackTrace();
-                } else {
-                    ctx.getUserAgent().displayError(ex);
+            }.start();
+        }
+
+        public void resume() {
+            waitTime = 0;
+            Object lock = q.getIteratorLock();
+            synchronized (lock) {
+                lock.notify();
+            }
+        }
+
+        public long getWaitTime() {
+            long wt = waitTime;
+            waitTime = Long.MAX_VALUE;
+            return wt;
+        }
+
+        public void run() {
+            SVGAnimationEngine eng = getAnimationEngine();
+            synchronized (eng) {
+                try {
+                    try {
+                        eng.tick(t, false);
+                    } catch (AnimationException ex) {
+                        throw new BridgeException
+                            (eng.ctx, ex.getElement().getElement(),
+                             ex.getMessage());
+                    }
+                } catch (Exception ex) {
+                    if (eng.ctx.getUserAgent() == null) {
+                        ex.printStackTrace();
+                    } else {
+                        eng.ctx.getUserAgent().displayError(ex);
+                    }
                 }
             }
         }
@@ -566,39 +746,197 @@ public class SVGAnimationEngine extends AnimationEngine {
     /**
      * Idle runnable to tick the animation.
      */
-    protected class AnimationTickRunnable implements Runnable {
+    protected static class AnimationTickRunnable
+            implements RunnableQueue.IdleRunnable {
+
+        /**
+         * Calendar instance used for passing current time values to the
+         * animation timing system.
+         */
         protected Calendar time = Calendar.getInstance();
-        double second = -1.;
-        int idx = -1;
-        int frames;
+
+//         /**
+//          * The current document time in seconds, truncated.
+//          */
+//         protected double second = -1.;
+
+//         /**
+//          * The number of frames that have been ticked so far this second.
+//          */
+//         protected int frames;
+
+        /**
+         * The number of milliseconds to wait until the next animation tick.
+         * This is returned by {@link #getWaitTime()}.
+         */
+        protected long waitTime;
+
+        /**
+         * The RunnableQueue in which this is the
+         * {@link RunnableQueue.IdleRunnable}.
+         */
+        protected RunnableQueue q;
+
+        /**
+         * The number of past tick times to keep, for computing the average
+         * time per tick.
+         */
+        private static final int NUM_TIMES = 8;
+
+        /**
+         * The past tick times.
+         */
+        protected long[] times = new long[NUM_TIMES];
+
+        /**
+         * The sum of the times in {@link #times}.
+         */
+        protected long sumTime;
+
+        /**
+         * The current index into {@link #times}.
+         */
+        protected int timeIndex;
+
+        /**
+         * A weak reference to the SVGAnimationEngine this AnimationTickRunnable
+         * is for.  We make this a WeakReference so that a ticking animation
+         * engine does not prevent from being GCed.
+         */
+        protected WeakReference engRef;
+
+        /**
+         * The maximum number of consecutive exceptions to allow before
+         * stopping the report of them.
+         */
+        protected static final int MAX_EXCEPTION_COUNT = 10;
+
+        /**
+         * The number of consecutive exceptions that have been thrown.  This is
+         * used to detect when exceptions are occurring every tick, and to stop
+         * reporting them when this happens.
+         */
+        protected int exceptionCount;
+
+        /**
+         * Creates a new AnimationTickRunnable.
+         */
+        public AnimationTickRunnable(RunnableQueue q, SVGAnimationEngine eng) {
+            this.q = q;
+            this.engRef = new WeakReference(eng);
+            // Initialize the past times to 100ms.
+            Arrays.fill(times, 100);
+            sumTime = 100 * NUM_TIMES;
+        }
+
+        /**
+         * Forces an animation update, if the {@link RunnableQueue} is
+         * currently waiting.
+         */
+        public void resume() {
+            waitTime = 0;
+            Object lock = q.getIteratorLock();
+            synchronized (lock) {
+                lock.notify();
+            }
+        }
+
+        /**
+         * Returns the system time that can be safely waited until before this
+         * {@link Runnable} is run again.
+         *
+         * @return time to wait until, <code>0</code> if no waiting can
+         *         be done, or {@link Long#MAX_VALUE} if the {@link Runnable}
+         *         should not be run again at this time
+         */
+        public long getWaitTime() {
+            return waitTime;
+        }
+
+        /**
+         * Performs one tick of the animation.
+         */
         public void run() {
-            try {
+            SVGAnimationEngine eng = getAnimationEngine();
+            synchronized (eng) {
+                int animationLimitingMode = eng.animationLimitingMode;
+                float animationLimitingAmount = eng.animationLimitingAmount;
                 try {
-                    time.setTimeInMillis(System.currentTimeMillis());
-                    float t = timedDocumentRoot.convertWallclockTime(time);
-                    if (Math.floor(t) > second) {
-                        second = Math.floor(t);
-                        System.err.println("fps: " + frames);
-                        frames = 0;
+                    try {
+                        long before = System.currentTimeMillis();
+                        time.setTime(new Date(before));
+                        float t = eng.timedDocumentRoot.convertWallclockTime(time);
+//                         if (Math.floor(t) > second) {
+//                             second = Math.floor(t);
+//                             System.err.println("fps: " + frames);
+//                             frames = 0;
+//                         }
+                        float t2 = eng.tick(t, false);
+                        long after = System.currentTimeMillis();
+                        long dur = after - before;
+                        if (dur == 0) {
+                            dur = 1;
+                        }
+                        sumTime -= times[timeIndex];
+                        sumTime += dur;
+                        times[timeIndex] = dur;
+                        timeIndex = (timeIndex + 1) % NUM_TIMES;
+
+                        if (t2 == Float.POSITIVE_INFINITY) {
+                            waitTime = Long.MAX_VALUE;
+                        } else {
+                            waitTime = before + (long) (t2 * 1000) - 1000;
+                            if (waitTime < after) {
+                                waitTime = after;
+                            }
+                            if (animationLimitingMode != 0) {
+                                float ave = (float) sumTime / NUM_TIMES;
+                                float delay;
+                                if (animationLimitingMode == 1) {
+                                    // %cpu
+                                    delay = ave / animationLimitingAmount - ave;
+                                } else {
+                                    // fps
+                                    delay = 1000f / animationLimitingAmount - ave;
+                                }
+                                long newWaitTime = after + (long) delay;
+                                if (newWaitTime > waitTime) {
+                                    waitTime = newWaitTime;
+                                }
+                            }
+                        }
+//                         frames++;
+                    } catch (AnimationException ex) {
+                        throw new BridgeException
+                            (eng.ctx, ex.getElement().getElement(),
+                             ex.getMessage());
                     }
-                    tick(t);
-                    frames++;
-                } catch (AnimationException ex) {
-                    throw new BridgeException(ctx, ex.getElement().getElement(),
-                                              ex.getMessage());
+                    exceptionCount = 0;
+                } catch (Exception ex) {
+                    if (++exceptionCount < MAX_EXCEPTION_COUNT) {
+                        if (eng.ctx.getUserAgent() == null) {
+                            ex.printStackTrace();
+                        } else {
+                            eng.ctx.getUserAgent().displayError(ex);
+                        }
+                    }
                 }
-            } catch (BridgeException ex) {
-                if (ctx.getUserAgent() == null) {
-                    ex.printStackTrace();
-                } else {
-                    ctx.getUserAgent().displayError(ex);
+
+                if (animationLimitingMode == 0) {
+                    // so we don't steal too much time from the Swing thread
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException ie) {
+                    }
                 }
             }
-            //Thread.yield();
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException ie) {
-            }
+        }
+
+        /**
+         * Returns the SVGAnimationEngine this AnimationTickRunnable is for.
+         */
+        protected SVGAnimationEngine getAnimationEngine() {
+            return (SVGAnimationEngine) engRef.get();
         }
     }
 
@@ -606,18 +944,18 @@ public class SVGAnimationEngine extends AnimationEngine {
      * The thread that ticks the animation.
      */
     protected class AnimationThread extends Thread {
-        
+
         /**
          * The current time.
          */
         protected Calendar time = Calendar.getInstance();
-        
+
         /**
          * The RunnableQueue to perform the animation in.
          */
         protected RunnableQueue runnableQueue =
             ctx.getUpdateManager().getUpdateRunnableQueue();
-        
+
         /**
          * The animation ticker Runnable.
          */
@@ -629,7 +967,7 @@ public class SVGAnimationEngine extends AnimationEngine {
         public void run() {
             if (true) {
                 for (;;) {
-                    time.setTimeInMillis(System.currentTimeMillis());
+                    time.setTime(new Date());
                     ticker.t = timedDocumentRoot.convertWallclockTime(time);
                     try {
                         runnableQueue.invokeAndWait(ticker);
@@ -653,22 +991,22 @@ public class SVGAnimationEngine extends AnimationEngine {
                 }
             }
         }
-        
+
         /**
          * A runnable that ticks the animation engine.
          */
         protected class Ticker implements Runnable {
-            
+
             /**
              * The document time to tick at next.
              */
             protected float t;
-            
+
             /**
              * Ticks the animation over.
              */
             public void run() {
-                tick(t);
+                tick(t, false);
             }
         }
     }
@@ -894,7 +1232,7 @@ public class SVGAnimationEngine extends AnimationEngine {
                 align = SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_UNKNOWN;
                 meetOrSlice = SVGPreserveAspectRatio.SVG_MEETORSLICE_UNKNOWN;
             }
-            
+
             /**
              * Implements {@link PreserveAspectRatioHandler#none()}.
              */
@@ -1158,7 +1496,7 @@ public class SVGAnimationEngine extends AnimationEngine {
     }
 
     /**
-     * Factory class for {@link AnimationNumberListValue}s.
+     * Factory class for {@link AnimatableNumberListValue}s.
      */
     protected class AnimatableNumberListValueFactory implements Factory {
 
@@ -1205,7 +1543,58 @@ public class SVGAnimationEngine extends AnimationEngine {
     }
 
     /**
-     * Factory class for {@link AnimationPointListValue}s.
+     * Factory class for {@link AnimatableNumberListValue}s.
+     */
+    protected class AnimatableRectValueFactory implements Factory {
+
+        /**
+         * Parser for number lists.
+         */
+        protected NumberListParser parser = new NumberListParser();
+
+        /**
+         * The producer class that accumulates the numbers.
+         */
+        protected FloatArrayProducer producer = new FloatArrayProducer();
+
+        /**
+         * Creates a new AnimatableNumberListValueFactory.
+         */
+        public AnimatableRectValueFactory() {
+            parser.setNumberListHandler(producer);
+        }
+
+        /**
+         * Creates a new AnimatableValue from a string.
+         */
+        public AnimatableValue createValue(AnimationTarget target, String ns,
+                                           String ln, boolean isCSS, String s) {
+            try {
+                parser.parse(s);
+                float[] r = producer.getFloatArray();
+                if (r.length != 4) {
+                    // XXX Do something better than returning null.
+                    return null;
+                }
+                return new AnimatableRectValue(target, r[0], r[1], r[2], r[3]);
+            } catch (ParseException e) {
+                // XXX Do something better than returning null.
+                return null;
+            }
+        }
+
+        /**
+         * Creates a new AnimatableValue from a CSS {@link Value}.  Returns null
+         * since rects aren't used in CSS values.
+         */
+        public AnimatableValue createValue(AnimationTarget target, String pn,
+                                           Value v) {
+            return null;
+        }
+    }
+
+    /**
+     * Factory class for {@link AnimatablePointListValue}s.
      */
     protected class AnimatablePointListValueFactory implements Factory {
 
@@ -1338,6 +1727,16 @@ public class SVGAnimationEngine extends AnimationEngine {
      */
     protected class AnimatableNumberOrIdentFactory extends CSSValueFactory {
 
+        /**
+         * Whether numbers are actually numeric keywords, as with the
+         * font-weight property.
+         */
+        protected boolean numericIdents;
+
+        public AnimatableNumberOrIdentFactory(boolean numericIdents) {
+            this.numericIdents = numericIdents;
+        }
+
         protected AnimatableValue createAnimatableValue(AnimationTarget target,
                                                         String pn, Value v) {
             if (v instanceof StringValue) {
@@ -1345,10 +1744,11 @@ public class SVGAnimationEngine extends AnimationEngine {
                                                         v.getStringValue());
             }
             FloatValue fv = (FloatValue) v;
-            return new AnimatableNumberOrIdentValue(target, fv.getFloatValue());
+            return new AnimatableNumberOrIdentValue(target, fv.getFloatValue(),
+                                                    numericIdents);
         }
     }
-    
+
     /**
      * Factory class for {@link AnimatableAngleValue}s.
      */
@@ -1376,7 +1776,7 @@ public class SVGAnimationEngine extends AnimationEngine {
             return new AnimatableAngleValue(target, fv.getFloatValue(), unit);
         }
     }
-    
+
     /**
      * Factory class for {@link AnimatableAngleOrIdentValue}s.
      */
@@ -1409,7 +1809,7 @@ public class SVGAnimationEngine extends AnimationEngine {
                                                    unit);
         }
     }
-    
+
     /**
      * Factory class for {@link AnimatableColorValue}s.
      */
@@ -1418,7 +1818,7 @@ public class SVGAnimationEngine extends AnimationEngine {
         protected AnimatableValue createAnimatableValue(AnimationTarget target,
                                                         String pn, Value v) {
             Paint p = PaintServer.convertPaint
-                (target.getElement(), null, v, 1f, ctx);
+                (target.getElement(), null, v, 1.0f, ctx);
             if (p instanceof Color) {
                 Color c = (Color) p;
                 return new AnimatableColorValue(target,
@@ -1455,7 +1855,7 @@ public class SVGAnimationEngine extends AnimationEngine {
                         return AnimatablePaintValue.createNonePaintValue(target);
                     case CSSPrimitiveValue.CSS_RGBCOLOR: {
                         Paint p = PaintServer.convertPaint
-                            (target.getElement(), null, v, 1f, ctx);
+                            (target.getElement(), null, v, 1.0f, ctx);
                         return createColorPaintValue(target, (Color) p);
                     }
                     case CSSPrimitiveValue.CSS_URI:
@@ -1467,7 +1867,7 @@ public class SVGAnimationEngine extends AnimationEngine {
                 switch (v1.getPrimitiveType()) {
                     case CSSPrimitiveValue.CSS_RGBCOLOR: {
                         Paint p = PaintServer.convertPaint
-                            (target.getElement(), null, v, 1f, ctx);
+                            (target.getElement(), null, v, 1.0f, ctx);
                         return createColorPaintValue(target, (Color) p);
                     }
                     case CSSPrimitiveValue.CSS_URI: {
@@ -1478,7 +1878,7 @@ public class SVGAnimationEngine extends AnimationEngine {
                                     (target, v1.getStringValue());
                             case CSSPrimitiveValue.CSS_RGBCOLOR: {
                                 Paint p = PaintServer.convertPaint
-                                    (target.getElement(), null, v.item(1), 1f, ctx);
+                                    (target.getElement(), null, v.item(1), 1.0f, ctx);
                                 return createColorPaintValue(target, (Color) p);
                             }
                         }
@@ -1489,7 +1889,7 @@ public class SVGAnimationEngine extends AnimationEngine {
             return null;
         }
     }
-    
+
     /**
      * Factory class for computed CSS {@link AnimatableStringValue}s.
      */

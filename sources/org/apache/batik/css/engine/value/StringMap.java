@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002, 2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +23,7 @@ package org.apache.batik.css.engine.value;
  * equality test made with '=='.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: StringMap.java 489226 2006-12-21 00:05:36Z cam $
  */
 public class StringMap {
 
@@ -140,34 +141,34 @@ public class StringMap {
      * To manage collisions
      */
     protected static class Entry {
-	/**
-	 * The hash code
-	 */
-	public int hash;
+        /**
+         * The hash code
+         */
+        public int hash;
 
-	/**
-	 * The key
-	 */
-	public String key;
+        /**
+         * The key
+         */
+        public String key;
 
-	/**
-	 * The value
-	 */
-	public Object value;
+        /**
+         * The value
+         */
+        public Object value;
 
-	/**
-	 * The next entry
-	 */
-	public Entry next;
+        /**
+         * The next entry
+         */
+        public Entry next;
 
-	/**
-	 * Creates a new entry
-	 */
-	public Entry(int hash, String key, Object value, Entry next) {
-	    this.hash  = hash;
-	    this.key   = key;
-	    this.value = value;
-	    this.next  = next;
-	}
+        /**
+         * Creates a new entry
+         */
+        public Entry(int hash, String key, Object value, Entry next) {
+            this.hash  = hash;
+            this.key   = key;
+            this.value = value;
+            this.next  = next;
+        }
     }
 }

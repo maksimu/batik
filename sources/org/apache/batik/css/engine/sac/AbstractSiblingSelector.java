@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -26,11 +27,11 @@ import org.w3c.css.sac.SimpleSelector;
  * org.w3c.css.sac.SiblingSelector} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractSiblingSelector.java 475685 2006-11-16 11:16:05Z cam $
  */
 public abstract class AbstractSiblingSelector
     implements SiblingSelector,
-	       ExtendedSelector {
+               ExtendedSelector {
 
     /**
      * The node type.
@@ -54,8 +55,8 @@ public abstract class AbstractSiblingSelector
                                       Selector sel,
                                       SimpleSelector simple) {
         nodeType = type;
-	selector = sel;
-	simpleSelector = simple;
+        selector = sel;
+        simpleSelector = simple;
     }
 
     /**
@@ -81,23 +82,23 @@ public abstract class AbstractSiblingSelector
      * Returns the specificity of this selector.
      */
     public int getSpecificity() {
-	return ((ExtendedSelector)selector).getSpecificity() +
-       	       ((ExtendedSelector)simpleSelector).getSpecificity();
+        return ((ExtendedSelector)selector).getSpecificity() +
+               ((ExtendedSelector)simpleSelector).getSpecificity();
     }
 
     /**
      * <b>SAC</b>: Implements {@link
      * org.w3c.css.sac.SiblingSelector#getSelector()}.
-     */    
+     */
     public Selector getSelector() {
-	return selector;
+        return selector;
     }
 
     /**
      * <b>SAC</b>: Implements {@link
      * org.w3c.css.sac.SiblingSelector#getSiblingSelector()}.
-     */    
+     */
     public SimpleSelector getSiblingSelector() {
-	return simpleSelector;
+        return simpleSelector;
     }
 }

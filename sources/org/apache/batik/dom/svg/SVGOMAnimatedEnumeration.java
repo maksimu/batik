@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2002,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableStringValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.svg.SVGAnimatedEnumeration;
@@ -26,7 +31,7 @@ import org.w3c.dom.svg.SVGAnimatedEnumeration;
  * SVGAnimatedEnumeration} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedEnumeration.java 527382 2007-04-11 04:31:58Z cam $
  */
 public class SVGOMAnimatedEnumeration extends AbstractSVGAnimatedValue
                                       implements SVGAnimatedEnumeration {
@@ -156,27 +161,30 @@ public class SVGOMAnimatedEnumeration extends AbstractSVGAnimatedValue
     }
 
     /**
-     * Sets the animated value.
+     * Gets the current animated value, throwing an exception if the attribute
+     * is malformed.
      */
-    public void setAnimatedValue(short animVal) {
-        hasAnimVal = true;
-        this.animVal = animVal;
-        fireAnimatedAttributeListeners();
+    public short getCheckedVal() {
+        if (hasAnimVal) {
+            return animVal;
+        }
+        if (!valid) {
+            update();
+        }
+        if (baseVal == 0) {
+            throw new LiveAttributeException
+                (element, localName,
+                 LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                 getBaseValAsString());
+        }
+        return baseVal;
     }
 
     /**
-     * Sets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void setAnimatedValue(String animValStr) {
-        setAnimatedValue(getEnumerationNumber(animValStr));
-    }
-
-    /**
-     * Removes the animated value.
-     */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
-        fireAnimatedAttributeListeners();
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        return new AnimatableStringValue(target, getBaseValAsString());
     }
 
     /**
@@ -190,6 +198,21 @@ public class SVGOMAnimatedEnumeration extends AbstractSVGAnimatedValue
         if (!hasAnimVal) {
             fireAnimatedAttributeListeners();
         }
+    }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            this.animVal =
+                getEnumerationNumber(((AnimatableStringValue) val).getString());
+            fireAnimatedAttributeListeners();
+        }
+        fireAnimatedAttributeListeners();
     }
 
     /**

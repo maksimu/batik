@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -36,7 +37,7 @@ import org.w3c.dom.Node;
  * Bridge class for the &lt;clipPath> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGClipPathElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGClipPathElementBridge extends AnimatableGenericSVGBridge
         implements ClipBridge {
@@ -54,7 +55,7 @@ public class SVGClipPathElementBridge extends AnimatableGenericSVGBridge
     }
 
     /**
-     * Creates a <tt>Clip</tt> according to the specified parameters.
+     * Creates a <code>Clip</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param clipElement the element that defines the clip

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -18,11 +19,11 @@
 package org.apache.batik.test;
 
 /**
- * Simple, default implementation for the <tt>TestReport</tt>
+ * Simple, default implementation for the <code>TestReport</code>
  * interface.
  * 
  * @author <a href="mailto:vhardy@apache.org">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: DefaultTestReport.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class DefaultTestReport implements TestReport {
     private boolean passed = true;
@@ -35,7 +36,7 @@ public class DefaultTestReport implements TestReport {
     
     /**
      * Parent report, in case this report is part of a
-     * <tt>TestSuiteReport</tt>
+     * <code>TestSuiteReport</code>
      */
     protected TestSuiteReport parent;
 

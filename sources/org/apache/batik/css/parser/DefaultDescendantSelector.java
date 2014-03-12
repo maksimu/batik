@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +26,7 @@ import org.w3c.css.sac.SimpleSelector;
  * {@link org.w3c.css.sac.DescendantSelector} interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: DefaultDescendantSelector.java 475685 2006-11-16 11:16:05Z cam $
  */
 public class DefaultDescendantSelector extends AbstractDescendantSelector {
 
@@ -34,7 +35,7 @@ public class DefaultDescendantSelector extends AbstractDescendantSelector {
      */
     public DefaultDescendantSelector(Selector ancestor,
                                      SimpleSelector simple) {
-	super(ancestor, simple);
+        super(ancestor, simple);
     }
 
     /**
@@ -42,13 +43,13 @@ public class DefaultDescendantSelector extends AbstractDescendantSelector {
      * org.w3c.css.sac.Selector#getSelectorType()}.
      */
     public short getSelectorType() {
-	return SAC_DESCENDANT_SELECTOR;
+        return SAC_DESCENDANT_SELECTOR;
     }
 
     /**
      * Returns a representation of the selector.
      */
     public String toString() {
-	return getAncestorSelector() + " " + getSimpleSelector();
+        return getAncestorSelector() + " " + getSimpleSelector();
     }
 }

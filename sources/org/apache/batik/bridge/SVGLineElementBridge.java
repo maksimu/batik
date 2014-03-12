@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,6 +20,7 @@ package org.apache.batik.bridge;
 
 import java.awt.geom.Line2D;
 
+import org.apache.batik.dom.svg.AbstractSVGAnimatedLength;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
 import org.apache.batik.dom.svg.SVGOMLineElement;
@@ -31,7 +33,7 @@ import org.w3c.dom.Element;
  * Bridge class for the &lt;line> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGLineElementBridge.java 527382 2007-04-11 04:31:58Z cam $
  */
 public class SVGLineElementBridge extends SVGDecoratedShapeElementBridge {
 
@@ -94,16 +96,24 @@ public class SVGLineElementBridge extends SVGDecoratedShapeElementBridge {
             SVGOMLineElement le = (SVGOMLineElement) e;
 
             // 'x1' attribute - default is 0
-            float x1 = le.getX1().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _x1 =
+                (AbstractSVGAnimatedLength) le.getX1();
+            float x1 = _x1.getCheckedValue();
 
             // 'y1' attribute - default is 0
-            float y1 = le.getY1().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _y1 =
+                (AbstractSVGAnimatedLength) le.getY1();
+            float y1 = _y1.getCheckedValue();
 
             // 'x2' attribute - default is 0
-            float x2 = le.getX2().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _x2 =
+                (AbstractSVGAnimatedLength) le.getX2();
+            float x2 = _x2.getCheckedValue();
 
             // 'y2' attribute - default is 0
-            float y2 = le.getY2().getAnimVal().getValue();
+            AbstractSVGAnimatedLength _y2 =
+                (AbstractSVGAnimatedLength) le.getY2();
+            float y2 = _y2.getCheckedValue();
 
             shapeNode.setShape(new Line2D.Float(x1, y1, x2, y2));
         } catch (LiveAttributeException ex) {

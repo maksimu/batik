@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,7 +31,7 @@ import org.w3c.dom.Element;
  * Bridge class for the &lt;feSpecularLighting> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGFeSpecularLightingElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGFeSpecularLightingElementBridge
     extends AbstractSVGLightingElementBridge {
@@ -49,7 +50,7 @@ public class SVGFeSpecularLightingElementBridge
     }
 
     /**
-     * Creates a <tt>Filter</tt> primitive according to the specified
+     * Creates a <code>Filter</code> primitive according to the specified
      * parameters.
      *
      * @param ctx the bridge context to use
@@ -57,12 +58,12 @@ public class SVGFeSpecularLightingElementBridge
      * @param filteredElement the element that references the filter
      * @param filteredNode the graphics node to filter
      *
-     * @param inputFilter the <tt>Filter</tt> that represents the current
+     * @param inputFilter the <code>Filter</code> that represents the current
      *        filter input if the filter chain.
      * @param filterRegion the filter area defined for the filter chain
      *        the new node will be part of.
      * @param filterMap a map where the mediator can map a name to the
-     *        <tt>Filter</tt> it creates. Other <tt>FilterBridge</tt>s
+     *        <code>Filter</code> it creates. Other <code>FilterBridge</code>s
      *        can then access a filter node from the filterMap if they
      *        know its name.
      */
@@ -155,10 +156,10 @@ public class SVGFeSpecularLightingElementBridge
                          new Object[] {SVG_SPECULAR_CONSTANT_ATTRIBUTE, s});
                 }
                 return v;
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException nfEx ) {
                 throw new BridgeException
-                    (ctx, filterElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
-                     new Object[] {SVG_SPECULAR_CONSTANT_ATTRIBUTE, s, ex});
+                    (ctx, filterElement, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                     new Object[] {SVG_SPECULAR_CONSTANT_ATTRIBUTE, s, nfEx });
             }
         }
     }

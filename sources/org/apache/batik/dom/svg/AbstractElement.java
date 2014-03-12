@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2005-2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,7 +22,8 @@ import org.apache.batik.css.engine.CSSNavigableNode;
 import org.apache.batik.dom.AbstractAttr;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.events.NodeEventTarget;
-import org.apache.batik.util.SoftDoublyIndexedTable;
+import org.apache.batik.util.DoublyIndexedTable;
+import org.apache.batik.util.SVGConstants;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -34,16 +36,17 @@ import org.w3c.dom.events.MutationEvent;
  * an element interoperable with the SVG elements.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: AbstractElement.java 793536 2009-07-13 10:27:44Z deweese $
  */
 public abstract class AbstractElement
         extends org.apache.batik.dom.AbstractElement
-        implements NodeEventTarget, CSSNavigableNode {
+        implements NodeEventTarget, CSSNavigableNode, SVGConstants {
 
     /**
      * The live attribute values.
      */
-    protected transient SoftDoublyIndexedTable liveAttributeValues;
+    protected transient DoublyIndexedTable liveAttributeValues =
+        new DoublyIndexedTable();
 
     /**
      * Creates a new Element object.
@@ -59,7 +62,7 @@ public abstract class AbstractElement
     protected AbstractElement(String prefix, AbstractDocument owner) {
         ownerDocument = owner;
         setPrefix(prefix);
-      	initializeAttributes();
+        initializeAttributes();
     }
 
     // CSSNavigableNode ///////////////////////////////////////////////////
@@ -109,6 +112,34 @@ public abstract class AbstractElement
 
     // Attributes /////////////////////////////////////////////////////////
 
+    public void fireDOMAttrModifiedEvent(String name, Attr node, String oldv,
+                                         String newv, short change) {
+        super.fireDOMAttrModifiedEvent(name, node, oldv, newv, change);
+        // This handles the SVG 1.2 behaviour where setting the value of
+        // 'id' must also change 'xml:id', and vice versa.
+        if (((SVGOMDocument) ownerDocument).isSVG12
+                && (change == MutationEvent.ADDITION
+                    || change == MutationEvent.MODIFICATION)) {
+            if (node.getNamespaceURI() == null
+                    && node.getNodeName().equals(SVG_ID_ATTRIBUTE)) {
+                Attr a =
+                    getAttributeNodeNS(XML_NAMESPACE_URI, SVG_ID_ATTRIBUTE);
+                if (a == null) {
+                    setAttributeNS(XML_NAMESPACE_URI, XML_ID_QNAME, newv);
+                } else if (!a.getNodeValue().equals(newv)) {
+                    a.setNodeValue(newv);
+                }
+            } else if (node.getNodeName().equals(XML_ID_QNAME)) {
+                Attr a = getAttributeNodeNS(null, SVG_ID_ATTRIBUTE);
+                if (a == null) {
+                    setAttributeNS(null, SVG_ID_ATTRIBUTE, newv);
+                } else if (!a.getNodeValue().equals(newv)) {
+                    a.setNodeValue(newv);
+                }
+            }
+        }
+    }
+
     /**
      * Returns the live attribute value associated with given
      * attribute, if any.
@@ -116,9 +147,9 @@ public abstract class AbstractElement
      * @param ln The attribute's local name.
      */
     public LiveAttributeValue getLiveAttributeValue(String ns, String ln) {
-        if (liveAttributeValues == null) {
-            return null;
-        }
+//         if (liveAttributeValues == null) {
+//             return null;
+//         }
         return (LiveAttributeValue)liveAttributeValues.get(ns, ln);
     }
 
@@ -130,9 +161,9 @@ public abstract class AbstractElement
      */
     public void putLiveAttributeValue(String ns, String ln,
                                       LiveAttributeValue val) {
-        if (liveAttributeValues == null) {
-            liveAttributeValues = new SoftDoublyIndexedTable();
-        }
+//         if (liveAttributeValues == null) {
+//             liveAttributeValues = new SoftDoublyIndexedTable();
+//         }
         liveAttributeValues.put(ns, ln, val);
     }
 
@@ -170,7 +201,7 @@ public abstract class AbstractElement
      * Creates the attribute list.
      */
     protected NamedNodeMap createAttributes() {
-      	return new ExtendedNamedNodeHashMap();
+        return new ExtendedNamedNodeHashMap();
     }
 
     /**
@@ -236,7 +267,7 @@ public abstract class AbstractElement
      */
     protected Node export(Node n, AbstractDocument d) {
         super.export(n, d);
-              ((AbstractElement)n).initializeAttributes();
+        ((AbstractElement)n).initializeAttributes();
 
         super.export(n, d);
         return n;
@@ -247,7 +278,7 @@ public abstract class AbstractElement
      */
     protected Node deepExport(Node n, AbstractDocument d) {
         super.export(n, d);
-              ((AbstractElement)n).initializeAttributes();
+        ((AbstractElement)n).initializeAttributes();
 
         super.deepExport(n, d);
         return n;
@@ -314,5 +345,4 @@ public abstract class AbstractElement
             return n;
         }
     }
-
 }

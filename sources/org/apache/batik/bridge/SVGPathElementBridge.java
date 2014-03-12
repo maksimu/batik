@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,6 +26,7 @@ import org.apache.batik.css.engine.SVGCSSEngine;
 import org.apache.batik.dom.svg.AnimatedLiveAttributeValue;
 import org.apache.batik.dom.svg.LiveAttributeException;
 import org.apache.batik.dom.svg.SVGAnimatedPathDataSupport;
+import org.apache.batik.dom.svg.SVGOMAnimatedPathData;
 import org.apache.batik.dom.svg.SVGOMPathElement;
 import org.apache.batik.dom.svg.SVGPathContext;
 import org.apache.batik.ext.awt.geom.PathLength;
@@ -38,7 +40,7 @@ import org.w3c.dom.svg.SVGPathSegList;
  * Bridge class for the &lt;path> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGPathElementBridge.java 594018 2007-11-12 04:17:41Z cam $
  */
 public class SVGPathElementBridge extends SVGDecoratedShapeElementBridge 
        implements SVGPathContext {
@@ -83,7 +85,9 @@ public class SVGPathElementBridge extends SVGDecoratedShapeElementBridge
         AWTPathProducer app = new AWTPathProducer();
         try {
             // 'd' attribute - required
-            SVGPathSegList p = pe.getAnimatedPathSegList();
+            SVGOMAnimatedPathData _d = pe.getAnimatedPathData();
+            _d.check();
+            SVGPathSegList p = _d.getAnimatedPathSegList();
             app.setWindingRule(CSSUtilities.convertFillRule(e));
             SVGAnimatedPathDataSupport.handlePathSegList(p, app);
         } catch (LiveAttributeException ex) {
@@ -158,5 +162,14 @@ public class SVGPathElementBridge extends SVGDecoratedShapeElementBridge
     public Point2D getPointAtLength(float distance) {
         PathLength pl = getPathLengthObj();
         return pl.pointAtLength(distance);
+    }
+
+    /**
+     * Returns the index of the path segment at the given distance along the
+     * path.
+     */
+    public int getPathSegAtLength(float distance) {
+        PathLength pl = getPathLengthObj();
+        return pl.segmentAtLength(distance);
     }
 }

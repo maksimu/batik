@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,7 +32,7 @@ import org.w3c.dom.DOMException;
  * This class provides a factory for the 'stroke-width' property values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: StrokeWidthManager.java 492528 2007-01-04 11:45:47Z cam $
  */
 public class StrokeWidthManager extends LengthManager {
 
@@ -39,7 +40,7 @@ public class StrokeWidthManager extends LengthManager {
      * Implements {@link ValueManager#isInheritedProperty()}.
      */
     public boolean isInheritedProperty() {
-	return true;
+        return true;
     }
 
     /**
@@ -53,7 +54,7 @@ public class StrokeWidthManager extends LengthManager {
      * Implements {@link ValueManager#isAdditiveProperty()}.
      */
     public boolean isAdditiveProperty() {
-        return false;
+        return true;
     }
 
     /**
@@ -67,7 +68,7 @@ public class StrokeWidthManager extends LengthManager {
      * Implements {@link ValueManager#getPropertyName()}.
      */
     public String getPropertyName() {
-	return CSSConstants.CSS_STROKE_WIDTH_PROPERTY;
+        return CSSConstants.CSS_STROKE_WIDTH_PROPERTY;
     }
     
     /**

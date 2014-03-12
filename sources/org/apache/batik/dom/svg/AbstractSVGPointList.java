@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,7 +31,7 @@ import org.w3c.dom.svg.SVGPointList;
  * Abstract implementation of {@link SVGPointList}.
  *
  * @author <a href="mailto:nicolas.socheleau@bitflash.com">Nicolas Socheleau</a>
- * @version $Id$
+ * @version $Id: AbstractSVGPointList.java 479349 2006-11-26 11:54:23Z cam $
  */
 public abstract class AbstractSVGPointList
     extends AbstractSVGList
@@ -39,7 +40,7 @@ public abstract class AbstractSVGPointList
     /**
      * Separator for a point list.
      */
-    public final static String SVG_POINT_LIST_SEPARATOR
+    public static final String SVG_POINT_LIST_SEPARATOR
         = " ";
 
     /**
@@ -58,13 +59,7 @@ public abstract class AbstractSVGPointList
                                                        Object[] args);
 
     /**
-     * Creates a new SVGPointList.
-     */
-    protected AbstractSVGPointList() {
-    }
-
-    /**
-     * <b>DOM</b>: Implements {@link SVGPointList#initialize(int)}.
+     * <b>DOM</b>: Implements {@link SVGPointList#initialize(SVGPoint)}.
      */
     public SVGPoint initialize(SVGPoint newItem)
             throws DOMException, SVGException {
@@ -112,18 +107,18 @@ public abstract class AbstractSVGPointList
     }
 
     /**
-     * Creates a new {@link SVGItem} object from the given {@link SVGpoint}.
+     * Creates a new {@link SVGItem} object from the given {@link SVGPoint}.
      */
     protected SVGItem createSVGItem(Object newItem) {
         SVGPoint point = (SVGPoint) newItem;
         return new SVGPointItem(point.getX(), point.getY());
     }
-    
+
     /**
-     * Parse the 'points' attribute.
+     * Parses the 'points' attribute.
      *
      * @param value 'points' attribute value
-     * @param handler list handler
+     * @param handler point list handler
      */
     protected void doParse(String value, ListHandler handler)
             throws ParseException {
@@ -139,13 +134,12 @@ public abstract class AbstractSVGPointList
     protected void checkItemType(Object newItem) throws SVGException {
         if (!(newItem instanceof SVGPoint)) {
             createSVGException(SVGException.SVG_WRONG_TYPE_ERR,
-                               "expected SVGPoint",
-                               null);
+                               "expected.point", null);
         }
     }
 
     /**
-     * Representation of the item SVGPoint.
+     * An {@link SVGPoint} in the list.
      */
     protected class SVGPointItem extends AbstractSVGItem implements SVGPoint {
 
@@ -171,11 +165,9 @@ public abstract class AbstractSVGPointList
          * Return a String representation of this SVGPoint.
          */
         protected String getStringValue() {
-            StringBuffer value = new StringBuffer();
-            value.append(x);
-            value.append(',');
-            value.append(y);
-            return value.toString();
+            return Float.toString( x )
+                    + ','
+                    + Float.toString( y );
         }
 
         /**
@@ -218,15 +210,16 @@ public abstract class AbstractSVGPointList
 
     /**
      * Helper class to interface the {@link PointsParser} and the
-     * {@link ListHandler}.
+     * {@link PointsHandler}.
      */
     protected class PointsListBuilder implements PointsHandler {
 
         /**
-         * The ListHandler pass newly created {@link SVGPointItem} objects to.
+         * The {@link ListHandler} to pass newly created {@link SVGPointItem}
+         * objects to.
          */
         protected ListHandler listHandler;
-        
+
         /**
          * Creates a new PointsListBuilder.
          */
@@ -234,17 +227,23 @@ public abstract class AbstractSVGPointList
             this.listHandler = listHandler;
         }
 
+        /**
+         * Implements {@link PointsHandler#startPoints()}.
+         */
         public void startPoints() throws ParseException {
             listHandler.startList();
         }
 
         /**
-         * Creates a new {@link SVGPointItem} and passes it to the list handler.
+         * Implements {@link PointsHandler#point(float,float)}.
          */
         public void point(float x, float y) throws ParseException {
             listHandler.item(new SVGPointItem(x, y));
         }
 
+        /**
+         * Implements {@link PointsHandler#endPoints()}.
+         */
         public void endPoints() throws ParseException {
             listHandler.endList();
         }

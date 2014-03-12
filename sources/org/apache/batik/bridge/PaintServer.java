@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -42,13 +43,13 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 /**
- * A collection of utility methods to deliver <tt>java.awt.Paint</tt>,
- * <tt>java.awt.Stroke</tt> objects that could be used to paint a
+ * A collection of utility methods to deliver <code>java.awt.Paint</code>,
+ * <code>java.awt.Stroke</code> objects that could be used to paint a
  * shape. This class also provides additional methods the deliver SVG
  * Paint using the ShapePainter interface.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: PaintServer.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class PaintServer
     implements SVGConstants, CSSConstants, ErrorConstants {
@@ -64,7 +65,7 @@ public abstract class PaintServer
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns a <tt>ShapePainter</tt> defined on the specified
+     * Returns a <code>ShapePainter</code> defined on the specified
      * element and for the specified shape node.
      *
      * @param e the element with the marker CSS properties
@@ -98,7 +99,7 @@ public abstract class PaintServer
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns a <tt>Marker</tt> defined on the specified element by
+     * Returns a <code>Marker</code> defined on the specified element by
      * the specified value, and for the specified shape node.
      *
      * @param e the painted element
@@ -128,7 +129,7 @@ public abstract class PaintServer
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns a <tt>ShapePainter</tt> defined on the specified element and
+     * Returns a <code>ShapePainter</code> defined on the specified element and
      * for the specified shape node, and using the specified bridge
      * context.
      *
@@ -232,7 +233,7 @@ public abstract class PaintServer
     }
 
     /**
-     * Converts a Paint definition to a concrete <tt>java.awt.Paint</tt>
+     * Converts a Paint definition to a concrete <code>java.awt.Paint</code>
      * instance according to the specified parameters.
      *
      * @param paintedElement the element interested in a Paint
@@ -283,7 +284,7 @@ public abstract class PaintServer
                 switch (v.getPrimitiveType()) {
                 case CSSPrimitiveValue.CSS_IDENT:
                     return null; // none
-                    
+
                 case CSSPrimitiveValue.CSS_RGBCOLOR:
                     if (paintDef.getLength() == 2) {
                         return convertColor(v, opacity);
@@ -453,7 +454,7 @@ public abstract class PaintServer
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Converts a <tt>Stroke</tt> object defined on the specified element.
+     * Converts a <code>Stroke</code> object defined on the specified element.
      *
      * @param e the element on which the stroke is specified
      */
@@ -548,7 +549,7 @@ public abstract class PaintServer
      */
     public static float convertStrokeMiterlimit(Value v) {
         float miterlimit = v.getFloatValue();
-        return (miterlimit < 1f) ? 1f : miterlimit;
+        return (miterlimit < 1.0f) ? 1.0f : miterlimit;
     }
 
     /**
@@ -622,6 +623,6 @@ public abstract class PaintServer
      */
     public static float convertOpacity(Value v) {
         float r = v.getFloatValue();
-        return (r < 0f) ? 0f : (r > 1f) ? 1f : r;
+        return (r < 0f) ? 0f : (r > 1.0f) ? 1.0f : r;
     }
 }

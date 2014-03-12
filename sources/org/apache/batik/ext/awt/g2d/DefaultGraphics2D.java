@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -34,15 +35,15 @@ import java.awt.image.renderable.RenderableImage;
 import java.text.AttributedCharacterIterator;
 
 /**
- * This concrete implementation of <tt>AbstractGraphics2D</tt> is a 
+ * This concrete implementation of <code>AbstractGraphics2D</code> is a 
  * simple help to programmers to get started with their own 
- * implementation of <tt>Graphics2D</tt>. 
- * <tt>DefaultGraphics2D</tt> implements all the abstract methods
- * is <tt>AbstractGraphics2D</tt> and makes it easy to start 
- * implementing a <tt>Graphic2D</tt> piece-meal.
+ * implementation of <code>Graphics2D</code>. 
+ * <code>DefaultGraphics2D</code> implements all the abstract methods
+ * is <code>AbstractGraphics2D</code> and makes it easy to start 
+ * implementing a <code>Graphic2D</code> piece-meal.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$
+ * @version $Id: DefaultGraphics2D.java 1372129 2012-08-12 15:31:50Z helder $
  * @see org.apache.batik.ext.awt.g2d.AbstractGraphics2D
  */
 public class DefaultGraphics2D extends AbstractGraphics2D {
@@ -324,7 +325,7 @@ public class DefaultGraphics2D extends AbstractGraphics2D {
      * <code>Graphics2D</code>.
      */
     public GraphicsConfiguration getDeviceConfiguration(){
-        System.out.println("getDeviceConviguration");
+        System.out.println("getDeviceConfiguration");
         return null;
     }
 

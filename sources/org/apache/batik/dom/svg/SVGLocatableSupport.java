@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -33,9 +34,10 @@ import org.w3c.dom.svg.SVGRect;
  * This class provides support for the SVGLocatable interface.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGLocatableSupport.java 754615 2009-03-15 05:20:11Z cam $
  */
 public class SVGLocatableSupport {
+
     /**
      * Creates a new SVGLocatable element.
      */
@@ -62,7 +64,11 @@ public class SVGLocatableSupport {
      * org.w3c.dom.svg.SVGLocatable#getFarthestViewportElement()}.
      */
     public static SVGElement getFarthestViewportElement(Element elt) {
-        return (SVGElement)elt.getOwnerDocument().getDocumentElement();
+        Element rootSVG = elt.getOwnerDocument().getDocumentElement();
+        if (elt == rootSVG) {
+            return null;
+        }
+        return (SVGElement) rootSVG;
     }
 
     /**
@@ -145,7 +151,7 @@ public class SVGLocatableSupport {
      */
     public static SVGMatrix getTransformToElement(Element elt,
                                                   SVGElement element)
-	throws SVGException {
+        throws SVGException {
         final SVGOMElement currentElt = (SVGOMElement)elt;
         final SVGOMElement targetElt = (SVGOMElement)element;
         return new AbstractSVGMatrix() {

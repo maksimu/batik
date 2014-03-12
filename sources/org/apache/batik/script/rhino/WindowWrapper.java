@@ -1,10 +1,11 @@
 /*
 
-   Copyright 1999-2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,7 +30,10 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.Location;
 
 /**
  * This class wraps a Window object to expose it to the interpreter.
@@ -37,17 +41,17 @@ import org.w3c.dom.Document;
  *
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: WindowWrapper.java 712954 2008-11-11 06:19:23Z cam $
  */
 public class WindowWrapper extends ImporterTopLevel {
 
-    private final static Object[] EMPTY_ARGUMENTS = new Object[0];
+    private static final Object[] EMPTY_ARGUMENTS = new Object[0];
 
     /**
      * The rhino interpreter.
      */
     protected RhinoInterpreter interpreter;
-    
+
     /**
      * The wrapped window.
      */
@@ -58,11 +62,13 @@ public class WindowWrapper extends ImporterTopLevel {
      */
     public WindowWrapper(Context context) {
         super(context);
-        String[] names = { "setInterval", "setTimeout", "clearInterval", 
-                           "clearTimeout", "parseXML", "getURL", "postURL",
-                           "alert", "confirm", "prompt" };
+        String[] names = { "setInterval", "setTimeout", "clearInterval",
+                           "clearTimeout", "parseXML", "printNode", "getURL",
+                           "postURL", "alert", "confirm", "prompt" };
         this.defineFunctionProperties(names, WindowWrapper.class,
                                       ScriptableObject.DONTENUM);
+        this.defineProperty("location", WindowWrapper.class,
+                            ScriptableObject.PERMANENT);
     }
 
     public String getClassName() {
@@ -172,17 +178,51 @@ public class WindowWrapper extends ImporterTopLevel {
             throw Context.reportRuntimeError("invalid argument count");
         }
 
-        AccessControlContext acc =
-            ((RhinoInterpreter)window.getInterpreter()).getAccessControlContext();
+        RhinoInterpreter     interp = (RhinoInterpreter)window.getInterpreter();
+        AccessControlContext acc    = interp.getAccessControlContext();
 
-        Object ret = AccessController.doPrivileged( new PrivilegedAction() {
+        PrivilegedAction pa = new PrivilegedAction() {
                 public Object run() {
                     return window.parseXML
                         ((String)Context.jsToJava(args[0], String.class),
                          (Document)Context.jsToJava(args[1], Document.class));
                 }
-            }, acc);
+            };
+
+        Object ret;
+        // If acc is null we are running in an Applet (or some other
+        // restrictive environment) so don't sweat security it's
+        // the "Browsers" problem...
+        if (acc != null) ret = AccessController.doPrivileged(pa , acc);
+        else             ret = AccessController.doPrivileged(pa);
+
         return Context.toObject(ret, thisObj);
+    }
+
+    /**
+     * Wraps the 'printNode' method of the Window interface.
+     */
+    public static Object printNode(Context cx,
+                                   Scriptable thisObj,
+                                   final Object[] args,
+                                   Function funObj) {
+        if (args.length != 1) {
+            throw Context.reportRuntimeError("invalid argument count");
+        }
+
+        WindowWrapper ww = (WindowWrapper)thisObj;
+        final Window window = ww.window;
+
+        AccessControlContext acc =
+            ((RhinoInterpreter)window.getInterpreter()).getAccessControlContext();
+
+        Object ret = AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run() {
+                    return window.printNode
+                        ((Node) Context.jsToJava(args[0], Node.class));
+                }
+            }, acc);
+        return Context.toString(ret);
     }
 
     /**
@@ -365,7 +405,22 @@ public class WindowWrapper extends ImporterTopLevel {
         if (result == null) {
             return null;
         }
-        return Context.toObject(result, thisObj);
+        return Context.toString(result);
+    }
+
+    /**
+     * Return the Location for this Window.
+     */
+    public Location getLocation() {
+        return window.getLocation();
+    }
+
+    /**
+     * Return the Location for this Window.
+     */
+    public void setLocation(Object val) {
+        String url = (String)Context.jsToJava(val, String.class);
+        window.getLocation().assign(url);
     }
 
     /**
@@ -448,8 +503,8 @@ public class WindowWrapper extends ImporterTopLevel {
                                final String mime,
                                final String content) {
             interpreter.callHandler
-                (function, 
-                 new GetURLDoneArgBuilder(success, mime, 
+                (function,
+                 new GetURLDoneArgBuilder(success, mime,
                                           content, windowWrapper));
         }
     }
@@ -499,17 +554,17 @@ public class WindowWrapper extends ImporterTopLevel {
                                final String content) {
             interpreter.callMethod
                 (object, COMPLETE,
-                 new GetURLDoneArgBuilder(success, mime, 
+                 new GetURLDoneArgBuilder(success, mime,
                                           content, windowWrapper));
         }
     }
 
-    static class GetURLDoneArgBuilder 
+    static class GetURLDoneArgBuilder
         implements RhinoInterpreter.ArgumentsBuilder {
         boolean success;
         String mime, content;
         WindowWrapper windowWrapper;
-        public GetURLDoneArgBuilder(boolean success, 
+        public GetURLDoneArgBuilder(boolean success,
                                     String mime, String content,
                                     WindowWrapper ww) {
             this.success = success;

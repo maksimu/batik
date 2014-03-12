@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -47,6 +48,7 @@ import org.w3c.dom.css.CSSValue;
  * Bridge class for a regular polygon element.
  *
  * @author <a href="mailto:thomas.deweese@kodak.com">Thomas Deweese</a>
+ * @version $Id: SVGSolidColorElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
         implements PaintBridge {
@@ -71,7 +73,7 @@ public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
     }
 
     /**
-     * Creates a <tt>Paint</tt> according to the specified parameters.
+     * Creates a <code>Paint</code> according to the specified parameters.
      *
      * @param ctx the bridge context to use
      * @param paintElement the element that defines a Paint
@@ -90,7 +92,7 @@ public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
         return extractColor(paintElement, opacity, ctx);
     }
 
-    protected static float extractOpacity(Element paintElement, 
+    protected static float extractOpacity(Element paintElement,
                                           float opacity,
                                           BridgeContext ctx) {
         Map refs = new HashMap();
@@ -101,7 +103,7 @@ public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
         for (;;) {
             Value opacityVal =
                 CSSUtilities.getComputedStyle(paintElement, pidx);
-        
+
             // Was solid-opacity explicity set on this element?
             StyleMap sm =
                 ((CSSStylableElement)paintElement).getComputedStyleMap(null);
@@ -131,7 +133,7 @@ public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
         }
     }
 
-    protected static Color extractColor(Element paintElement, 
+    protected static Color extractColor(Element paintElement,
                                         float opacity,
                                         BridgeContext ctx) {
         Map refs = new HashMap();
@@ -142,7 +144,7 @@ public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
         for (;;) {
             Value colorDef =
                 CSSUtilities.getComputedStyle(paintElement, pidx);
-        
+
             // Was solid-color explicity set on this element?
             StyleMap sm =
                 ((CSSStylableElement)paintElement).getComputedStyleMap(null);
@@ -162,8 +164,8 @@ public class SVGSolidColorElementBridge extends AnimatableGenericSVGBridge
 
             String uri = XLinkSupport.getXLinkHref(paintElement);
             if (uri.length() == 0) {
-                // no xlink:href found, exit    
-                return new Color(0, 0, 0, opacity); 
+                // no xlink:href found, exit
+                return new Color(0, 0, 0, opacity);
             }
 
             SVGOMDocument doc = (SVGOMDocument)paintElement.getOwnerDocument();

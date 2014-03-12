@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,6 +18,9 @@
  */
 package org.apache.batik.dom.svg;
 
+import org.apache.batik.anim.values.AnimatableRectValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
 import org.apache.batik.parser.DefaultNumberListHandler;
 import org.apache.batik.parser.NumberListParser;
 import org.apache.batik.parser.ParseException;
@@ -30,7 +34,7 @@ import org.w3c.dom.svg.SVGRect;
  * Implementation of {@link SVGAnimatedRect}.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedRect.java 579487 2007-09-26 06:40:16Z cam $
  */
 public class SVGOMAnimatedRect
         extends AbstractSVGAnimatedValue
@@ -52,13 +56,21 @@ public class SVGOMAnimatedRect
     protected boolean changing;
 
     /**
+     * Default value.
+     */
+    protected String defaultValue;
+
+    /**
      * Creates a new SVGOMAnimatedRect.
      * @param elt The associated element.
      * @param ns The attribute's namespace URI.
      * @param ln The attribute's local name.
+     * @param def The default value for the attribute.
      */
-    public SVGOMAnimatedRect(AbstractElement elt, String ns, String ln) {
+    public SVGOMAnimatedRect(AbstractElement elt, String ns, String ln,
+                             String def) {
         super(elt, ns, ln);
+        defaultValue = def;
     }
 
     /**
@@ -82,23 +94,30 @@ public class SVGOMAnimatedRect
     }
 
     /**
-     * Sets the animated value.
+     * Updates the animated value with the given {@link AnimatableValue}.
      */
-    public void setAnimatedValue(float x, float y, float w, float h) {
-        if (animVal == null) {
-            animVal = new AnimSVGRect();
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            AnimatableRectValue animRect = (AnimatableRectValue) val;
+            if (animVal == null) {
+                animVal = new AnimSVGRect();
+            }
+            animVal.setAnimatedValue(animRect.getX(), animRect.getY(),
+                                     animRect.getWidth(), animRect.getHeight());
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(x, y, w, h);
         fireAnimatedAttributeListeners();
     }
 
     /**
-     * Resets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
-        fireAnimatedAttributeListeners();
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGRect r = getBaseVal();
+        return new AnimatableRectValue
+            (target, r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
 
     /**
@@ -181,47 +200,103 @@ public class SVGOMAnimatedRect
 
             Attr attr = element.getAttributeNodeNS(namespaceURI, localName);
 
-            if (attr == null) {
-                // XXX What defaults?
-                x = 0;
-                y = 0;
-                w = 100;
-                h = 100;
-            } else {
-                final String s = attr.getValue();
-                final float[] numbers = new float[4];
-                NumberListParser p = new NumberListParser();
-                p.setNumberListHandler(new DefaultNumberListHandler() {
-                    protected int count;
-                    public void endNumberList() {
-                        if (count != 4) {
-                            throw new LiveAttributeException
-                                (element, localName,
-                                 LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
-                                 s);
-                        }
+            final String s = attr == null ? defaultValue : attr.getValue();
+            final float[] numbers = new float[4];
+            NumberListParser p = new NumberListParser();
+            p.setNumberListHandler(new DefaultNumberListHandler() {
+                protected int count;
+                public void endNumberList() {
+                    if (count != 4) {
+                        throw new LiveAttributeException
+                            (element, localName,
+                             LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                             s);
                     }
-                    public void numberValue(float v) throws ParseException {
-                        if (count < 4) {
-                            numbers[count] = v;
-                        }
-                        if (v < 0 && (count == 2 || count == 3)) {
-                            throw new LiveAttributeException
-                                (element, localName,
-                                 LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
-                                 s);
-                        }
-                        count++;
+                }
+                public void numberValue(float v) throws ParseException {
+                    if (count < 4) {
+                        numbers[count] = v;
                     }
-                });
-                p.parse(s);
-                x = numbers[0];
-                y = numbers[1];
-                w = numbers[2];
-                h = numbers[3];
-            }
+                    if (v < 0 && (count == 2 || count == 3)) {
+                        throw new LiveAttributeException
+                            (element, localName,
+                             LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                             s);
+                    }
+                    count++;
+                }
+            });
+            p.parse(s);
+            x = numbers[0];
+            y = numbers[1];
+            w = numbers[2];
+            h = numbers[3];
 
             valid = true;
+        }
+
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#getX()}.
+         */
+        public float getX() {
+            revalidate();
+            return x;
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#setX(float)}.
+         */
+        public void setX(float x) throws DOMException {
+            this.x = x;
+            reset();
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#getY()}.
+         */
+        public float getY() {
+            revalidate();
+            return y;
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#setY(float)}.
+         */
+        public void setY(float y) throws DOMException {
+            this.y = y;
+            reset();
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#getWidth()}.
+         */
+        public float getWidth() {
+            revalidate();
+            return w;
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#setWidth(float)}.
+         */
+        public void setWidth(float width) throws DOMException {
+            this.w = width;
+            reset();
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#getHeight()}.
+         */
+        public float getHeight() {
+            revalidate();
+            return h;
+        }
+        
+        /**
+         * <b>DOM</b>: Implements {@link SVGRect#setHeight(float)}.
+         */
+        public void setHeight(float height) throws DOMException {
+            this.h = height;
+            reset();
         }
     }
 

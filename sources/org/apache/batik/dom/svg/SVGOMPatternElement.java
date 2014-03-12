@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,10 +18,10 @@
  */
 package org.apache.batik.dom.svg;
 
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.dom.util.XMLSupport;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.Node;
@@ -38,16 +39,46 @@ import org.w3c.dom.svg.SVGStringList;
  * This class implements {@link org.w3c.dom.svg.SVGStopElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMPatternElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public class SVGOMPatternElement
     extends    SVGStylableElement
     implements SVGPatternElement {
 
     /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGStylableElement.xmlTraitInformation);
+        t.put(null, SVG_X_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_WIDTH));
+        t.put(null, SVG_Y_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_HEIGHT));
+        t.put(null, SVG_WIDTH_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_WIDTH));
+        t.put(null, SVG_HEIGHT_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_HEIGHT));
+        t.put(null, SVG_PATTERN_UNITS_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_IDENT));
+        t.put(null, SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_IDENT));
+        t.put(null, SVG_PATTERN_TRANSFORM_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_TRANSFORM_LIST));
+        t.put(null, SVG_VIEW_BOX_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_NUMBER_LIST));
+        t.put(null, SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_PRESERVE_ASPECT_RATIO_VALUE));
+        t.put(null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_BOOLEAN));
+        xmlTraitInformation = t;
+    }
+
+    /**
      * The attribute initializer.
      */
-    protected final static AttributeInitializer attributeInitializer;
+    protected static final AttributeInitializer attributeInitializer;
     static {
         attributeInitializer = new AttributeInitializer(5);
         attributeInitializer.addAttribute(null, null,
@@ -67,11 +98,56 @@ public class SVGOMPatternElement
     /**
      * The units values.
      */
-    protected final static String[] UNITS_VALUES = {
+    protected static final String[] UNITS_VALUES = {
         "",
         SVG_USER_SPACE_ON_USE_VALUE,
         SVG_OBJECT_BOUNDING_BOX_VALUE
     };
+
+    /**
+     * The 'x' attribute value.
+     */
+    protected SVGOMAnimatedLength x;
+
+    /**
+     * The 'y' attribute value.
+     */
+    protected SVGOMAnimatedLength y;
+
+    /**
+     * The 'width' attribute value.
+     */
+    protected SVGOMAnimatedLength width;
+
+    /**
+     * The 'height' attribute value.
+     */
+    protected SVGOMAnimatedLength height;
+
+    /**
+     * The 'patternUnits' attribute value.
+     */
+    protected SVGOMAnimatedEnumeration patternUnits;
+
+    /**
+     * The 'patternContentUnits' attribute value.
+     */
+    protected SVGOMAnimatedEnumeration patternContentUnits;
+
+    /**
+     * The 'xlink:href' attribute value.
+     */
+    protected SVGOMAnimatedString href;
+
+    /**
+     * The 'externalResourcesRequired' attribute value.
+     */
+    protected SVGOMAnimatedBoolean externalResourcesRequired;
+
+    /**
+     * The 'preserveAspectRatio' attribute value.
+     */
+    protected SVGOMAnimatedPreserveAspectRatio preserveAspectRatio;
 
     /**
      * Creates a new SVGOMPatternElement object.
@@ -87,6 +163,48 @@ public class SVGOMPatternElement
     public SVGOMPatternElement(String prefix,
                                AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        x = createLiveAnimatedLength
+            (null, SVG_X_ATTRIBUTE, SVG_PATTERN_X_DEFAULT_VALUE,
+             SVGOMAnimatedLength.HORIZONTAL_LENGTH, false);
+        y = createLiveAnimatedLength
+            (null, SVG_Y_ATTRIBUTE, SVG_PATTERN_Y_DEFAULT_VALUE,
+             SVGOMAnimatedLength.VERTICAL_LENGTH, false);
+        width =
+            createLiveAnimatedLength
+                (null, SVG_WIDTH_ATTRIBUTE, SVG_PATTERN_WIDTH_DEFAULT_VALUE,
+                 SVGOMAnimatedLength.HORIZONTAL_LENGTH, true);
+        height =
+            createLiveAnimatedLength
+                (null, SVG_HEIGHT_ATTRIBUTE, SVG_PATTERN_WIDTH_DEFAULT_VALUE,
+                 SVGOMAnimatedLength.VERTICAL_LENGTH, true);
+        patternUnits =
+            createLiveAnimatedEnumeration
+                (null, SVG_PATTERN_UNITS_ATTRIBUTE, UNITS_VALUES, (short) 2);
+        patternContentUnits =
+            createLiveAnimatedEnumeration
+                (null, SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE, UNITS_VALUES,
+                 (short) 1);
+        href =
+            createLiveAnimatedString(XLINK_NAMESPACE_URI, XLINK_HREF_ATTRIBUTE);
+        externalResourcesRequired =
+            createLiveAnimatedBoolean
+                (null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE, false);
+        preserveAspectRatio = createLiveAnimatedPreserveAspectRatio();
     }
 
     /**
@@ -100,16 +218,15 @@ public class SVGOMPatternElement
      * To implement {@link SVGPatternElement#getPatternTransform()}.
      */
     public SVGAnimatedTransformList getPatternTransform() {
-        throw new RuntimeException(" !!! TODO: getPatternTransform()");
+        throw new UnsupportedOperationException
+            ("SVGPatternElement.getPatternTransform is not implemented"); // XXX
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPatternElement#getPatternUnits()}.
      */
     public SVGAnimatedEnumeration getPatternUnits() {
-        return getAnimatedEnumerationAttribute
-            (null, SVG_PATTERN_UNITS_ATTRIBUTE, UNITS_VALUES,
-             (short)2);
+        return patternUnits;
     }
 
     /**
@@ -117,36 +234,28 @@ public class SVGOMPatternElement
      * SVGPatternElement#getPatternContentUnits()}.
      */
     public SVGAnimatedEnumeration getPatternContentUnits() {
-        return getAnimatedEnumerationAttribute
-            (null, SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE, UNITS_VALUES,
-             (short)1);
+        return patternContentUnits;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPatternElement#getX()}.
      */
     public SVGAnimatedLength getX() {
-        return getAnimatedLengthAttribute
-            (null, SVG_X_ATTRIBUTE, SVG_PATTERN_X_DEFAULT_VALUE,
-             SVGOMAnimatedLength.HORIZONTAL_LENGTH, false);
+        return x;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPatternElement#getY()}.
      */
     public SVGAnimatedLength getY() {
-        return getAnimatedLengthAttribute
-            (null, SVG_Y_ATTRIBUTE, SVG_PATTERN_Y_DEFAULT_VALUE,
-             SVGOMAnimatedLength.VERTICAL_LENGTH, false);
+        return y;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGPatternElement#getWidth()}.
      */
     public SVGAnimatedLength getWidth() {
-        return getAnimatedLengthAttribute
-            (null, SVG_WIDTH_ATTRIBUTE, SVG_PATTERN_WIDTH_DEFAULT_VALUE,
-             SVGOMAnimatedLength.HORIZONTAL_LENGTH, true);
+        return width;
     }
 
     /**
@@ -154,9 +263,14 @@ public class SVGOMPatternElement
      * org.w3c.dom.svg.SVGPatternElement#getHeight()}.
      */
     public SVGAnimatedLength getHeight() {
-        return getAnimatedLengthAttribute
-            (null, SVG_HEIGHT_ATTRIBUTE, SVG_PATTERN_HEIGHT_DEFAULT_VALUE,
-             SVGOMAnimatedLength.VERTICAL_LENGTH, true);
+        return height;
+    }
+
+    /**
+     * Returns the table of TraitInformation objects for this element.
+     */
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 
     // XLink support //////////////////////////////////////////////////////
@@ -166,7 +280,7 @@ public class SVGOMPatternElement
      * org.w3c.dom.svg.SVGURIReference#getHref()}.
      */
     public SVGAnimatedString getHref() {
-        return SVGURIReferenceSupport.getHref(this);
+        return href;
     }
 
     // SVGFitToViewBox support ////////////////////////////////////////////
@@ -176,7 +290,8 @@ public class SVGOMPatternElement
      * org.w3c.dom.svg.SVGFitToViewBox#getViewBox()}.
      */
     public SVGAnimatedRect getViewBox() {
-        throw new RuntimeException(" !!! TODO: getViewBox()");
+        throw new UnsupportedOperationException
+            ("SVGFitToViewBox.getViewBox is not implemented"); // XXX
     }
 
     /**
@@ -184,7 +299,7 @@ public class SVGOMPatternElement
      * org.w3c.dom.svg.SVGFitToViewBox#getPreserveAspectRatio()}.
      */
     public SVGAnimatedPreserveAspectRatio getPreserveAspectRatio() {
-        return SVGPreserveAspectRatioSupport.getPreserveAspectRatio(this);
+        return preserveAspectRatio;
     }
 
     // SVGExternalResourcesRequired support /////////////////////////////
@@ -194,8 +309,7 @@ public class SVGOMPatternElement
      * org.w3c.dom.svg.SVGExternalResourcesRequired#getExternalResourcesRequired()}.
      */
     public SVGAnimatedBoolean getExternalResourcesRequired() {
-        return SVGExternalResourcesRequiredSupport.
-            getExternalResourcesRequired(this);
+        return externalResourcesRequired;
     }
 
     // SVGLangSpace support //////////////////////////////////////////////////
@@ -275,144 +389,5 @@ public class SVGOMPatternElement
      */
     protected Node newNode() {
         return new SVGOMPatternElement();
-    }
-
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns whether the given XML attribute is animatable.
-     */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)
-                    || ln.equals(SVG_PATTERN_UNITS_ATTRIBUTE)
-                    || ln.equals(SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE)
-                    || ln.equals(SVG_PATTERN_TRANSFORM_ATTRIBUTE)
-                    || ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)
-                    || ln.equals(SVG_WIDTH_ATTRIBUTE)
-                    || ln.equals(SVG_HEIGHT_ATTRIBUTE)
-                    || ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_HEIGHT_ATTRIBUTE)
-                    || ln.equals(SVG_WIDTH_ATTRIBUTE)
-                    || ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)) {
-                return SVGTypes.TYPE_LENGTH;
-            } else if (ln.equals(SVG_PATTERN_UNITS_ATTRIBUTE)
-                    || ln.equals(SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE)) {
-                return SVGTypes.TYPE_IDENT;
-            } else if (ln.equals(SVG_PATTERN_TRANSFORM_ATTRIBUTE)) {
-                return SVGTypes.TYPE_TRANSFORM_LIST;
-            } else if (ln.equals(SVG_VIEW_BOX_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER_LIST;
-            } else if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                return SVGTypes.TYPE_PRESERVE_ASPECT_RATIO_VALUE;
-            } else if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return SVGTypes.TYPE_BOOLEAN;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Gets how percentage values are interpreted by the given attribute.
-     */
-    protected short getAttributePercentageInterpretation(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_WIDTH_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_WIDTH;
-            }
-            if (ln.equals(SVG_Y_ATTRIBUTE)
-                    || ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_HEIGHT;
-            }
-        }
-        return super.getAttributePercentageInterpretation(ns, ln);
-    }
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                updateBooleanAttributeValue(getExternalResourcesRequired(),
-                                            val);
-                return;
-            } else if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                updatePreserveAspectRatioAttributeValue
-                    (getPreserveAspectRatio(), val);
-                return;
-            } else if (ln.equals(SVG_PATTERN_UNITS_ATTRIBUTE)) {
-                updateEnumerationAttributeValue(getPatternUnits(), val);
-                return;
-            } else if (ln.equals(SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE)) {
-                updateEnumerationAttributeValue(getPatternContentUnits(), val);
-                return;
-            } else if (ln.equals(SVG_PATTERN_TRANSFORM_ATTRIBUTE)) {
-                updateTransformListAttributeValue(getPatternTransform(), val);
-                return;
-            } else if (ln.equals(SVG_X_ATTRIBUTE)) {
-                updateLengthAttributeValue(getX(), val);
-                return;
-            } else if (ln.equals(SVG_Y_ATTRIBUTE)) {
-                updateLengthAttributeValue(getY(), val);
-                return;
-            } else if (ln.equals(SVG_WIDTH_ATTRIBUTE)) {
-                updateLengthAttributeValue(getWidth(), val);
-                return;
-            } else if (ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                updateLengthAttributeValue(getHeight(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return getBaseValue(getExternalResourcesRequired());
-            } else if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                return getBaseValue(getPreserveAspectRatio());
-            } else if (ln.equals(SVG_PATTERN_UNITS_ATTRIBUTE)) {
-                return getBaseValue(getPatternUnits());
-            } else if (ln.equals(SVG_PATTERN_CONTENT_UNITS_ATTRIBUTE)) {
-                return getBaseValue(getPatternContentUnits());
-            } else if (ln.equals(SVG_PATTERN_TRANSFORM_ATTRIBUTE)) {
-                return getBaseValue(getPatternTransform());
-            } else if (ln.equals(SVG_X_ATTRIBUTE)) {
-                return getBaseValue
-                    (getX(), PERCENTAGE_VIEWPORT_WIDTH);
-            } else if (ln.equals(SVG_Y_ATTRIBUTE)) {
-                return getBaseValue
-                    (getY(), PERCENTAGE_VIEWPORT_HEIGHT);
-            } else if (ln.equals(SVG_WIDTH_ATTRIBUTE)) {
-                return getBaseValue
-                    (getWidth(), PERCENTAGE_VIEWPORT_WIDTH);
-            } else if (ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                return getBaseValue
-                    (getHeight(), PERCENTAGE_VIEWPORT_HEIGHT);
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
     }
 }

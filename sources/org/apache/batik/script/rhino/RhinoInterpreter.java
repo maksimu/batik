@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -35,6 +36,7 @@ import org.apache.batik.bridge.InterruptedBridgeException;
 import org.apache.batik.script.Interpreter;
 import org.apache.batik.script.InterpreterException;
 import org.apache.batik.script.Window;
+import org.apache.batik.script.ImportInfo;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -54,23 +56,9 @@ import org.w3c.dom.events.EventTarget;
  * A simple implementation of <code>Interpreter</code> interface to use
  * Rhino ECMAScript interpreter.
  * @author <a href="mailto:cjolif@ilog.fr">Christophe Jolif</a>
- * @version $Id$
+ * @version $Id: RhinoInterpreter.java 801512 2009-08-06 05:33:28Z cam $
  */
 public class RhinoInterpreter implements Interpreter {
-
-    /**
-     * Java packages that will be imported into the scripting environment.
-     */
-    protected static String[] TO_BE_IMPORTED = {
-        "java.lang",
-        "org.w3c.dom",
-        "org.w3c.dom.css",
-        "org.w3c.dom.events",
-        "org.w3c.dom.smil",
-        "org.w3c.dom.stylesheets",
-        "org.w3c.dom.svg",
-        "org.w3c.dom.views"
-    };
 
     /**
      * The number of cached compiled scripts to store.
@@ -153,7 +141,28 @@ public class RhinoInterpreter implements Interpreter {
      * @see org.apache.batik.script.InterpreterPool
      */
     public RhinoInterpreter(URL documentURL) {
-        try { 
+        init(documentURL, null);
+    }
+
+    /**
+     * Build a <code>Interpreter</code> for ECMAScript using Rhino.
+     *
+     * @param documentURL the URL for the document which references
+     * @param imports the set of Java classes/packages to import 
+     *                into the scripting enviornment.
+     *
+     * @see org.apache.batik.script.Interpreter
+     * @see org.apache.batik.script.InterpreterPool
+     */
+    public RhinoInterpreter(URL documentURL,
+                            ImportInfo imports) {
+        init(documentURL, imports);
+    }
+
+    protected void init(URL documentURL,
+                        final ImportInfo imports)
+    {
+        try {
             rhinoClassLoader = new RhinoClassLoader
                 (documentURL, getClass().getClassLoader());
         } catch (SecurityException se) {
@@ -166,20 +175,41 @@ public class RhinoInterpreter implements Interpreter {
                 globalObject = createGlobalObject(cx);
                 ClassCache cache = ClassCache.get(globalObject);
                 cache.setCachingEnabled(rhinoClassLoader != null);
-                // import Java lang package & DOM Level 2 & SVG DOM packages
-                StringBuffer sb = new StringBuffer("importPackage(Packages.");
-                for (int i = 0; i < TO_BE_IMPORTED.length - 1; i++) {
-                    sb.append(TO_BE_IMPORTED[i]);
-                    sb.append(");importPackage(Packages.");
+                
+                ImportInfo ii = imports;
+                if (ii == null) ii = ImportInfo.getImports();
+
+                // import Java lang package & DOM Level 3 & SVG DOM packages
+                StringBuffer sb = new StringBuffer();
+                Iterator iter;
+                iter = ii.getPackages();
+                while (iter.hasNext()) {
+                    String pkg = (String)iter.next();
+                    sb.append("importPackage(Packages.");
+                    sb.append(pkg);
+                    sb.append(");");
                 }
-                sb.append(TO_BE_IMPORTED[TO_BE_IMPORTED.length - 1]);
-                sb.append(')');
+                iter = ii.getClasses();
+                while (iter.hasNext()) {
+                    String cls = (String)iter.next();
+                    sb.append("importClass(Packages.");
+                    sb.append(cls);
+                    sb.append(");");
+                }
                 cx.evaluateString(globalObject, sb.toString(), null, 0,
                                   rhinoClassLoader);
                 return null;
             }
         };
         contextFactory.call(initAction);
+    }
+
+    /**
+     * Returns the content types of the scripting languages this interpreter
+     * handles.
+     */
+    public String[] getMimeTypes() {
+        return RhinoInterpreterFactory.RHINO_MIMETYPES;
     }
 
     /**
@@ -219,6 +249,7 @@ public class RhinoInterpreter implements Interpreter {
      * @see org.apache.batik.script.rhino.RhinoClassLoader
      */
     public AccessControlContext getAccessControlContext() {
+        if (rhinoClassLoader == null) return null;
         return rhinoClassLoader.getAccessControlContext();
     }
 
@@ -327,9 +358,9 @@ public class RhinoInterpreter implements Interpreter {
                                 return cx.compileReader
                                     (new StringReader(scriptStr),
                                      SOURCE_NAME_SVG, 1, rhinoClassLoader);
-                            } catch (IOException ie) {
+                            } catch (IOException ioEx ) {
                                 // Should never happen: using a string
-                                throw new Error();
+                                throw new Error( ioEx.getMessage() );
                             }
                         }
                     };

@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import java.awt.geom.Rectangle2D;
  * A shape painter which consists of multiple shape painters.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: CompositeShapePainter.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class CompositeShapePainter implements ShapePainter {
 
@@ -37,7 +38,7 @@ public class CompositeShapePainter implements ShapePainter {
     protected Shape shape;
 
     /**
-     * The enclosed <tt>ShapePainter</tt>s of this composite shape painter.
+     * The enclosed <code>ShapePainter</code>s of this composite shape painter.
      */
     protected ShapePainter [] painters;
 
@@ -47,7 +48,7 @@ public class CompositeShapePainter implements ShapePainter {
     protected int count;
 
     /**
-     * Constructs a new empty <tt>CompositeShapePainter</tt>.
+     * Constructs a new empty <code>CompositeShapePainter</code>.
      */
     public CompositeShapePainter(Shape shape) {
         if (shape == null) {
@@ -65,14 +66,14 @@ public class CompositeShapePainter implements ShapePainter {
         if (shapePainter == null) {
             return;
         }
-        if (this.shape != shapePainter.getShape()) {
+        if (shape != shapePainter.getShape()) {
             shapePainter.setShape(shape);
         }
         if (painters == null) {
             painters = new ShapePainter[2];
         }
         if (count == painters.length) {
-            ShapePainter [] newPainters = new ShapePainter[(count*3)/2 + 1];
+            ShapePainter [] newPainters = new ShapePainter[ count + count/2 + 1];
             System.arraycopy(painters, 0, newPainters, 0, count);
             painters = newPainters;
         }
@@ -147,7 +148,7 @@ public class CompositeShapePainter implements ShapePainter {
      * Returns the bounds of the area painted by this shape painter
      */
     public Rectangle2D getPaintedBounds2D(){
-        if (painters == null) 
+        if (painters == null)
             return null;
 
         Rectangle2D bounds = null;
@@ -164,7 +165,7 @@ public class CompositeShapePainter implements ShapePainter {
      * Returns true if pt is in the area painted by this shape painter
      */
     public boolean inPaintedArea(Point2D pt){
-        if (painters == null) 
+        if (painters == null)
             return false;
         for (int i=0; i < count; ++i) {
             if (painters[i].inPaintedArea(pt))
@@ -194,12 +195,13 @@ public class CompositeShapePainter implements ShapePainter {
      * Returns the bounds of the area painted by this shape painter
      */
     public Rectangle2D getSensitiveBounds2D() {
-        if (painters == null) 
+        if (painters == null)
             return null;
 
         Rectangle2D bounds = null;
         for (int i=0; i < count; ++i) {
             Rectangle2D pb = painters[i].getSensitiveBounds2D();
+            if (pb == null) continue;
             if (bounds == null) bounds = (Rectangle2D)pb.clone();
             else                bounds.add(pb);
         }
@@ -210,7 +212,7 @@ public class CompositeShapePainter implements ShapePainter {
      * Returns true if pt is in the area painted by this shape painter
      */
     public boolean inSensitiveArea(Point2D pt){
-        if (painters == null) 
+        if (painters == null)
             return false;
         for (int i=0; i < count; ++i) {
             if (painters[i].inSensitiveArea(pt))

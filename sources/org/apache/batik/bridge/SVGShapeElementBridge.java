@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003,2005  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,10 +28,10 @@ import org.apache.batik.gvt.ShapePainter;
 import org.w3c.dom.Element;
 
 /**
- * The base bridge class for shapes. Subclasses bridge <tt>ShapeNode</tt>.
+ * The base bridge class for shapes. Subclasses bridge <code>ShapeNode</code>.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: SVGShapeElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class SVGShapeElementBridge extends AbstractGraphicsNodeBridge {
 
@@ -69,7 +70,7 @@ public abstract class SVGShapeElementBridge extends AbstractGraphicsNodeBridge {
     }
 
     /**
-     * Creates a <tt>ShapeNode</tt>.
+     * Creates a <code>ShapeNode</code>.
      */
     protected GraphicsNode instantiateGraphicsNode() {
         return new ShapeNode();

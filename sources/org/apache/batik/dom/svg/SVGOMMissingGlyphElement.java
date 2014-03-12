@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,11 +26,32 @@ import org.w3c.dom.svg.SVGMissingGlyphElement;
  * This class implements {@link SVGMissingGlyphElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMMissingGlyphElement.java 489964 2006-12-24 01:30:23Z cam $
  */
 public class SVGOMMissingGlyphElement
     extends    SVGStylableElement
     implements SVGMissingGlyphElement {
+
+//     /**
+//      * Table mapping XML attribute names to TraitInformation objects.
+//      */
+//     protected static DoublyIndexedTable xmlTraitInformation;
+//     static {
+//         DoublyIndexedTable t = new DoublyIndexedTable(SVGStylableElement.xmlTraitInformation);
+//         t.put(XLINK_NAMESPACE_URI, XLINK_HREF_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_URI));
+//         t.put(null, SVG_D_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_PATH_DATA));
+//         t.put(null, SVG_HORIZ_ADV_X_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_NUMBER));
+//         t.put(null, SVG_VERT_ORIGIN_X_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_NUMBER));
+//         t.put(null, SVG_VERT_ORIGIN_Y_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_NUMBER));
+//         t.put(null, SVG_VERT_ADV_Y_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_NUMBER));
+//         xmlTraitInformation = t;
+//     }
 
     /**
      * Creates a new SVGOMMissingGlyphElement object.
@@ -60,15 +82,10 @@ public class SVGOMMissingGlyphElement
         return new SVGOMMissingGlyphElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            // XXX Fill in these attributes.
-        }
-        return super.getAttributeType(ns, ln);
-    }
+//     /**
+//      * Returns the table of TraitInformation objects for this element.
+//      */
+//     protected DoublyIndexedTable getTraitInformationTable() {
+//         return xmlTraitInformation;
+//     }
 }

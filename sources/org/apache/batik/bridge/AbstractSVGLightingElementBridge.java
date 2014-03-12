@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,7 +32,7 @@ import org.w3c.dom.Node;
  * Bridge class for the &lt;feDiffuseLighting> element.
  *
  * @author <a href="mailto:tkormann@apache.org">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: AbstractSVGLightingElementBridge.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public abstract class AbstractSVGLightingElementBridge
     extends AbstractSVGFilterPrimitiveElementBridge {
@@ -96,9 +97,9 @@ public abstract class AbstractSVGLightingElementBridge
             } else {
                 units[1] = units[0];
             }
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException nfEx ) {
             throw new BridgeException
-                (ctx, filterElement, ERR_ATTRIBUTE_VALUE_MALFORMED,
+                (ctx, filterElement, nfEx, ERR_ATTRIBUTE_VALUE_MALFORMED,
                  new Object[] {SVG_KERNEL_UNIT_LENGTH_ATTRIBUTE, s});
 
         }
@@ -113,11 +114,11 @@ public abstract class AbstractSVGLightingElementBridge
     /**
      * The base bridge class for light element.
      */
-    protected static abstract class AbstractSVGLightElementBridge
+    protected abstract static class AbstractSVGLightElementBridge
         extends AnimatableGenericSVGBridge {
 
         /**
-         * Creates a <tt>Light</tt> according to the specified parameters.
+         * Creates a <code>Light</code> according to the specified parameters.
          *
          * @param ctx the bridge context to use
          * @param filterElement the lighting filter primitive element
@@ -149,7 +150,7 @@ public abstract class AbstractSVGLightingElementBridge
         }
 
         /**
-         * Creates a <tt>Light</tt> according to the specified parameters.
+         * Creates a <code>Light</code> according to the specified parameters.
          *
          * @param ctx the bridge context to use
          * @param filterElement the lighting filter primitive element
@@ -217,7 +218,7 @@ public abstract class AbstractSVGLightingElementBridge
         }
 
         /**
-         * Creates a <tt>Light</tt> according to the specified parameters.
+         * Creates a <code>Light</code> according to the specified parameters.
          *
          * @param ctx the bridge context to use
          * @param filterElement the lighting filter primitive element
@@ -260,7 +261,7 @@ public abstract class AbstractSVGLightingElementBridge
         }
 
         /**
-         * Creates a <tt>Light</tt> according to the specified parameters.
+         * Creates a <code>Light</code> according to the specified parameters.
          *
          * @param ctx the bridge context to use
          * @param filterElement the lighting filter primitive element

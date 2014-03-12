@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,15 +18,26 @@
  */
 package org.apache.batik.anim.values;
 
-import org.apache.batik.anim.AnimationTarget;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
+import org.apache.batik.dom.anim.AnimationTarget;
 
 /**
  * An abstract class for values in the animation engine.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatableValue.java 475477 2006-11-15 22:44:28Z cam $
  */
 public abstract class AnimatableValue {
+
+    /**
+     * A formatting object to get CSS compatible float strings.
+     */
+    protected static DecimalFormat decimalFormat = new DecimalFormat
+        ("0.0###########################################################",
+         new DecimalFormatSymbols(Locale.ENGLISH));
 
     /**
      * The target of the animation.
@@ -44,6 +56,13 @@ public abstract class AnimatableValue {
      */
     protected AnimatableValue(AnimationTarget target) {
         this.target = target;
+    }
+
+    /**
+     * Returns a CSS compatible string version of the specified float.
+     */
+    public static String formatNumber(float f) {
+        return decimalFormat.format(f);
     }
 
     /**
@@ -84,7 +103,9 @@ public abstract class AnimatableValue {
     /**
      * Returns the CSS text representation of the value.
      */
-    public abstract String getCssText();
+    public String getCssText() {
+        return null;
+    }
     
     /**
      * Returns whether the value in this AnimatableValue has been modified.
@@ -96,9 +117,18 @@ public abstract class AnimatableValue {
     }
 
     /**
-     * Returns a string representation of this object.
+     * Returns a string representation of this object.  This should be
+     * overridden in classes that do not have a CSS representation.
+     */
+    public String toStringRep() {
+        return getCssText();
+    }
+
+    /**
+     * Returns a string representation of this object prefixed with its
+     * class name.
      */
     public String toString() {
-        return getClass().getName() + "[" + getCssText() + "]";
+        return getClass().getName() + "[" + toStringRep() + "]";
     }
 }

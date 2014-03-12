@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001,2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,6 +20,10 @@ package org.apache.batik.dom.svg;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.apache.batik.anim.values.AnimatableNumberListValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 import org.apache.batik.parser.ParseException;
 
@@ -35,11 +40,12 @@ import org.w3c.dom.svg.SVGNumberList;
  * interface.
  *
  * @author <a href="mailto:tonny@kiyut.com">Tonny Kohar</a>
+ * @version $Id: SVGOMAnimatedNumberList.java 527382 2007-04-11 04:31:58Z cam $
  */
-public class SVGOMAnimatedNumberList 
+public class SVGOMAnimatedNumberList
     extends AbstractSVGAnimatedValue
     implements SVGAnimatedNumberList {
-    
+
     /**
      * The base value.
      */
@@ -82,7 +88,7 @@ public class SVGOMAnimatedNumberList
         this.defaultValue = defaultValue;
         this.emptyAllowed = emptyAllowed;
     }
-    
+
     /**
      * <b>DOM</b>: Implements {@link SVGAnimatedNumberList#getBaseVal()}.
      */
@@ -104,22 +110,56 @@ public class SVGOMAnimatedNumberList
     }
 
     /**
-     * Sets the animated value.
+     * Throws an exception if the number list value is malformed.
      */
-    public void setAnimatedValue(float[] values) {
-        if (animVal == null) {
-            animVal = new AnimSVGNumberList();
+    public void check() {
+        if (!hasAnimVal) {
+            if (baseVal == null) {
+                baseVal = new BaseSVGNumberList();
+            }
+            baseVal.revalidate();
+            if (baseVal.missing) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+            }
+            if (baseVal.malformed) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                     baseVal.getValueAsString());
+            }
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(values);
-        fireAnimatedAttributeListeners();
     }
 
     /**
-     * Resets the animated value.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGNumberList nl = getBaseVal();
+        int n = nl.getNumberOfItems();
+        float[] numbers = new float[n];
+        for (int i = 0; i < n; i++) {
+            numbers[i] = nl.getItem(n).getValue();
+        }
+        return new AnimatableNumberListValue(target, numbers);
+    }
+
+    /**
+     * Updates the animated value with the given {@link AnimatableValue}.
+     */
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            AnimatableNumberListValue animNumList =
+                (AnimatableNumberListValue) val;
+            if (animVal == null) {
+                animVal = new AnimSVGNumberList();
+            }
+            animVal.setAnimatedValue(animNumList.getNumbers());
+        }
         fireAnimatedAttributeListeners();
     }
 
@@ -166,6 +206,16 @@ public class SVGOMAnimatedNumberList
      * {@link SVGNumberList} implementation for the base number list value.
      */
     public class BaseSVGNumberList extends AbstractSVGNumberList {
+
+        /**
+         * Whether the value is missing.
+         */
+        protected boolean missing;
+
+        /**
+         * Whether the value is malformed.
+         */
+        protected boolean malformed;
 
         /**
          * Create a DOMException.
@@ -216,6 +266,26 @@ public class SVGOMAnimatedNumberList
         }
 
         /**
+         * Resets the value of the associated attribute.
+         */
+        protected void resetAttribute() {
+            super.resetAttribute();
+            missing = false;
+            malformed = false;
+        }
+
+        /**
+         * Appends the string representation of the given {@link SVGItem} to
+         * the DOM attribute.  This is called in response to an append to
+         * the list.
+         */
+        protected void resetAttribute(SVGItem item) {
+            super.resetAttribute(item);
+            missing = false;
+            malformed = false;
+        }
+
+        /**
          * Initializes the list, if needed.
          */
         protected void revalidate() {
@@ -223,12 +293,15 @@ public class SVGOMAnimatedNumberList
                 return;
             }
 
+            valid = true;
+            missing = false;
+            malformed = false;
+
             String s = getValueAsString();
             boolean isEmpty = s != null && s.length() == 0;
             if (s == null || isEmpty && !emptyAllowed) {
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+                missing = true;
+                return;
             }
             if (isEmpty) {
                 itemList = new ArrayList(1);
@@ -245,12 +318,9 @@ public class SVGOMAnimatedNumberList
                 } catch (ParseException e) {
                     itemList = new ArrayList(1);
                     valid = true;
-                    throw new LiveAttributeException
-                        (element, localName,
-                         LiveAttributeException.ERR_ATTRIBUTE_MALFORMED, s);
+                    malformed = true;
                 }
             }
-            valid = true;
         }
     }
 
@@ -317,7 +387,7 @@ public class SVGOMAnimatedNumberList
             if (itemList.size() == 0) {
                 return "";
             }
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer( itemList.size() * 8 );
             Iterator i = itemList.iterator();
             if (i.hasNext()) {
                 sb.append(((SVGItem) i.next()).getValueAsString());

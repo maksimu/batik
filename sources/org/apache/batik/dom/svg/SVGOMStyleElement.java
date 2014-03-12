@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2003  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,16 +18,13 @@
  */
 package org.apache.batik.dom.svg;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.batik.css.engine.CSSEngine;
 import org.apache.batik.css.engine.CSSStyleSheetNode;
 import org.apache.batik.css.engine.StyleSheet;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.XMLSupport;
+import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.XMLConstants;
-import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -39,7 +37,7 @@ import org.w3c.dom.svg.SVGStyleElement;
  * This class implements {@link SVGStyleElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMStyleElement.java 579230 2007-09-25 12:52:48Z cam $
  */
 public class SVGOMStyleElement
     extends    SVGOMElement
@@ -47,10 +45,27 @@ public class SVGOMStyleElement
                SVGStyleElement,
                LinkStyle {
 
+//     /**
+//      * Table mapping XML attribute names to TraitInformation objects.
+//      */
+//     protected static DoublyIndexedTable xmlTraitInformation;
+//     static {
+//         DoublyIndexedTable t =
+//             new DoublyIndexedTable(SVGOMElement.xmlTraitInformation);
+//         t.put(null, SVG_MEDIA_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_TITLE_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_TYPE_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         xmlTraitInformation = t;
+//     }
+
     /**
      * The attribute initializer.
      */
-    protected final static AttributeInitializer attributeInitializer;
+    protected static final AttributeInitializer attributeInitializer;
+
     static {
         attributeInitializer = new AttributeInitializer(1);
         attributeInitializer.addAttribute(XMLSupport.XML_NAMESPACE_URI,
@@ -115,18 +130,12 @@ public class SVGOMStyleElement
                     }
                     text = sb.toString();
                 }
-                URL burl = null;
-                String bu= "";
-                try {
-                    bu = getBaseURI();
-                    if (bu != null) {
-                        burl = new URL(bu);
-                    }
-                } catch (MalformedURLException ex) {
-                    String msg = "MalformedURLException:" + ex.getMessage() + ':' + bu;
-                    throw new IllegalArgumentException( msg );
+                ParsedURL burl = null;
+                String bu = getBaseURI();
+                if (bu != null) {
+                    burl = new ParsedURL(bu);
                 }
-                String  media = getAttributeNS(null, SVG_MEDIA_ATTRIBUTE);
+                String media = getAttributeNS(null, SVG_MEDIA_ATTRIBUTE);
                 styleSheet = e.parseStyleSheet(text, burl, media);
                 addEventListenerNS(XMLConstants.XML_EVENTS_NAMESPACE_URI,
                                    "DOMCharacterDataModified",
@@ -143,7 +152,8 @@ public class SVGOMStyleElement
      * org.w3c.dom.stylesheets.LinkStyle#getSheet()}.
      */
     public org.w3c.dom.stylesheets.StyleSheet getSheet() {
-        throw new RuntimeException(" !!! Not implemented.");
+        throw new UnsupportedOperationException
+            ("LinkStyle.getSheet() is not implemented"); // XXX
     }
 
     /**
@@ -217,6 +227,13 @@ public class SVGOMStyleElement
         return new SVGOMStyleElement();
     }
 
+//     /**
+//      * Returns the table of TraitInformation objects for this element.
+//      */
+//     protected DoublyIndexedTable getTraitInformationTable() {
+//         return xmlTraitInformation;
+//     }
+
     /**
      * The DOMCharacterDataModified listener.
      */
@@ -225,21 +242,5 @@ public class SVGOMStyleElement
         public void handleEvent(Event evt) {
             styleSheet = null;
         }
-    }
-
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_MEDIA_ATTRIBUTE)
-                    || ln.equals(SVG_TITLE_ATTRIBUTE)
-                    || ln.equals(SVG_TYPE_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            }
-        }
-        return super.getAttributeType(ns, ln);
     }
 }

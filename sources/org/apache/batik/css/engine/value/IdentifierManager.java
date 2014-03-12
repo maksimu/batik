@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2002-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -27,7 +28,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  * identifier values.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: IdentifierManager.java 475685 2006-11-16 11:16:05Z cam $
  */
 public abstract class IdentifierManager extends AbstractValueManager {
 
@@ -36,22 +37,22 @@ public abstract class IdentifierManager extends AbstractValueManager {
      */
     public Value createValue(LexicalUnit lu, CSSEngine engine)
         throws DOMException {
-	switch (lu.getLexicalUnitType()) {
-	case LexicalUnit.SAC_INHERIT:
-	    return ValueConstants.INHERIT_VALUE;
+        switch (lu.getLexicalUnitType()) {
+        case LexicalUnit.SAC_INHERIT:
+            return ValueConstants.INHERIT_VALUE;
 
-	case LexicalUnit.SAC_IDENT:
+        case LexicalUnit.SAC_IDENT:
             String s = lu.getStringValue().toLowerCase().intern();
-	    Object v = getIdentifiers().get(s);
-	    if (v == null) {
-		throw createInvalidIdentifierDOMException(lu.getStringValue());
-	    }
-	    return (Value)v;
+            Object v = getIdentifiers().get(s);
+            if (v == null) {
+                throw createInvalidIdentifierDOMException(lu.getStringValue());
+            }
+            return (Value)v;
 
-	default:
-	    throw createInvalidLexicalUnitDOMException
+        default:
+            throw createInvalidLexicalUnitDOMException
                 (lu.getLexicalUnitType());
-	}
+        }
     }
 
     /**
@@ -59,15 +60,15 @@ public abstract class IdentifierManager extends AbstractValueManager {
      * ValueManager#createStringValue(short,String,CSSEngine)}.
      */
     public Value createStringValue(short type, String value, CSSEngine engine)
-	throws DOMException {
-	if (type != CSSPrimitiveValue.CSS_IDENT) {
+        throws DOMException {
+        if (type != CSSPrimitiveValue.CSS_IDENT) {
             throw createInvalidStringTypeDOMException(type);
-	}
-	Object v = getIdentifiers().get(value.toLowerCase().intern());
-	if (v == null) {
+        }
+        Object v = getIdentifiers().get(value.toLowerCase().intern());
+        if (v == null) {
             throw createInvalidIdentifierDOMException(value);
-	}
-	return (Value)v;
+        }
+        return (Value)v;
     }
 
     /**

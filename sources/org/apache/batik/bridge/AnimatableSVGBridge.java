@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,9 +22,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.apache.batik.anim.AnimationTarget;
-import org.apache.batik.anim.AnimationTargetListener;
-import org.apache.batik.dom.svg.SVGContext;
+import org.apache.batik.dom.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTargetListener;
+import org.apache.batik.dom.svg.SVGAnimationTargetContext;
 
 import org.w3c.dom.Element;
 
@@ -31,11 +32,11 @@ import org.w3c.dom.Element;
  * Abstract bridge class for those elements that can be animated.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatableSVGBridge.java 490655 2006-12-28 05:19:44Z cam $
  */
 public abstract class AnimatableSVGBridge
         extends AbstractSVGBridge
-        implements SVGContext {
+        implements SVGAnimationTargetContext {
 
     /**
      * The element that has been handled by this bridge.
@@ -53,7 +54,7 @@ public abstract class AnimatableSVGBridge
      */
     protected HashMap targetListeners;
 
-    // SVGContext ////////////////////////////////////////////////////////////
+    // SVGAnimationTargetContext /////////////////////////////////////////////
 
     /**
      * Adds a listener for changes to the given attribute value.
@@ -85,10 +86,13 @@ public abstract class AnimatableSVGBridge
     protected void fireBaseAttributeListeners(String pn) {
         if (targetListeners != null) {
             LinkedList ll = (LinkedList) targetListeners.get(pn);
-            Iterator it = ll.iterator();
-            while (it.hasNext()) {
-                AnimationTargetListener l = (AnimationTargetListener) it.next();
-                l.baseValueChanged((AnimationTarget) e, null, pn, true);
+            if (ll != null) {
+                Iterator it = ll.iterator();
+                while (it.hasNext()) {
+                    AnimationTargetListener l =
+                        (AnimationTargetListener) it.next();
+                    l.baseValueChanged((AnimationTarget) e, null, pn, true);
+                }
             }
         }
     }

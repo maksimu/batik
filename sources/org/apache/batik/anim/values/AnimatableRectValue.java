@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,13 +18,13 @@
  */
 package org.apache.batik.anim.values;
 
-import org.apache.batik.anim.AnimationTarget;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 /**
  * An SVG rect value in the animation system.
  *
  * @author <a href="mailto:cam%40mcc%2eid%2eau">Cameron McCormack</a>
- * @version $Id$
+ * @version $Id: AnimatableRectValue.java 579487 2007-09-26 06:40:16Z cam $
  */
 public class AnimatableRectValue extends AnimatableValue {
 
@@ -82,18 +83,20 @@ public class AnimatableRectValue extends AnimatableValue {
             res = (AnimatableRectValue) result;
         }
 
-        float newX, newY, newWidth, newHeight;
-        if (to != null && interpolation >= 0.5) {
+        float newX = x, newY = y, newWidth = width, newHeight = height;
+        if (to != null) {
             AnimatableRectValue toValue = (AnimatableRectValue) to;
-            newX = toValue.x;
-            newY = toValue.y;
-            newWidth = toValue.width;
-            newHeight = toValue.height;
-        } else {
-            newX = x;
-            newY = y;
-            newWidth = width;
-            newHeight = height;
+            newX += interpolation * (toValue.x - x);
+            newY += interpolation * (toValue.y - y);
+            newWidth += interpolation * (toValue.width - width);
+            newHeight += interpolation * (toValue.height - height);
+        }
+        if (accumulation != null && multiplier != 0) {
+            AnimatableRectValue accValue = (AnimatableRectValue) accumulation;
+            newX += multiplier * accValue.x;
+            newY += multiplier * accValue.y;
+            newWidth += multiplier * accValue.width;
+            newHeight += multiplier * accValue.height;
         }
         if (res.x != newX || res.y != newY
                 || res.width != newWidth || res.height != newHeight) {
@@ -158,9 +161,17 @@ public class AnimatableRectValue extends AnimatableValue {
     }
 
     /**
-     * Returns the CSS text representation of the value.
+     * Returns a string representation of this object.
      */
-    public String getCssText() {
-        return null;
+    public String toStringRep() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(x);
+        sb.append(',');
+        sb.append(y);
+        sb.append(',');
+        sb.append(width);
+        sb.append(',');
+        sb.append(height);
+        return sb.toString();
     }
 }

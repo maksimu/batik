@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -36,7 +37,7 @@ import org.apache.batik.ext.awt.image.GraphicsUtil;
  * out to infinity.
  *
  * @author <a href="mailto:vincent.hardy@eng.sun.com">Vincent Hardy</a>
- * @version $Id$ 
+ * @version $Id: FloodRed.java 1372129 2012-08-12 15:31:50Z helder $ 
  */
 public class FloodRed extends AbstractRed {
 
@@ -46,7 +47,7 @@ public class FloodRed extends AbstractRed {
     private WritableRaster raster;
 
     /**
-     * Construct a fully transparent black image <tt>bounds</tt> size.
+     * Construct a fully transparent black image <code>bounds</code> size.
      * @param bounds the bounds of the image (in fact will respond with
      *               any request).
      */
@@ -55,7 +56,7 @@ public class FloodRed extends AbstractRed {
     }
 
     /**
-     * Construct a fully transparent image <tt>bounds</tt> size, will
+     * Construct a fully transparent image <code>bounds</code> size, will
      * paint one tile with paint.  Thus paint should not be a pattered
      * paint or gradient but should be a solid color.
      * @param bounds the bounds of the image (in fact will respond with

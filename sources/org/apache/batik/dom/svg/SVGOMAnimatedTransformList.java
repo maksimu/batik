@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2001,2003,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -19,6 +20,11 @@ package org.apache.batik.dom.svg;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import org.apache.batik.anim.values.AnimatableTransformListValue;
+import org.apache.batik.anim.values.AnimatableValue;
+import org.apache.batik.dom.anim.AnimationTarget;
 
 import org.apache.batik.parser.ParseException;
 
@@ -33,9 +39,9 @@ import org.w3c.dom.svg.SVGTransformList;
  * This class is the implementation of the SVGAnimatedTransformList interface.
  *
  * @author <a href="mailto:nicolas.socheleau@bitflash.com">Nicolas Socheleau</a>
- * @version $Id$
+ * @version $Id: SVGOMAnimatedTransformList.java 594018 2007-11-12 04:17:41Z cam $
  */
-public class SVGOMAnimatedTransformList 
+public class SVGOMAnimatedTransformList
         extends AbstractSVGAnimatedValue
         implements SVGAnimatedTransformList {
 
@@ -95,35 +101,56 @@ public class SVGOMAnimatedTransformList
     }
 
     /**
-     * Sets the animated value to a single transform.
+     * Throws an exception if the points list value is malformed.
      */
-    public void setAnimatedValue(SVGTransform t) {
-        if (animVal == null) {
-            animVal = new AnimSVGTransformList();
+    public void check() {
+        if (!hasAnimVal) {
+            if (baseVal == null) {
+                baseVal = new BaseSVGTransformList();
+            }
+            baseVal.revalidate();
+            if (baseVal.missing) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+            }
+            if (baseVal.malformed) {
+                throw new LiveAttributeException
+                    (element, localName,
+                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED,
+                     baseVal.getValueAsString());
+            }
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(t);
-        fireAnimatedAttributeListeners();
     }
 
     /**
-     * Sets the animated value to a list of transforms.
-     * @param i an {@link Iterator} of {@link SVGTransform} objects.
+     * Returns the base value of the attribute as an {@link AnimatableValue}.
      */
-    public void setAnimatedValue(Iterator i) {
-        if (animVal == null) {
-            animVal = new AnimSVGTransformList();
+    public AnimatableValue getUnderlyingValue(AnimationTarget target) {
+        SVGTransformList tl = getBaseVal();
+        int n = tl.getNumberOfItems();
+        List v = new ArrayList(n);
+        for (int i = 0; i < n; i++) {
+            v.add(tl.getItem(i));
         }
-        hasAnimVal = true;
-        animVal.setAnimatedValue(i);
-        fireAnimatedAttributeListeners();
+        return new AnimatableTransformListValue(target, v);
     }
 
     /**
-     * Resets the animated value.
+     * Updates the animated value with the given {@link AnimatableValue}.
      */
-    public void resetAnimatedValue() {
-        hasAnimVal = false;
+    protected void updateAnimatedValue(AnimatableValue val) {
+        if (val == null) {
+            hasAnimVal = false;
+        } else {
+            hasAnimVal = true;
+            AnimatableTransformListValue aval =
+                (AnimatableTransformListValue) val;
+            if (animVal == null) {
+                animVal = new AnimSVGTransformList();
+            }
+            animVal.setAnimatedValue(aval.getTransforms());
+        }
         fireAnimatedAttributeListeners();
     }
 
@@ -172,6 +199,16 @@ public class SVGOMAnimatedTransformList
     public class BaseSVGTransformList extends AbstractSVGTransformList {
 
         /**
+         * Whether the attribute is missing.
+         */
+        protected boolean missing;
+
+        /**
+         * Whether the attribute is malformed.
+         */
+        protected boolean malformed;
+
+        /**
          * Create a DOMException.
          */
         protected DOMException createDOMException(short type, String key,
@@ -212,6 +249,26 @@ public class SVGOMAnimatedTransformList
         }
 
         /**
+         * Resets the value of the associated attribute.
+         */
+        protected void resetAttribute() {
+            super.resetAttribute();
+            missing = false;
+            malformed = false;
+        }
+
+        /**
+         * Appends the string representation of the given {@link SVGItem} to
+         * the DOM attribute.  This is called in response to an append to
+         * the list.
+         */
+        protected void resetAttribute(SVGItem item) {
+            super.resetAttribute(item);
+            missing = false;
+            malformed = false;
+        }
+
+        /**
          * Initializes the list, if needed.
          */
         protected void revalidate() {
@@ -219,11 +276,14 @@ public class SVGOMAnimatedTransformList
                 return;
             }
 
+            valid = true;
+            missing = false;
+            malformed = false;
+
             String s = getValueAsString();
             if (s == null) {
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_MISSING, null);
+                missing = true;
+                return;
             }
             try {
                 ListBuilder builder = new ListBuilder();
@@ -236,12 +296,8 @@ public class SVGOMAnimatedTransformList
                 itemList = builder.getList();
             } catch (ParseException e) {
                 itemList = new ArrayList(1);
-                valid = true;
-                throw new LiveAttributeException
-                    (element, localName,
-                     LiveAttributeException.ERR_ATTRIBUTE_MALFORMED, s);
+                malformed = true;
             }
-            valid = true;
         }
     }
 
@@ -302,7 +358,7 @@ public class SVGOMAnimatedTransformList
             if (itemList.size() == 0) {
                 return "";
             }
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer( itemList.size() * 8 );
             Iterator i = itemList.iterator();
             if (i.hasNext()) {
                 sb.append(((SVGItem) i.next()).getValueAsString());

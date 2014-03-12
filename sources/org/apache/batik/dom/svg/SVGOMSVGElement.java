@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2000-2004,2006  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,11 +21,11 @@ package org.apache.batik.dom.svg;
 import java.awt.geom.AffineTransform;
 import java.util.List;
 
-import org.apache.batik.anim.values.AnimatableValue;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.XLinkSupport;
 import org.apache.batik.dom.util.XMLSupport;
 import org.apache.batik.dom.util.ListNodeList;
+import org.apache.batik.util.DoublyIndexedTable;
 import org.apache.batik.util.SVGTypes;
 
 import org.w3c.dom.DOMException;
@@ -61,16 +62,48 @@ import org.w3c.dom.views.DocumentView;
  * This class implements {@link org.w3c.dom.svg.SVGSVGElement}.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
- * @version $Id$
+ * @version $Id: SVGOMSVGElement.java 592621 2007-11-07 05:58:12Z cam $
  */
 public class SVGOMSVGElement
     extends    SVGStylableElement
     implements SVGSVGElement {
 
     /**
+     * Table mapping XML attribute names to TraitInformation objects.
+     */
+    protected static DoublyIndexedTable xmlTraitInformation;
+    static {
+        DoublyIndexedTable t =
+            new DoublyIndexedTable(SVGStylableElement.xmlTraitInformation);
+        t.put(null, SVG_X_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_WIDTH));
+        t.put(null, SVG_Y_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_HEIGHT));
+        t.put(null, SVG_WIDTH_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_WIDTH));
+        t.put(null, SVG_HEIGHT_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_LENGTH, PERCENTAGE_VIEWPORT_HEIGHT));
+//         t.put(null, SVG_BASE_PROFILE_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_CONTENT_SCRIPT_TYPE_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_CONTENT_STYLE_TYPE_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+//         t.put(null, SVG_VERSION_ATTRIBUTE,
+//                 new TraitInformation(false, SVGTypes.TYPE_CDATA));
+        t.put(null, SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_PRESERVE_ASPECT_RATIO_VALUE));
+        t.put(null, SVG_VIEW_BOX_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_RECT));
+        t.put(null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE,
+                new TraitInformation(true, SVGTypes.TYPE_BOOLEAN));
+        xmlTraitInformation = t;
+    }
+
+    /**
      * The attribute initializer.
      */
-    protected final static AttributeInitializer attributeInitializer;
+    protected static final AttributeInitializer attributeInitializer;
     static {
         attributeInitializer = new AttributeInitializer(7);
         attributeInitializer.addAttribute(XMLSupport.XMLNS_NAMESPACE_URI,
@@ -104,6 +137,41 @@ public class SVGOMSVGElement
     }
 
     /**
+     * The 'x' attribute value.
+     */
+    protected SVGOMAnimatedLength x;
+
+    /**
+     * The 'y' attribute value.
+     */
+    protected SVGOMAnimatedLength y;
+
+    /**
+     * The 'width' attribute value.
+     */
+    protected SVGOMAnimatedLength width;
+
+    /**
+     * The 'height' attribute value.
+     */
+    protected SVGOMAnimatedLength height;
+
+    /**
+     * The 'externalResourcesRequired' attribute value.
+     */
+    protected SVGOMAnimatedBoolean externalResourcesRequired;
+
+    /**
+     * The 'preserveAspectRatio' attribute value.
+     */
+    protected SVGOMAnimatedPreserveAspectRatio preserveAspectRatio;
+
+    /**
+     * The 'viewBox' attribute value.
+     */
+    protected SVGOMAnimatedRect viewBox;
+
+    /**
      * Creates a new SVGOMSVGElement object.
      */
     protected SVGOMSVGElement() {
@@ -116,6 +184,40 @@ public class SVGOMSVGElement
      */
     public SVGOMSVGElement(String prefix, AbstractDocument owner) {
         super(prefix, owner);
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes all live attributes for this element.
+     */
+    protected void initializeAllLiveAttributes() {
+        super.initializeAllLiveAttributes();
+        initializeLiveAttributes();
+    }
+
+    /**
+     * Initializes the live attribute values of this element.
+     */
+    private void initializeLiveAttributes() {
+        x = createLiveAnimatedLength
+            (null, SVG_X_ATTRIBUTE, SVG_SVG_X_DEFAULT_VALUE,
+             SVGOMAnimatedLength.HORIZONTAL_LENGTH, false);
+        y = createLiveAnimatedLength
+            (null, SVG_Y_ATTRIBUTE, SVG_SVG_Y_DEFAULT_VALUE,
+             SVGOMAnimatedLength.VERTICAL_LENGTH, false);
+        width =
+            createLiveAnimatedLength
+                (null, SVG_WIDTH_ATTRIBUTE, SVG_SVG_WIDTH_DEFAULT_VALUE,
+                 SVGOMAnimatedLength.HORIZONTAL_LENGTH, true);
+        height =
+            createLiveAnimatedLength
+                (null, SVG_HEIGHT_ATTRIBUTE, SVG_SVG_HEIGHT_DEFAULT_VALUE,
+                 SVGOMAnimatedLength.VERTICAL_LENGTH, true);
+        externalResourcesRequired =
+            createLiveAnimatedBoolean
+                (null, SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE, false);
+        preserveAspectRatio = createLiveAnimatedPreserveAspectRatio();
+        viewBox = createLiveAnimatedRect(null, SVG_VIEW_BOX_ATTRIBUTE, null);
     }
 
     /**
@@ -129,36 +231,28 @@ public class SVGOMSVGElement
      * <b>DOM</b>: Implements {@link SVGSVGElement#getX()}.
      */
     public SVGAnimatedLength getX() {
-        return getAnimatedLengthAttribute
-            (null, SVG_X_ATTRIBUTE, SVG_RECT_X_DEFAULT_VALUE,
-             SVGOMAnimatedLength.HORIZONTAL_LENGTH, false);
+        return x;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGSVGElement#getY()}.
      */
     public SVGAnimatedLength getY() {
-        return getAnimatedLengthAttribute
-            (null, SVG_Y_ATTRIBUTE, SVG_SVG_Y_DEFAULT_VALUE,
-             SVGOMAnimatedLength.VERTICAL_LENGTH, false);
+        return y;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGSVGElement#getWidth()}.
      */
     public SVGAnimatedLength getWidth() {
-        return getAnimatedLengthAttribute
-            (null, SVG_WIDTH_ATTRIBUTE, SVG_SVG_WIDTH_DEFAULT_VALUE,
-             SVGOMAnimatedLength.HORIZONTAL_LENGTH, true);
+        return width;
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGSVGElement#getHeight()}.
      */
     public SVGAnimatedLength getHeight() {
-        return getAnimatedLengthAttribute
-            (null, SVG_HEIGHT_ATTRIBUTE, SVG_SVG_HEIGHT_DEFAULT_VALUE,
-             SVGOMAnimatedLength.VERTICAL_LENGTH, true);
+        return height;
     }
 
     /**
@@ -194,9 +288,9 @@ public class SVGOMSVGElement
      */
     public SVGRect getViewport() {
         SVGContext ctx = getSVGContext();
-        return new SVGOMRect(0, 0, ctx.getViewportWidth(), 
+        return new SVGOMRect(0, 0, ctx.getViewportWidth(),
                              ctx.getViewportHeight());
-    } 
+    }
 
     /**
      * <b>DOM</b>: Implements {@link SVGSVGElement#getPixelUnitToMillimeterX()}.
@@ -232,21 +326,24 @@ public class SVGOMSVGElement
      * <b>DOM</b>: Implements {@link SVGSVGElement#getUseCurrentView()}.
      */
     public boolean getUseCurrentView() {
-        throw new UnsupportedOperationException("!!! Not implemented.");
+        throw new UnsupportedOperationException
+            ("SVGSVGElement.getUseCurrentView is not implemented"); // XXX
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGSVGElement#setUseCurrentView(boolean)}.
      */
     public void setUseCurrentView(boolean useCurrentView) throws DOMException {
-        throw new UnsupportedOperationException("!!! Not implemented.");
+        throw new UnsupportedOperationException
+            ("SVGSVGElement.setUseCurrentView is not implemented"); // XXX
     }
 
     /**
      * <b>DOM</b>: Implements {@link SVGSVGElement#getCurrentView()}.
      */
     public SVGViewSpec getCurrentView() {
-        throw new UnsupportedOperationException("!!! Not implemented.");
+        throw new UnsupportedOperationException
+            ("SVGSVGElement.getCurrentView is not implemented"); // XXX
     }
 
     /**
@@ -261,7 +358,7 @@ public class SVGOMSVGElement
     }
 
     /**
-     * <b>DOM</b>: Implements {@link SVGSVGElement#setCurrentScale()}.
+     * <b>DOM</b>: Implements {@link SVGSVGElement#setCurrentScale(float)}.
      */
     public void setCurrentScale(float currentScale) throws DOMException {
         SVGContext context = getSVGContext();
@@ -326,71 +423,131 @@ public class SVGOMSVGElement
         };
     }
 
-    public int          suspendRedraw ( int max_wait_milliseconds ) {
-        if (max_wait_milliseconds > 60000) 
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#suspendRedraw(int)}.
+     */
+    public int suspendRedraw(int max_wait_milliseconds) {
+        if (max_wait_milliseconds > 60000) {
             max_wait_milliseconds = 60000;
-        else if (max_wait_milliseconds < 0) max_wait_milliseconds = 0;
-
+        } else if (max_wait_milliseconds < 0) {
+            max_wait_milliseconds = 0;
+        }
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         return ctx.suspendRedraw(max_wait_milliseconds);
     }
-    public void          unsuspendRedraw ( int suspend_handle_id )
-        throws DOMException {
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#unsuspendRedraw(int)}.
+     */
+    public void unsuspendRedraw(int suspend_handle_id) throws DOMException {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
-        boolean ok = ctx.unsuspendRedraw(suspend_handle_id);
-        if (!ok) {
-            throw new DOMException(DOMException.NOT_FOUND_ERR,
-                                   "Bad suspend_handle_id: " + 
-                                   suspend_handle_id);
+        if (!ctx.unsuspendRedraw(suspend_handle_id)) {
+            throw createDOMException
+                (DOMException.NOT_FOUND_ERR, "invalid.suspend.handle",
+                 new Object[] { new Integer(suspend_handle_id) });
         }
     }
-    public void          unsuspendRedrawAll (  ) {
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#unsuspendRedrawAll()}.
+     */
+    public void unsuspendRedrawAll() {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         ctx.unsuspendRedrawAll();
     }
-    public void          forceRedraw (  ) {
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#forceRedraw()}.
+     */
+    public void forceRedraw() {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         ctx.forceRedraw();
     }
-    public void          pauseAnimations (  ) {
-        throw new UnsupportedOperationException("!!! Not implemented.");
-    }
-    public void          unpauseAnimations (  ) {
-        throw new UnsupportedOperationException("!!! Not implemented.");
-    }
-    public boolean       animationsPaused (  ) {
-        throw new UnsupportedOperationException("!!! Not implemented.");
-    }
-    public float         getCurrentTime (  ) {
-        throw new UnsupportedOperationException("!!! Not implemented.");
-    }
-    public void          setCurrentTime ( float seconds ) {
-        throw new UnsupportedOperationException("!!! Not implemented.");
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#pauseAnimations()}.
+     */
+    public void pauseAnimations() {
+        SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
+        ctx.pauseAnimations();
     }
 
-    public NodeList      getIntersectionList ( SVGRect rect,
-                                               SVGElement referenceElement ) {
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#unpauseAnimations()}.
+     */
+    public void unpauseAnimations() {
+        SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
+        ctx.unpauseAnimations();
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#animationsPaused()}.
+     */
+    public boolean animationsPaused() {
+        SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
+        return ctx.animationsPaused();
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#getCurrentTime()}.
+     */
+    public float getCurrentTime() {
+        SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
+        return ctx.getCurrentTime();
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#setCurrentTime(float)}.
+     */
+    public void setCurrentTime(float seconds) {
+        SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
+        ctx.setCurrentTime(seconds);
+    }
+
+    /**
+     * <b>DOM</b>: Implements {@link
+     * SVGSVGElement#getIntersectionList(SVGRect,SVGElement)}.
+     */
+    public NodeList getIntersectionList(SVGRect rect,
+                                        SVGElement referenceElement) {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         List list = ctx.getIntersectionList(rect, referenceElement);
         return new ListNodeList(list);
     }
 
-    public NodeList      getEnclosureList ( SVGRect rect,
-                                            SVGElement referenceElement ) {
+    /**
+     * <b>DOM</b>: Implements {@link
+     * SVGSVGElement#getEnclosureList(SVGRect,SVGElement)}.
+     */
+    public NodeList getEnclosureList(SVGRect rect,
+                                     SVGElement referenceElement) {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         List list = ctx.getEnclosureList(rect, referenceElement);
         return new ListNodeList(list);
     }
+
+    /**
+     * <b>DOM</b>: Implements {@link
+     * SVGSVGElement#checkIntersection(SVGElement,SVGRect)}.
+     */
     public boolean checkIntersection(SVGElement element, SVGRect rect) {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         return ctx.checkIntersection(element, rect);
     }
+
+    /**
+     * <b>DOM</b>: Implements {@link
+     * SVGSVGElement#checkEnclosure(SVGElement,SVGRect)}.
+     */
     public boolean checkEnclosure(SVGElement element, SVGRect rect) {
         SVGSVGContext ctx = (SVGSVGContext)getSVGContext();
         return ctx.checkEnclosure(element, rect);
     }
 
-    public void          deselectAll (  ) {
+    /**
+     * <b>DOM</b>: Implements {@link SVGSVGElement#deselectAll()}.
+     */
+    public void deselectAll() {
         ((SVGSVGContext)getSVGContext()).deselectAll();
     }
 
@@ -482,7 +639,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGLocatable#getNearestViewportElement()}.
      */
     public SVGElement getNearestViewportElement() {
-	return SVGLocatableSupport.getNearestViewportElement(this);
+        return SVGLocatableSupport.getNearestViewportElement(this);
     }
 
     /**
@@ -490,7 +647,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGLocatable#getFarthestViewportElement()}.
      */
     public SVGElement getFarthestViewportElement() {
-	return SVGLocatableSupport.getFarthestViewportElement(this);
+        return SVGLocatableSupport.getFarthestViewportElement(this);
     }
 
     /**
@@ -498,7 +655,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGLocatable#getBBox()}.
      */
     public SVGRect getBBox() {
-	return SVGLocatableSupport.getBBox(this);
+        return SVGLocatableSupport.getBBox(this);
     }
 
     /**
@@ -506,7 +663,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGLocatable#getCTM()}.
      */
     public SVGMatrix getCTM() {
-	return SVGLocatableSupport.getCTM(this);
+        return SVGLocatableSupport.getCTM(this);
     }
 
     /**
@@ -514,7 +671,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGLocatable#getScreenCTM()}.
      */
     public SVGMatrix getScreenCTM() {
-	return SVGLocatableSupport.getScreenCTM(this);
+        return SVGLocatableSupport.getScreenCTM(this);
     }
 
     /**
@@ -522,8 +679,8 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGLocatable#getTransformToElement(SVGElement)}.
      */
     public SVGMatrix getTransformToElement(SVGElement element)
-	throws SVGException {
-	return SVGLocatableSupport.getTransformToElement(this, element);
+        throws SVGException {
+        return SVGLocatableSupport.getTransformToElement(this, element);
     }
 
     // ViewCSS ////////////////////////////////////////////////////////////////
@@ -641,7 +798,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGFitToViewBox#getViewBox()}.
      */
     public SVGAnimatedRect getViewBox() {
-        throw new RuntimeException(" !!! TODO: getViewBox()");
+        return viewBox;
     }
 
     /**
@@ -649,7 +806,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGFitToViewBox#getPreserveAspectRatio()}.
      */
     public SVGAnimatedPreserveAspectRatio getPreserveAspectRatio() {
-        return SVGPreserveAspectRatioSupport.getPreserveAspectRatio(this);
+        return preserveAspectRatio;
     }
 
     // SVGExternalResourcesRequired support /////////////////////////////
@@ -659,8 +816,7 @@ public class SVGOMSVGElement
      * org.w3c.dom.svg.SVGExternalResourcesRequired#getExternalResourcesRequired()}.
      */
     public SVGAnimatedBoolean getExternalResourcesRequired() {
-        return SVGExternalResourcesRequiredSupport.
-            getExternalResourcesRequired(this);
+        return externalResourcesRequired;
     }
 
     // SVGTests support ///////////////////////////////////////////////////
@@ -712,115 +868,10 @@ public class SVGOMSVGElement
         return new SVGOMSVGElement();
     }
 
-    // ExtendedTraitAccess ///////////////////////////////////////////////////
-
     /**
-     * Returns whether the given XML attribute is animatable.
+     * Returns the table of TraitInformation objects for this element.
      */
-    public boolean isAttributeAnimatable(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)
-                    || ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)
-                    || ln.equals(SVG_WIDTH_ATTRIBUTE)
-                    || ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                return true;
-            }
-        }
-        return super.isAttributeAnimatable(ns, ln);
-    }
-
-    /**
-     * Returns the type of the given attribute.
-     */
-    public int getAttributeType(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_BASE_PROFILE_ATTRIBUTE)
-                    || ln.equals(SVG_CONTENT_SCRIPT_TYPE_ATTRIBUTE)
-                    || ln.equals(SVG_CONTENT_STYLE_TYPE_ATTRIBUTE)
-                    || ln.equals(SVG_VERSION_ATTRIBUTE)) {
-                return SVGTypes.TYPE_CDATA;
-            } else if (ln.equals(SVG_X_ATTRIBUTE)
-                    || ln.equals(SVG_Y_ATTRIBUTE)
-                    || ln.equals(SVG_WIDTH_ATTRIBUTE)
-                    || ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                return SVGTypes.TYPE_LENGTH;
-            } else if (ln.equals(SVG_PRESERVE_ASPECT_RATIO_ATTRIBUTE)) {
-                return SVGTypes.TYPE_PRESERVE_ASPECT_RATIO_VALUE;
-            } else if (ln.equals(SVG_VIEW_BOX_ATTRIBUTE)) {
-                return SVGTypes.TYPE_NUMBER_LIST;
-            } else if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return SVGTypes.TYPE_BOOLEAN;
-            }
-        }
-        return super.getAttributeType(ns, ln);
-    }
-
-    // AnimationTarget ///////////////////////////////////////////////////////
-
-    /**
-     * Gets how percentage values are interpreted by the given attribute.
-     */
-    protected short getAttributePercentageInterpretation(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_X_ATTRIBUTE) || ln.equals(SVG_WIDTH_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_WIDTH;
-            }
-            if (ln.equals(SVG_Y_ATTRIBUTE) || ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                return PERCENTAGE_VIEWPORT_HEIGHT;
-            }
-        }
-        return super.getAttributePercentageInterpretation(ns, ln);
-    }
-
-    /**
-     * Updates an attribute value in this target.
-     */
-    public void updateAttributeValue(String ns, String ln,
-                                     AnimatableValue val) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                updateBooleanAttributeValue(getExternalResourcesRequired(),
-                                            val);
-                return;
-            } else if (ln.equals(SVG_X_ATTRIBUTE)) {
-                updateLengthAttributeValue(getX(), val);
-                return;
-            } else if (ln.equals(SVG_Y_ATTRIBUTE)) {
-                updateLengthAttributeValue(getY(), val);
-                return;
-            } else if (ln.equals(SVG_WIDTH_ATTRIBUTE)) {
-                updateLengthAttributeValue(getWidth(), val);
-                return;
-            } else if (ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                updateLengthAttributeValue(getHeight(), val);
-                return;
-            }
-        }
-        super.updateAttributeValue(ns, ln, val);
-    }
-
-    /**
-     * Returns the underlying value of an animatable XML attribute.
-     */
-    public AnimatableValue getUnderlyingValue(String ns, String ln) {
-        if (ns == null) {
-            if (ln.equals(SVG_EXTERNAL_RESOURCES_REQUIRED_ATTRIBUTE)) {
-                return getBaseValue(getExternalResourcesRequired());
-            } else if (ln.equals(SVG_X_ATTRIBUTE)) {
-                return getBaseValue
-                    (getX(), PERCENTAGE_VIEWPORT_WIDTH);
-            } else if (ln.equals(SVG_Y_ATTRIBUTE)) {
-                return getBaseValue
-                    (getY(), PERCENTAGE_VIEWPORT_HEIGHT);
-            } else if (ln.equals(SVG_WIDTH_ATTRIBUTE)) {
-                return getBaseValue
-                    (getWidth(), PERCENTAGE_VIEWPORT_WIDTH);
-            } else if (ln.equals(SVG_HEIGHT_ATTRIBUTE)) {
-                return getBaseValue
-                    (getHeight(), PERCENTAGE_VIEWPORT_HEIGHT);
-            }
-        }
-        return super.getUnderlyingValue(ns, ln);
+    protected DoublyIndexedTable getTraitInformationTable() {
+        return xmlTraitInformation;
     }
 }

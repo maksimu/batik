@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001,2003,2006  The Apache Software Foundation
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -51,7 +52,7 @@ import org.apache.batik.ext.awt.image.GraphicsUtil;
  * the subclass implementation.
  *
  * @author <a href="mailto:Thomas.DeWeeese@Kodak.com">Thomas DeWeese</a>
- * @version $Id$
+ * @version $Id: AbstractRed.java 489226 2006-12-21 00:05:36Z cam $
  */
 public abstract class AbstractRed implements CachableRed {
 
@@ -444,21 +445,24 @@ public abstract class AbstractRed implements CachableRed {
 
     public String [] getPropertyNames() {
         Set keys = props.keySet();
-        Iterator iter = keys.iterator();
         String[] ret  = new String[keys.size()];
-        int i=0;
-        while (iter.hasNext()) {
-            ret[i++] = (String)iter.next();
-        }
+        keys.toArray( ret );
 
-        iter = srcs.iterator();
+//        Iterator iter = keys.iterator();
+//        int i=0;
+//        while (iter.hasNext()) {
+//            ret[i++] = (String)iter.next();
+//        }
+
+        Iterator iter = srcs.iterator();
         while (iter.hasNext()) {
             RenderedImage ri = (RenderedImage)iter.next();
             String [] srcProps = ri.getPropertyNames();
             if (srcProps.length != 0) {
                 String [] tmp = new String[ret.length+srcProps.length];
                 System.arraycopy(ret,0,tmp,0,ret.length);
-                System.arraycopy(tmp,ret.length,srcProps,0,srcProps.length);
+                /// ??? System.arraycopy((tmp,ret.length,srcProps,0,srcProps.length);
+                System.arraycopy( srcProps, 0, tmp, ret.length, srcProps.length);
                 ret = tmp;
             }
         }
@@ -598,7 +602,7 @@ public abstract class AbstractRed implements CachableRed {
         if ((tileX < minTileX) || (tileX >= minTileX+numXTiles) ||
             (tileY < minTileY) || (tileY >= minTileY+numYTiles))
             throw new IndexOutOfBoundsException
-                ("Requested Tile (" + tileX + "," + tileY +
+                ("Requested Tile (" + tileX + ',' + tileY +
                  ") lies outside the bounds of image");
 
         Point pt = new Point(tileGridXOff+tileX*tileWidth,

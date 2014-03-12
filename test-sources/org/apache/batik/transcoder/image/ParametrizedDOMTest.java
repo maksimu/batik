@@ -1,10 +1,11 @@
 /*
 
-   Copyright 2001-2003  The Apache Software Foundation 
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
@@ -29,7 +30,7 @@ import org.apache.batik.util.XMLResourceDescriptor;
  * Test the ImageTranscoder input with a DOM tree.
  *
  * @author <a href="mailto:Thierry.Kormann@sophia.inria.fr">Thierry Kormann</a>
- * @version $Id$
+ * @version $Id: ParametrizedDOMTest.java 1372129 2012-08-12 15:31:50Z helder $
  */
 public class ParametrizedDOMTest extends AbstractImageTranscoderTest {
 
@@ -40,34 +41,34 @@ public class ParametrizedDOMTest extends AbstractImageTranscoderTest {
     protected String refImageURI;
 
     /**
-     * Constructs a new <tt>ParametrizedDOMTest</tt>.
+     * Constructs a new <code>ParametrizedDOMTest</code>.
      *
      * @param inputURI the URI of the input image
      * @param refImageURI the URI of the reference image
      */
     public ParametrizedDOMTest(String inputURI, String refImageURI) {
-	this.inputURI = inputURI;
-	this.refImageURI = refImageURI;
+        this.inputURI = inputURI;
+        this.refImageURI = refImageURI;
     }
 
     /**
-     * Creates the <tt>TranscoderInput</tt>.
+     * Creates the <code>TranscoderInput</code>.
      */
     protected TranscoderInput createTranscoderInput() {
-	try {
-	    String parser = XMLResourceDescriptor.getXMLParserClassName();
-	    SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-	    Document doc = f.createDocument(resolveURL(inputURI).toString());
-	    return new TranscoderInput(doc);
-	} catch (IOException ex) {
+        try {
+            String parser = XMLResourceDescriptor.getXMLParserClassName();
+            SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+            Document doc = f.createDocument(resolveURL(inputURI).toString());
+            return new TranscoderInput(doc);
+        } catch (IOException ex) {
             throw new IllegalArgumentException(inputURI);
-	}
+        }
     }
 
     /**
      * Returns the reference image for this test.
      */
     protected byte [] getReferenceImageData() {
-	return createBufferedImageData(resolveURL(refImageURI));
+        return createBufferedImageData(resolveURL(refImageURI));
     }
 }
