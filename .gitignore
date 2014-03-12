@@ -1,0 +1,30 @@
+target/
+classes/
+batic-1.8pre/
+.DS_Store
+.arc
+.phutil_module_cache
+
+# idea project files
+.idea/
+*.iml
+gwt_unitCache/
+
+# ctags db
+/tags
+
+# etags db
+/TAGS
+
+# gtags db
+/GTAGS
+/GRTAGS
+/GPATH
+
+# idutils db
+/ID
+
+# eclipse project files
+.project
+.classpath
+.settings/
