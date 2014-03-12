@@ -1,6 +1,6 @@
 target/
 classes/
-batic-1.8pre/
+batik-1.8pre/
 .DS_Store
 .arc
 .phutil_module_cache
