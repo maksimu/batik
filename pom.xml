@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.lensoo.utils</groupId>
+    <artifactId>batik-custom</artifactId>
+    <packaging>jar</packaging>
+
+    <version>0.0.4</version>
+
+    <properties>
+        <aws-maven.version>4.4.0.RELEASE</aws-maven.version>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/sources</directory>
+            </resource>
+        </resources>
+
+        <extensions>
+            <extension>
+                <groupId>org.springframework.build</groupId>
+                <artifactId>aws-maven</artifactId>
+                <version>${aws-maven.version}</version>
+            </extension>
+        </extensions>
+
+
+
+        <plugins>
+
+            <!-- Plugin to execute ant commands in Maven -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase> package </phase>
+                        <configuration>
+
+                            <tasks>
+                                <!--<ant antfile="build.xml" target="clean"/>-->
+                                <ant antfile="build.xml" target="all-jar"/>
+                                <!--<ant antfile="build.xml" target="jars"/>-->
+
+                                <!-- move ant's file into mvn's target directory -->
+                                <move file="batik-1.8pre/lib/batik-all.jar" tofile="target/${artifactId}-${version}.jar"/>
+                            </tasks>
+
+
+
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+
+        </plugins>
+
+
+    </build>
+
+
+
+
+    <repositories>
+        <repository>
+            <id>lensoo-maven-s3-release-repo</id>
+            <name>Lensoo S3 Release Repository</name>
+            <url>s3://lensoo-maven-repo/release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <repository>
+            <id>aws-release</id>
+            <name>AWS Release Repository</name>
+            <url>s3://lensoo-maven-repo/release</url>
+        </repository>
+    </distributionManagement>
+</project>
