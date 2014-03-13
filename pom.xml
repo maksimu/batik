@@ -6,9 +6,9 @@
 
     <groupId>com.lensoo.utils</groupId>
     <artifactId>batik-custom</artifactId>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
 
-    <version>0.0.4</version>
 
     <properties>
         <aws-maven.version>4.4.0.RELEASE</aws-maven.version>
